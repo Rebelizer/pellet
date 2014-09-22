@@ -5,11 +5,11 @@
   "author": "Demetrius Johnson <contact@demetriusj.com> (http://demetriusj.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Rebelizer/pellet.git"
+    "url": "https://github.com/Rebelizer/react-pellet.git"
   },
   "license": {
     "type": "MIT",
-    "url": "https://github.com/Rebelizer/pellet/master/LICENSE"
+    "url": "https://github.com/Rebelizer/react-pellet/blob/master/LICENSE"
   },
   "homepage": "http://pelletjs.com",
   "tags": [
