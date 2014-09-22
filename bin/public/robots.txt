@@ -1,0 +1,11 @@
+# www.robotstxt.org
+
+User-agent: *
+#Disallow: /api
+#Disallow: /auth
+
+#Disallow: /css
+#Allow: /css/*.css
+
+#Sitemap: http://{your site}/sitemap.xml
+#Sitemap: http://{your site}/sitemap2.xml

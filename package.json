@@ -1,0 +1,78 @@
+{
+  "name": "pellet",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Demetrius Johnson <contact@demetriusj.com> (http://demetriusj.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rebelizer/pellet.git"
+  },
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/Rebelizer/pellet/master/LICENSE"
+  },
+  "homepage": "http://pelletjs.com",
+  "tags": [
+    "build",
+    "system",
+    "make",
+    "tool",
+    "asset",
+    "pipeline",
+    "react",
+    "webpack"
+  ],
+  "files": [
+    "bin",
+    "dest"
+  ],
+  "main": "index.js",
+  "bin": {
+    "pellet": "./bin/pellet.js"
+  },
+  "man": "pellet.1",
+  "bugs": "https://github.com/Rebelizer/pellet/issues",
+  "scripts": {
+    "prepublish": "marked-man --name pellet docs/CLI.md > pellet.1",
+    "lint": "jshint lib bin index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "autoprefixer-loader": "^1.0.0",
+    "baconjs": "^0.7.22",
+    "cjsx-loader": "^0.2.0",
+    "coffee-loader": "^0.7.2",
+    "coffee-script": "^1.8.0",
+    "commander": "^2.3.0",
+    "css-loader": "^0.8.0",
+    "director": "^1.2.3",
+    "ejs": "^1.0.0",
+    "file-loader": "^0.7.2",
+    "glob": "^4.0.5",
+    "inquirer": "^0.7.1",
+    "json-loader": "^0.5.1",
+    "jsx-loader": "^0.11.0",
+    "nconf": "^0.6.9",
+    "react": "^0.11.1",
+    "style-loader": "^0.8.0",
+    "stylus-loader": "^0.4.0",
+    "url-loader": "^0.5.5",
+    "webpack": "^1.4.0-beta4",
+    "winston": "^0.7.3"
+  },
+  "devDependencies": {
+    "browser-sync": "^1.3.7",
+    "cluster-master": "^0.2.0",
+    "joi": "^4.6.2",
+    "jshint": "^2.5.0",
+    "jshint-stylish": "^0.4.0",
+    "marked-man": "^0.1.3",
+    "nconf": "^0.6.9",
+    "polyfills": "^1.3.0",
+    "serve-favicon": "^2.1.4",
+    "spdy": "^1.28.1",
+    "winston": "^0.7.3",
+    "winston-mail": "^0.2.9"
+  }
+}
