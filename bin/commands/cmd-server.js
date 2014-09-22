@@ -18,20 +18,21 @@ var LAUNCH_CWD = process.cwd();
 module.exports = function(program, addToReadyQue) {
 
   program
-    .command('server <manifest> [name]')
+    .command('server <manifest> [options]')
     .alias('run')
     .description('Start Pellet server')
     .option('-v, --verbose [silly|debug|verbose|info|warn|error]', 'verbose mode', false)
     .option('-n, --cluster:count <size>', 'number of process', 0)
-    .option("--http:port <port>", "http server port", process.env.PORT || 3000)
-    .option("--http:address <ip>", "http bind address", process.env.BIND_ADDR || "0.0.0.0")
-    .option("--https:port <port>", "https server port", process.env.SSL_PORT || 3001)
-    .option("--https:address <ip>", "https bind address", process.env.BIND_ADDR || "0.0.0.0")
-    .option("--output <path>", "path to the pack file and base path for dist output", '___output.js')
-    .option("--output-browser <dir>", "Directory browser packed version saved to", 'browser')
-    .option("--output-node <dir>", "Directory nodejs packed version saved to", 'node')
+    .option('--http:port <port>', 'http server port', process.env.PORT || 3000)
+    .option('--http:address <ip>', 'http bind address', process.env.BIND_ADDR || '0.0.0.0')
+    .option('--https:port <port>', 'https server port', process.env.SSL_PORT || 3001)
+    .option('--https:address <ip>', 'https bind address', process.env.BIND_ADDR || '0.0.0.0')
+    .option('--output <path>', 'path to the pack file and base path for dist output', '___output.js')
+    .option('--output-browser <dir>', 'Directory browser packed version saved to', 'browser')
+    .option('--output-node <dir>', 'Directory nodejs packed version saved to', 'node')
     .option('--mode <prod|dev>', 'Packaging mode')
-    .option("--es6", "run with es6 support", false)
+    .option('--polyfill-rebuild', 'Rebuild polyfill files')
+    .option('--es6', 'run with es6 support', false)
     .option('--spdy', 'path to directory with spdy cert', false)
     .action(function (manifestGlob, name, options) {
       // setup a callback hook that lets this sub command register
@@ -52,7 +53,7 @@ module.exports = function(program, addToReadyQue) {
         // catch all uncaught exception and try to email them
         if(nconf.get('winston:containers:alert')) {
           var alertLogger = winston.loggers.add('alert', nconf.get('winston:containers:alert'));
-          process.on("uncaughtException", function (err) {
+          process.on('uncaughtException', function (err) {
             var body = 'Stack Trace:\n\n' + err.stack + '\n\n';
 
             // only include the system information if requested
@@ -108,21 +109,6 @@ module.exports = function(program, addToReadyQue) {
           return path.resolve(LAUNCH_CWD, path.normalize(fullpath));
         }
 
-        // init the polyfill and rebuild cache is needed
-        var polyfillOptions = nconf.get('polyfill');
-        polyfillOptions.cache = resolveConfigPaths(polyfillOptions.cache);
-        polyfill = polyfill(polyfillOptions);
-        if(options.rebuild) {
-          polyfill.clean();
-        }
-
-        if(!nconf.get('silent')) {
-          console.info('Polyfill:', polyfillOptions);
-          if(options.rebuild) {
-            console.info('Cleaned Polyfill');
-          }
-        }
-
         // add --harmony flag if running in ES6 mode
         if(options.es6) {
           if(!(options.es6 = process.version.match(/v\d+\.(\d+)\./)) || parseInt(options.es6[1], 10) < 11) {
@@ -152,6 +138,21 @@ module.exports = function(program, addToReadyQue) {
               options.mode = 'production';
             } else {
               options.mode = 'development';
+            }
+          }
+
+          // init the polyfill and rebuild cache is needed
+          var polyfillOptions = nconf.get('polyfill');
+          polyfillOptions.cache = resolveConfigPaths(polyfillOptions.cache);
+          polyfill = polyfill(polyfillOptions);
+          if(options.polyfillRebuild) {
+            polyfill.clean();
+          }
+
+          if(!nconf.get('silent')) {
+            console.info('Polyfill:', polyfillOptions);
+            if(options.polyfillRebuild) {
+              console.info('Cleaned Polyfill');
             }
           }
 
@@ -208,7 +209,7 @@ module.exports = function(program, addToReadyQue) {
             signals: true,
             repl: nconf.get('cluster:repl') && {port:parseInt(nconf.get('cluster:repl:port')), address:nconf.get('cluster:repl:address')},
             onMessage: function (message) {
-              console.error("SLAVE %s %j", this.uniqueID, message);
+              console.error('SLAVE %s %j', this.uniqueID, message);
             }
           });
 
