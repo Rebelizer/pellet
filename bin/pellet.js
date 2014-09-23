@@ -93,7 +93,7 @@ for(i in program.options) {
     continue;
   }
 
-  opt = opt.substring(2);
+  opt = utils.camelcase(opt.substring(2));
   var val = program[opt];
 
   if(opt && val) {

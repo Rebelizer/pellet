@@ -250,6 +250,18 @@ var exports = module.exports = {
    */
   relativeToOutputFile: function(fullPath, buildTimePath) {
     return buildTimePath.replace(path.dirname(fullPath) + path.sep, '');
+  },
+
+  /**
+   *
+   * @param input
+   * @returns {Object}
+   */
+  camelcase: function(input) {
+    return input.split('-').reduce(function(str, word) {
+      return str + word[0].toUpperCase() + word.slice(1);
+    });
   }
+
 
 };
