@@ -198,14 +198,13 @@ var exports = module.exports = {
         fs.writeFileSync(profileFilePath.replace('#', '_NODE'), JSON.stringify(nodeStats, null, 2));
 
         profileFilePath = path.resolve(options.output, '_MANIFEST.json');
-
         var buildManifestMap = {
           date: new Date().toJSON(),
           browser: {
             //outputPath: options.outputBrowser,
             relativePath: exports.relativeToOutputFile(profileFilePath, options.outputBrowser),
             hash: browserStats.hash,
-            init: browserStats.assetsByChunkName['init-[hash].js'],
+            init: browserStats.assetsByChunkName['init.js'] || browserStats.assetsByChunkName['init-[hash].js'],
             assets: browserStats.assetsByChunkName['assets'],
             component: browserStats.assetsByChunkName['component']
           },
@@ -213,7 +212,7 @@ var exports = module.exports = {
             //outputPath: options.outputNode,
             relativePath: exports.relativeToOutputFile(profileFilePath, options.outputNode),
             hash: nodeStats.hash,
-            init: nodeStats.assetsByChunkName['init-[hash].js'],
+            init: nodeStats.assetsByChunkName['init.js'] || nodeStats.assetsByChunkName['init-[hash].js'],
             assets: nodeStats.assetsByChunkName['assets'],
             component: nodeStats.assetsByChunkName['component']
           }
@@ -221,9 +220,6 @@ var exports = module.exports = {
 
         // remove the source-map files
         if (options.mode === 'production') {
-          buildManifestMap.browser.init = buildManifestMap.browser.init[0];
-          buildManifestMap.browser.assets = buildManifestMap.browser.assets[0];
-          buildManifestMap.browser.component = buildManifestMap.browser.component[0];
           buildManifestMap.browser.init = buildManifestMap.browser.init[0];
           buildManifestMap.browser.assets = buildManifestMap.browser.assets[0];
           buildManifestMap.browser.component = buildManifestMap.browser.component[0];
