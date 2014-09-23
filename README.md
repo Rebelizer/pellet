@@ -1,4 +1,9 @@
-# [React Pellet](http://.github.io/react-pellet) [![Build Status](https://travis-ci.org/Rebelizer/react-pellet.svg?branch=master)](https://travis-ci.org/Rebelizer/react-pellet) [![NPM version](https://badge.fury.io/js/react-pellet.png)](http://badge.fury.io/js/react-pellet)
+# [Pellet](http://.github.io/react-pellet)
+
+[![Build Status](http://img.shields.io/travis/Rebelizer/react-pellet.svg?style=flat)](https://travis-ci.org/Rebelizer/react-pellet)
+[![Issues](http://img.shields.io/github/issues/Rebelizer/react-pellet.svg?style=flat)](https://github.com/Rebelizer/react-pellet/issues)
+[![NPM Version](http://img.shields.io/npm/v/react-pellet.svg?style=flat)](https://www.npmjs.org/package/react-pellet)
+[![Dependency Status](https://david-dm.org/Rebelizer/react-pellet.svg?style=flat)](https://david-dm.org/Rebelizer/react-pellet)
 
 ## Installation
 
@@ -10,12 +15,8 @@ You are welcome to contribute by opening an issue or a pull request.
 
 You are also welcome to correct any spelling mistakes or any language issues, because my english is not perfect...
 
+## Contributors
+
 ## License
 
 MIT (https://github.com/Rebelizer/react-pellet/blob/master/LICENSE)
-
-## Dependencies
-
-* [mocha](https://github.com/visionmedia/mocha)
-
-[![Dependency Status](https://david-dm.org/Rebelizer/react-pellet.png)](https://david-dm.org/Rebelizer/react-pellet)
