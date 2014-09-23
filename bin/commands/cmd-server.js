@@ -352,4 +352,4 @@ module.exports = function(program, addToReadyQue) {
     }).on('--help', function () {
       console.log(fs.readFileSync(path.join(__dirname, '..', 'help', 'server.txt')).toString());
     });
-}
+};

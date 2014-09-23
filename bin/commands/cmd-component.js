@@ -112,11 +112,19 @@ module.exports = function(program, addToReadyQue) {
 
                   if(answer.mergeManifest[0] === 'Create') {
                     newManifest.merge(manifestOutputPath, newComponent, {ignoreUpdatingWebpackEP:true}, function(err) {
+                      if(err) {
+                        console.error('Can not create manifest because:', err.message);
+                      }
+
                       newManifest.save(manifestOutputPath, next);
                     });
                   } else {
                     newManifest.load(manifestOutputPath, {ignoreUpdatingWebpackEP:true}, function(err) {
                       newManifest.merge(manifestOutputPath, newComponent, {ignoreUpdatingWebpackEP:true, overwrite:true}, function(err) {
+                        if(err) {
+                          console.error('Can not create manifest because:', err.message);
+                        }
+
                         newManifest.save(manifestOutputPath, next);
                       });
                     });
@@ -132,7 +140,7 @@ module.exports = function(program, addToReadyQue) {
 
           var isOk = true;
           console.log('\nAbout to:');
-          for(i in outputFiles) {
+          for(var i in outputFiles) {
             if(fs.existsSync(i)) {
               console.log(' Overwrite:', i);
               isOk = false;
@@ -210,7 +218,7 @@ module.exports = function(program, addToReadyQue) {
           type: 'confirm',
           name: 'createDir',
           message: 'Create Directory',
-          default: function(answer) {
+          'default': function(answer) {
             return (answer.name !== path.basename(options.output));
           }
         },{
@@ -261,4 +269,4 @@ module.exports = function(program, addToReadyQue) {
     }).on('--help', function () {
       console.log(fs.readFileSync(path.join(__dirname, '..', 'help', 'create.txt')).toString());
     });
-}
+};

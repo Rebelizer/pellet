@@ -45,7 +45,7 @@ var exports = module.exports = {
   readConfigFile: function(targetPath) {
     var filePath;
 
-    for (i in CONFIG_EXT) {
+    for (var i in CONFIG_EXT) {
       filePath = targetPath + CONFIG_EXT[i];
       if (fs.existsSync(filePath)) {
         return require(filePath);
@@ -156,7 +156,7 @@ var exports = module.exports = {
           safeHash = exports.md5(safeHash);
 
           console.info('\n\n-------------------------', type === 0 ? 'browser' : 'node js', safeHash);
-          console.info(info.toString({chunkModules:false, chunks:false}))
+          console.info(info.toString({chunkModules:false, chunks:false}));
 
           stacks[type].push(safeHash);
           statusMap[safeHash+type] = stats;
@@ -172,6 +172,7 @@ var exports = module.exports = {
   /**
    *
    * @param options
+   * @param next
    * @returns {Function}
    */
   buildManifestProfileAndMap: function(options, next) {
@@ -262,19 +263,19 @@ var exports = module.exports = {
   /**
    *
    * @param nconf
-   * @param options
+   * @param commanderObj
    */
-  overwriteNconfWithArgs: function(nconf, program) {
+  overwriteNconfWithArgs: function(nconf, commanderObj) {
     // overwrite configuration with argument passed in
-    for(i in program.options) {
+    for(var i in commanderObj.options) {
 
-      var opt = program.options[i].long;
+      var opt = commanderObj.options[i].long;
       if(!opt || ['--version'].indexOf(opt) != -1) {
         continue;
       }
 
       opt = exports.camelcase(opt.substring(2));
-      var val = program[opt];
+      var val = commanderObj[opt];
 
       if(opt && val) {
         nconf.set(opt, val);

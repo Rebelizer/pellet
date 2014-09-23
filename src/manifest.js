@@ -2,7 +2,7 @@ var fs = require('fs')
   , path = require('path')
   , async = require('async')
   , webpack = require('webpack')
-  , glob = require('glob')
+  , glob = require('glob');
 
 var WEBPACK_FIELDS = ['component', 'assets', 'lib', 'dependencies'];
 
@@ -43,7 +43,7 @@ function resolvePath(manifestFilePath, file, next) {
   // details before returning the file
   var loader = file.match(/^(.*!)?([^!]+)$/);
   if(loader) {
-    file = loader[2]
+    file = loader[2];
     loader = loader[1];
   }
 
@@ -91,7 +91,7 @@ manifestParser.prototype.load = function(fullPath, options, next) {
 
   fs.readFile(fullPath, function(err, data) {
     try {
-      manifest = JSON.parse(data.toString());
+      var manifest = JSON.parse(data.toString());
     } catch(err) {
       console.error('Cannot parse manifest file', fullPath, 'because:', err.message);
       return next(new Error('Cannot parse manifest file'));
@@ -101,7 +101,7 @@ manifestParser.prototype.load = function(fullPath, options, next) {
 
     self.merge(fullPath, manifest, options, next);
   });
-}
+};
 
 /**
  *
@@ -132,7 +132,7 @@ manifestParser.prototype.save = function(fullPath, options, next) {
   } else {
     fs.writeFile(fullPath, JSON.stringify({}), {encoding:'utf8', flag:'w'}, next);
   }
-}
+};
 
 /**
  *
@@ -230,7 +230,7 @@ manifestParser.prototype.merge = function(file, additionalItems, options, next) 
       next(null);
     });
   }, next);
-}
+};
 
 manifestParser.prototype.resolveComponentPaths = function(manifestFilePath, component, next) {
   var steps = [];
@@ -257,7 +257,7 @@ manifestParser.prototype.resolveComponentPaths = function(manifestFilePath, comp
   async.parallel(steps, function(err) {
     next(err, component);
   });
-}
+};
 
 manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, next) {
   if(typeof next === 'undefined') {
@@ -331,7 +331,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       }
 
       // dump the webpack entry points.
-      console.info('Webpack entry points:')
+      console.info('Webpack entry points:');
       console.info(JSON.stringify(ourManifest.webpackEP, null, 2)
             .replace(/\s+[{},\]]+/g, "")
             .replace(/[{\[":,]/g, ""));
@@ -494,7 +494,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       });
     });
   });
-}
+};
 
 module.exports = manifestParser;
 

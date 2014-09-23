@@ -1,4 +1,4 @@
-var director = require('director')
+var director = require('director');
 
 function pellet() {
   this.readyFnQue = [];
@@ -22,7 +22,7 @@ pellet.prototype.onReady = function(fn) {
   }
 
   this.readyFnQue.push(fn);
-}
+};
 
 /**
  * register a function needed to complete before pellet is ready
@@ -34,7 +34,7 @@ pellet.prototype.registerInitFn = function(fn) {
   } else {
     throw new Error('Can not register init function because already running.');
   }
-}
+};
 
 /**
  * Called after everyone has register their load functions
@@ -77,10 +77,10 @@ pellet.prototype.startInit = function() {
   for(var i in this.initFnQue) {
     this.initFnQue[i](done);
   }
-}
+};
 
 pellet.prototype.middleware = function(req, res, next) {
   next(null);
-}
+};
 
 module.exports = new pellet();

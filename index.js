@@ -1,1 +1,1 @@
-imodule.exports = {}
+imodule.exports = {};

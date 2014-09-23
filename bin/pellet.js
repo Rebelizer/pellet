@@ -30,7 +30,7 @@ program
   .option('--env-whitelist <string>', 'environment variable white list separated by ','', false)
   .option('--scrub-logs <string>', 'RegExp used to scrub launchDetails and logs', false)
   .option('--silent', 'will disable all pellet launch logging', false)
-  .option('--launch-details', 'will print launch and env details', false)
+  .option('--launch-details', 'will print launch and env details', false);
 
 var readyQue = [];
 function addToReadyQue(onReadyFn) {
@@ -103,7 +103,7 @@ if(!nconf.get('silent')) {
   console.log('| |_) |  __/ | |  __/ |_    /_\', \"=. \';:;:;');
   console.log('|  __/ \\___|_|_|\\___|\\__|   @=:__,  \\\\,;:;:\'');
   console.log('|_|   \x1b[33mReactJS favor buddy\x1B[32m     _(\\\\.=  ;:;;\'');
-  console.log('                             \x1B[32m`\"_(  _/=\"`\x1B[0m')
+  console.log('                             \x1B[32m`\"_(  _/=\"`\x1B[0m');
   console.log('\x1B[0m');
   console.log('Version:', version);
 
