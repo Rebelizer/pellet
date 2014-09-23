@@ -87,19 +87,7 @@ nconf.use('memory').merge(commonConfig);
 nconf.use('memory').merge(config);
 
 // overwrite configuration with argument passed in
-for(i in program.options) {
-  var opt = program.options[i].long;
-  if(!opt || ['--version'].indexOf(opt) != -1) {
-    continue;
-  }
-
-  opt = utils.camelcase(opt.substring(2));
-  var val = program[opt];
-
-  if(opt && val) {
-    nconf.set(opt, val);
-  }
-}
+utils.overwriteNconfWithArgs(nconf, program);
 
 // show help and exit (no commands qued)
 if(readyQue.length == 0) {

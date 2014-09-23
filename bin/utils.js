@@ -257,7 +257,29 @@ var exports = module.exports = {
     return input.split('-').reduce(function(str, word) {
       return str + word[0].toUpperCase() + word.slice(1);
     });
+  },
+
+  /**
+   *
+   * @param nconf
+   * @param options
+   */
+  overwriteNconfWithArgs: function(nconf, program) {
+    // overwrite configuration with argument passed in
+    for(i in program.options) {
+
+      var opt = program.options[i].long;
+      if(!opt || ['--version'].indexOf(opt) != -1) {
+        continue;
+      }
+
+      opt = exports.camelcase(opt.substring(2));
+      var val = program[opt];
+
+      if(opt && val) {
+        nconf.set(opt, val);
+      }
+    }
+
   }
-
-
 };
