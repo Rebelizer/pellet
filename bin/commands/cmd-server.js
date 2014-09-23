@@ -1,6 +1,5 @@
 var path = require('path')
   , fs = require('fs')
-  , manifest = require('../../src/manifest')
   , webpack = require('webpack')
   , glob = require('glob')
   , spdy = require('spdy')
@@ -10,6 +9,9 @@ var path = require('path')
   , cluster = require('cluster-master')
   , polyfill = require('polyfills')
   , ejs = require('ejs')
+  , pellet = require('../../src/pellet')
+  , react = require('react')
+  , manifest = require('../../src/manifest')
   , utils = require('../utils');
 
 var PELLET_BIN_PATH = path.resolve(__dirname, '..');
@@ -40,6 +42,8 @@ module.exports = function(program, addToReadyQue) {
       // We do this so the parent process can load all the config info
       // before execute ourself.
       addToReadyQue(function() {
+
+        utils.overwriteNconfWithArgs(nconf, options);
 
         if(nconf.get('verbose')) {
           nconf.set('winston:containers:console:console:level', nconf.get('verbose'));
@@ -126,7 +130,7 @@ module.exports = function(program, addToReadyQue) {
         // static files.
         if(!process.env.CLUSTER_SLAVE) {
           var ourManifest = new manifest();
-          var isInitLoad = true;
+          var isInitialLoad = true;
 
           // make sure the paths are absolute and resolve from cwd
           options.output = path.join(path.dirname(options.output), 'dist');
@@ -171,9 +175,28 @@ module.exports = function(program, addToReadyQue) {
                   return;
                 }
 
-                if(isInitLoad) {
-                  console.log('@@@@@', JSON.stringify(buildManifestMap, null,2));
-                  isInitLoad = false;
+                // get base node dir by using _MANIFEST.json and its relative path to node version
+                var baseNodeDir = path.resolve(options.output, buildManifestMap.node.relativePath)
+                  , initModule = path.join(baseNodeDir, buildManifestMap.node.init)
+                  , componentModule = path.join(baseNodeDir, buildManifestMap.node.component);
+
+                if(isInitialLoad) {
+                  // now load the webpack code starting with WP init/bootstape then components
+                  console.log('Loading', initModule, 'webpack into pellet server.');
+                  console.log('Loading', componentModule, 'webpack into pellet server.');
+
+                  try {
+                    require(initModule);
+                    require(componentModule);
+                  } catch(ex) {
+                    console.error('Can not load webpack code because:', ex.message);
+                    process.exit(1); // initial load kill processes
+                  }
+
+                  // now let pellet know we are ready!
+                  pellet.startInit();
+
+                  isInitialLoad = false;
                   return;
                 }
 
@@ -184,6 +207,23 @@ module.exports = function(program, addToReadyQue) {
 
             config.browserConfig.bail = false;
             config.nodeConfig.bail = false;
+
+            // map webpacks react & pellet externals to our CLI versions
+            // so we can make sure we are running our version not
+            // anything else and the packed code will share the same
+            // nodejs require modules allowing the CLI server to share
+            // information to the webpack code. i.e. route events can
+            // be setup here then the webpack code can require pellet
+            // can listen to the events.
+            config.browserConfig.externals = {
+              React: 'React',
+              pellet: require.resolve('../../src/pellet')
+            };
+
+            config.nodeConfig.externals = {
+              React: 'react',
+              pellet: require.resolve('../../src/pellet')
+            };
 
             // start watching both
             webpack(config.browserConfig).watch(100, doneFn(0));
@@ -265,6 +305,8 @@ module.exports = function(program, addToReadyQue) {
             }).catch(next);
 
           });
+
+          app.use(pellet.middleware);
         }
 
         if(nconf.get('spdy')) {
@@ -277,16 +319,30 @@ module.exports = function(program, addToReadyQue) {
             autoSpdy31: false
           };
 
-          spdy.createServer(opt, app).listen(nconf.get('https:port'), function () {
-            if(!nconf.get('silent')) {
-              console.log('Listen on', nconf.get('https:port'), nconf.get('https:address'));
+          pellet.onReady(function(err) {
+            if(err) {
+              console.error('Error in initializing Pellet:', err.message);
+              process.exit(1);
             }
-          });
+
+            spdy.createServer(opt, app).listen(nconf.get('https:port'), function () {
+              if(!nconf.get('silent')) {
+                console.log('Listen on', nconf.get('https:port'), nconf.get('https:address'));
+              }
+            });
+          })
         } else {
-          app.listen(nconf.get('http:port'), nconf.get('http:address'), nconf.get('http:max_syn_backlog'), function () {
-            if(!nconf.get('silent')) {
-              console.log('Listen on', nconf.get('http:port'), nconf.get('http:address'));
+          pellet.onReady(function(err) {
+            if(err) {
+              console.error('Error in initializing Pellet:', err.message);
+              process.exit(1);
             }
+
+            app.listen(nconf.get('http:port'), nconf.get('http:address'), nconf.get('http:max_syn_backlog'), function () {
+              if (!nconf.get('silent')) {
+                console.log('Listen on', nconf.get('http:port'), nconf.get('http:address'));
+              }
+            });
           });
         }
       });
