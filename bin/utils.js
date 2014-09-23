@@ -202,7 +202,7 @@ var exports = module.exports = {
         var buildManifestMap = {
           date: new Date().toJSON(),
           browser: {
-            outputPath: options.outputBrowser,
+            //outputPath: options.outputBrowser,
             relativePath: exports.relativeToOutputFile(profileFilePath, options.outputBrowser),
             hash: browserStats.hash,
             init: browserStats.assetsByChunkName['init-[hash].js'],
@@ -210,7 +210,7 @@ var exports = module.exports = {
             component: browserStats.assetsByChunkName['component']
           },
           node: {
-            outputPath: options.outputNode,
+            //outputPath: options.outputNode,
             relativePath: exports.relativeToOutputFile(profileFilePath, options.outputNode),
             hash: nodeStats.hash,
             init: nodeStats.assetsByChunkName['init-[hash].js'],
