@@ -1,0 +1,399 @@
+var path = require('path')
+  , fs = require('fs-extra')
+  , inquirer = require('inquirer')
+  , utils = require('../utils')
+  , manifest = require('../../src/manifest')
+  , async = require('async')
+  , ejs = require('ejs');
+
+var CWD = process.cwd();
+var CREATE_TYPES = ['Component', 'Project'];
+
+/**
+ * Helper function to add template file to generate que
+ * @param outputFiles
+ * @param outputPath
+ * @param templatePath
+ */
+function renderFile(outputFiles, outputPath, templatePath, data) {
+  outputFiles[outputPath] = function(next) {
+    fs.outputFile(outputPath, ejs.render(fs.readFileSync(templatePath).toString(), data), function(err) {
+      if(err) {
+        console.error('Cannot generate file', outputPath, 'because', err.message);
+        return next(err)
+      }
+
+      next(null);
+    });
+  }
+}
+
+module.exports = function(program, addToReadyQue) {
+
+  program
+    .command('create [type] [name]')
+    //.alias('c')
+    .description('Create a component or project')
+    .option('--output <path>', 'output directory', CWD)
+    .option('--templateDir <path>', 'path to the template files', path.join(__dirname, '..', 'templates'))
+    .action(function (type, name, options) {
+
+      // setup a callback hook that lets this sub command register
+      // the logic needed to execute when the parent process is ready.
+      // We do this so the parent process can load all the config info
+      // before execute ourself.
+      addToReadyQue(function() {
+        var manifestFile;
+
+        // make sure the paths are absolute and resolve from cwd
+        options.output = path.resolve(CWD, options.output);
+        options.templateDir = path.resolve(CWD, options.templateDir);
+
+        // try to find and load the manifestFile
+        manifestFile = utils.getManifestFile(options.output);
+
+        /*
+         * FUNCTION TO BUILD COMPONENT
+         */
+
+        function validateComponent(answer) {
+          var outputFiles = {};
+
+          // get the base directory for output data
+          var baseOutputDir = options.output;
+          if(answer.createDir) {
+            baseOutputDir = path.join(baseOutputDir, answer.name);
+            outputFiles[baseOutputDir] = function(next) {
+              fs.exists(baseOutputDir, function(exists) {
+                if(exists) {
+                  return next(null);
+                }
+
+                fs.mkdir(baseOutputDir, next);
+              });
+            }
+          }
+
+          var componentEP, assetEP;
+          // now build up the work needed to render/generate the template output
+          if (answer.lang === 'JavaScript') {
+            componentEP = path.join(baseOutputDir, answer.name + '.jsx');
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-js.ejs'), answer);
+          } else if (answer.lang === 'CoffeeScript') {
+            componentEP = path.join(baseOutputDir, answer.name + '.cjsx');
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-cs.ejs'), answer);
+          }
+
+          if (answer.assets === 'stylus') {
+            assetEP = path.join(baseOutputDir, answer.name + '.styl');
+            renderFile(outputFiles, assetEP, path.join(options.templateDir, 'comp-assets-styl.ejs'), answer);
+          } else if (answer.assets === 'css') {
+            assetEP = path.join(baseOutputDir, answer.name + '.css');
+            renderFile(outputFiles, assetEP, path.join(options.templateDir, 'comp-assets-css.ejs'), answer);
+          }
+
+          // todo: add test types i.e. karma vs moka
+          if (answer.test) {
+            renderFile(outputFiles, path.join(baseOutputDir, answer.name + '.test.js'), path.join(options.templateDir, 'comp-test.ejs'), answer);
+          }
+
+          // now update or create the manifest AFTER all our files have been created.
+          // because the manifest will try to resolve the paths.
+          if(answer.mergeManifest) {
+            answer.mergeManifest = answer.mergeManifest.split(' ');
+            if (answer.mergeManifest[0] != 'None') {
+              var manifestOutputPath = answer.mergeManifest[1];
+              var manifestOutputDir = path.dirname(manifestOutputPath);
+
+              outputFiles[manifestOutputPath] = function (next) {
+                var newManifest = new manifest();
+                var newComponent = {
+                  "name": answer.name,
+                  "version": answer.version,
+                  "component": '.' + path.sep + path.relative(manifestOutputDir, componentEP),
+                  "assets": ['.' + path.sep + path.relative(manifestOutputDir, assetEP)]
+//                    "dependencies": ["react"],
+//                    "test": false,
+//                    "docs": false
+                };
+
+                if(answer.mergeManifest[0] === 'Create') {
+                  newManifest.merge(manifestOutputPath, newComponent, {ignoreUpdatingWebpackEP:true}, function(err) {
+                    if(err) {
+                      console.error('Can not create manifest because:', err.message);
+                    }
+
+                    newManifest.save(manifestOutputPath, next);
+                  });
+                } else {
+                  newManifest.load(manifestOutputPath, {ignoreUpdatingWebpackEP:true}, function(err) {
+                    newManifest.merge(manifestOutputPath, newComponent, {ignoreUpdatingWebpackEP:true, overwrite:true}, function(err) {
+                      if(err) {
+                        console.error('Can not create manifest because:', err.message);
+                      }
+
+                      newManifest.save(manifestOutputPath, next);
+                    });
+                  });
+                }
+
+              }
+            }
+          }
+
+          var isOk = true;
+          console.log('\nAbout to:');
+          for(var i in outputFiles) {
+            if(fs.existsSync(i)) {
+              console.log(' Overwrite:', i);
+              isOk = false;
+            } else {
+              console.log(' Create:', i);
+            }
+          }
+
+          console.log('');
+
+          answer.outputFiles = outputFiles;
+
+          inquirer.prompt({
+            type: 'confirm',
+            name: 'isOk',
+            default: isOk,
+            message: 'Is this ok'
+          }, function(confirmAnswer) {
+            answer.isOk = confirmAnswer.isOk;
+            createTemplate(answer);
+          });
+        }
+
+        /*
+         * FUNCTION TO BUILD THE PROJECT
+         */
+        function validateProject(answer) {
+          var outputFiles = {};
+
+          // get the base directory for output data
+          var baseOutputDir = options.output;
+          if(answer.createDir) {
+            baseOutputDir = path.join(baseOutputDir, answer.name);
+            outputFiles[baseOutputDir] = function(next) {
+              fs.exists(baseOutputDir, function(exists) {
+                if(exists) {
+                  return next(null);
+                }
+
+                fs.mkdir(baseOutputDir, next);
+              });
+            }
+          }
+
+          var configDir = path.join(baseOutputDir, 'config');
+          outputFiles[configDir] = function(next) {
+            fs.copy(path.resolve(__dirname, '..', 'config'), configDir, next);
+          }
+
+          var publicDir = path.join(baseOutputDir, 'public');
+          outputFiles[publicDir] = function(next) {
+            fs.copy(path.resolve(__dirname, '..', 'public'), publicDir, next);
+          }
+
+          var resetFile = path.join(baseOutputDir, 'assets', 'reset.css');
+          outputFiles[resetFile] = function(next) {
+            fs.copy(path.join(options.templateDir, 'project-assets-reset.css'), resetFile, next);
+          }
+
+          var componentPath = path.join(baseOutputDir, 'components');
+          outputFiles[componentPath] = function(next) {
+            fs.ensureDir(componentPath, next);
+          }
+
+          var componentEP, assetEP;
+          // now build up the work needed to render/generate the template output
+          if (answer.lang === 'JavaScript') {
+            componentEP = path.join(baseOutputDir, 'src', answer.name + '.js');
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-js.ejs'), answer);
+          } else if (answer.lang === 'CoffeeScript') {
+            componentEP = path.join(baseOutputDir, 'src', answer.name + '.coffee');
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-cs.ejs'), answer);
+          }
+
+          if (answer.assets === 'stylus') {
+            assetEP = path.join(baseOutputDir, 'assets', answer.name + '.styl');
+            renderFile(outputFiles, assetEP, path.join(options.templateDir, 'project-assets-site-styl.ejs'), answer);
+          } else if (answer.assets === 'css') {
+            assetEP = path.join(baseOutputDir, 'assets', answer.name + '.css');
+            renderFile(outputFiles, assetEP, path.join(options.templateDir, 'project-assets-site-css.ejs'), answer);
+          }
+
+          var manifestOutputPath = path.join(baseOutputDir, 'manifest.json');
+          outputFiles[manifestOutputPath] = function (next) {
+            var newManifest = new manifest();
+            var newComponent = {
+              "name": answer.name,
+              "version": answer.version,
+              "assets": ['.' + path.normalize(assetEP.replace(baseOutputDir, ''))]
+//                    "dependencies": ["react"],
+//                    "test": false,
+//                    "docs": false
+            };
+
+            newManifest.merge(manifestOutputPath, newComponent, {ignoreUpdatingWebpackEP: true}, function (err) {
+              if (err) {
+                console.error('Can not create manifest because:', err.message);
+              }
+
+              newManifest.save(manifestOutputPath, next);
+            });
+          };
+
+          var isOk = true;
+          console.log('\nAbout to:');
+          for(var i in outputFiles) {
+            if(fs.existsSync(i)) {
+              console.log(' Overwrite:', i);
+              isOk = false;
+            } else {
+              console.log(' Create:', i);
+            }
+          }
+
+          console.log('');
+
+          answer.outputFiles = outputFiles;
+
+          inquirer.prompt({
+            type: 'confirm',
+            name: 'isOk',
+            default: isOk,
+            message: 'Is this ok'
+          }, function(confirmAnswer) {
+            answer.isOk = confirmAnswer.isOk;
+            createTemplate(answer);
+          });
+        }
+
+        /*
+         * DO THE WORK TO BUILD THE TEMPLATE
+         */
+        function createTemplate(answer) {
+          if(!answer.isOk) {
+            console.log('Canceled (you dodged that bullet)', answer.type);
+            process.exit(0);
+          }
+
+          async.series(answer.outputFiles, function(err) {
+            if(err) {
+              console.error('Stoped before completing because', err.message);
+              process.exit(1);
+            }
+
+            console.log('\n\nCreated the', answer.type, '(please comeback again WHINER!)');
+            console.log('Set the environment variable PELLET_CONF_DIR to', configDir);
+          });
+        }
+
+        /*
+         * Start the interview
+         */
+        inquirer.prompt([{
+          type: 'list',
+          name: 'type',
+          message: 'Type to create',
+          choices: CREATE_TYPES,
+          when: function(answer) {
+            if(type && (type = type.charAt(0).toUpperCase()+typeslice(1).toLowerCase()) && CREATE_TYPES.indexOf(type) != -1) {
+              answer.type = type;
+              return false;
+            }
+
+            return true;
+          }
+        },{
+          type: 'input',
+          name: 'name',
+          message: 'Name',
+          default: path.basename(options.output),
+          validate: function(input) {
+            return /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(input);
+          },
+          when: function(answer) {
+            if(name) {
+              answer.name = name;
+              return false;
+            }
+
+            return true;
+          }
+        },{
+          type: 'input',
+          name: 'version',
+          message: 'Version',
+          default: '0.0.0'
+        },{
+          type: 'confirm',
+          name: 'createDir',
+          message: 'Create Directory',
+          'default': function(answer) {
+            return (answer.name !== path.basename(options.output));
+          }
+        },{
+          type: 'list',
+          name: 'lang',
+          message: 'Language',
+          choices: ['JavaScript', 'CoffeeScript']
+        },{
+          type: 'list',
+          name: 'assets',
+          message: 'Styles',
+          choices: ['stylus', 'css', 'none']
+        }], switchTypes);
+
+        function switchTypes(answer) {
+          if(answer.type == 'Component') {
+            inquirer.prompt([{
+              type: 'confirm',
+              name: 'test',
+              message: 'Include unit tests'
+            },{
+              type: 'list',
+              name: 'mergeManifest',
+              message: 'Manifest location',
+              choices: function(answer) {
+                var opt = ['None (skip updating manifest)'];
+
+                function addToChoices(name) {
+                  for(var i in utils.VALID_MANIFEST_FILES) {
+                    var createPath = path.join(options.output, name?name:'', utils.VALID_MANIFEST_FILES[i]);
+                    if (createPath != manifestFile) {
+                      opt.unshift('Create ' + createPath);
+                    }
+                  }
+                }
+
+                if(answer.createDir) {
+                  addToChoices(answer.name);
+                } else {
+                  addToChoices();
+                }
+
+                if(manifestFile) {
+                  opt.unshift('Update '+manifestFile);
+                }
+
+                return opt;
+              }
+            }], function(answer2) {
+              answer2.__proto__ = answer;
+              validateComponent(answer2);
+            });
+          } else if(answer.type == 'Project') {
+            validateProject(answer);
+          }
+        }
+
+      });
+    }).on('--help', function () {
+      console.log(fs.readFileSync(path.join(__dirname, '..', 'help', 'create.txt')).toString());
+    });
+};
