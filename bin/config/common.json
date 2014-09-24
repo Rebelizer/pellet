@@ -3,7 +3,9 @@
 
   "server": {
     "favicon": "#PELLET_BIN_DIR#/public/favicon.ico",
-    "static": "#PELLET_BIN_DIR#/public"
+    "static": "#PELLET_BIN_DIR#/public",
+    "webpackMountPoint": "/js/",
+    "logFormat": "combined"
   },
 
   "polyfill": {
@@ -37,6 +39,14 @@
           "level": "silly",
           "colorize": true,
           "label": "alert",
+          "timestamp": true
+        }
+      },
+      "httplogger": {
+        "console": {
+          "level": "info",
+          "colorize": true,
+          "label": "http",
           "timestamp": true
         }
       }

@@ -67,10 +67,9 @@ var exports = module.exports = {
   /**
    * sync both node and browser builds
    * @param next
-   * @param hashUsingSize
    * @returns {Function}
    */
-  syncNodeAndBrowserBuilds: function(hashUsingSize, next) {
+  syncNodeAndBrowserBuilds: function(next) {
     var stacks = [[],[]];
     var statusMap = {};
 
@@ -144,12 +143,11 @@ var exports = module.exports = {
           // the webpack build hash (info.hash) will be different and can not
           // be used to match up the two build passes so we need to build a
           // hash based on all the input files and their sizes.
-          var safeHash = '';
+          var safeHash='', file;
           for(var i in stats.modules) {
-            if(hashUsingSize) {
-              safeHash += stats.modules[i].id + stats.modules[i].size;
-            } else {
-              safeHash += stats.modules[i].id + stats.modules[i].name;
+            file = stats.modules[i].identifier.split('!').pop();
+            if(file[0] == path.separator) {
+              safeHash += file + fs.statSync(file).mtime + "!!";
             }
           }
 
@@ -205,7 +203,6 @@ var exports = module.exports = {
             //outputPath: options.outputBrowser,
             relativePath: exports.relativeToOutputFile(profileFilePath, options.outputBrowser),
             hash: browserStats.hash,
-            init: browserStats.assetsByChunkName['init.js'] || browserStats.assetsByChunkName['init-[hash].js'],
             assets: browserStats.assetsByChunkName['assets'],
             component: browserStats.assetsByChunkName['component']
           },
@@ -213,7 +210,6 @@ var exports = module.exports = {
             //outputPath: options.outputNode,
             relativePath: exports.relativeToOutputFile(profileFilePath, options.outputNode),
             hash: nodeStats.hash,
-            init: nodeStats.assetsByChunkName['init.js'] || nodeStats.assetsByChunkName['init-[hash].js'],
             assets: nodeStats.assetsByChunkName['assets'],
             component: nodeStats.assetsByChunkName['component']
           }
@@ -221,7 +217,6 @@ var exports = module.exports = {
 
         // remove the source-map files
         if (options.mode === 'production') {
-          buildManifestMap.browser.init = buildManifestMap.browser.init[0];
           buildManifestMap.browser.assets = buildManifestMap.browser.assets[0];
           buildManifestMap.browser.component = buildManifestMap.browser.component[0];
         }
@@ -231,7 +226,7 @@ var exports = module.exports = {
           next(null, buildManifestMap, browserStats, nodeStats);
         }
       } catch (ex) {
-        console.error('Error building manifest profile & map because', ex.message);
+        console.error('Error building manifest profile and map because:', ex.message);
         if(next) {
           next(ex);
         }

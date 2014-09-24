@@ -69,6 +69,7 @@ module.exports = function(program, addToReadyQue) {
           }
 
           if(options.script) {
+            // TODO: need to sync the logic with cmd-server because this is a working version of the code. We need to copy the logic for standalone version!
             options.script = path.resolve(CWD, options.script);
             options.templateDir = path.resolve(CWD, options.templateDir);
             options.templateFile = path.resolve(options.templateDir, options.templateFile);
@@ -104,8 +105,32 @@ module.exports = function(program, addToReadyQue) {
 
           // build a function that sync the two step build into a single step that
           // builds the manifest profile and map. This also handles duplicate errors
-          var doneFn = utils.syncNodeAndBrowserBuilds(options.mode !== 'production',
-            utils.buildManifestProfileAndMap(options));
+          var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(options));
+
+          // map webpacks react & pellet externals to our CLI versions
+          // so we can make sure we are running our version not
+          // anything else and the packed code will share the same
+          // nodejs require modules allowing the CLI server to share
+          // information to the webpack code. i.e. route events can
+          // be setup here then the webpack code can require pellet
+          // can listen to the events.
+          config.browserConfig.externals = {
+            react: 'React'
+          };
+
+          config.nodeConfig.externals = {
+            react: require.resolve('react')
+          };
+
+          config.browserConfig.resolve = Object.create(config.browserConfig.resolve);
+          config.browserConfig.resolve.alias = {
+            pellet: require.resolve('../../src/pellet')
+          };
+
+          config.nodeConfig.resolve = Object.create(config.nodeConfig.resolve);
+          config.nodeConfig.resolve.alias = {
+            pellet: require.resolve('../../src/pellet')
+          };
 
           if(options.watch) {
             config.browserConfig.bail = false;

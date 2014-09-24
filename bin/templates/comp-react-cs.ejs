@@ -1,5 +1,8 @@
 # @cjsx React.DOM
 
+React = require "react"
+pellet = require "pellet"
+
 <%- name %>Component = React.createClass
   render: ->
     {showTitle, neat} = @props
@@ -9,3 +12,13 @@
       Coffeescript really saves a lot of typing...
       {<p>is this component neat?<br />{neat}x{times}</p> for times in [1..10]}
     </div>
+
+###
+require.ensure [], () ->
+  require './other.js'
+
+if process.env.NODE_ENV
+if SERVER_ENV
+if BROWSER_ENV
+
+###

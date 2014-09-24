@@ -232,6 +232,12 @@ manifestParser.prototype.merge = function(file, additionalItems, options, next) 
   }, next);
 };
 
+/**
+ *
+ * @param manifestFilePath
+ * @param component
+ * @param next
+ */
 manifestParser.prototype.resolveComponentPaths = function(manifestFilePath, component, next) {
   var steps = [];
 
@@ -259,6 +265,12 @@ manifestParser.prototype.resolveComponentPaths = function(manifestFilePath, comp
   });
 };
 
+/**
+ *
+ * @param manifestGlob
+ * @param options
+ * @param next
+ */
 manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, next) {
   if(typeof next === 'undefined') {
     next = options;
@@ -285,11 +297,6 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
   if(!options.chunkFilename) {
     if(options.mode === 'production') options.chunkFilename = '[id]-[hash].js';
     else options.chunkFilename = '[id].js'
-  }
-
-  if(!options.mainFilename) {
-    if(options.mode === 'production') options.mainFilename = 'init-[hash].js';
-    else options.mainFilename = 'init.js'
   }
 
   var files = [];
@@ -350,9 +357,6 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           root: [path.resolve(__dirname, '..', 'node_modules'), process.cwd()],
           modulesDirectories: ['node_modules', 'bower_components']
         },
-        externals: {
-          React: 'React'
-        },
         module: {
           unknownContextCritical: false,
           noParse: /\.min\.js/,
@@ -379,19 +383,19 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       browser.target = 'web';
       browser.output = {
         path: path.resolve(process.cwd(), options.outputBrowser || '/tmp/dist/browser'),
+        publicPath: options.mountPoint,
         filename: options.filename,
         chunkFilename: options.chunkFilename,
         hashDigestLength: 8
       };
 
       browser.plugins = [
-        new webpack.optimize.CommonsChunkPlugin(options.mainFilename, ['assets', 'component']),
         new webpack.optimize.DedupePlugin(),
         //new webpack.NoErrorsPlugin(),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
           'SERVER_ENV': JSON.stringify(false),
-          'CLIENT_ENV': JSON.stringify(true)
+          'BROWSER_ENV': JSON.stringify(true)
         }),
         new webpack.BannerPlugin(
           options.copyright +
@@ -406,7 +410,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       };
 
       node.output = {
-        path: path.resolve(process.cwd(), options.outputNode  || '/tmp/dist/node'),
+        path: path.resolve(process.cwd(), options.outputNode || '/tmp/dist/node'),
         filename: options.filename,
         chunkFilename: options.chunkFilename,
         hashDigestLength: 8,
@@ -414,21 +418,17 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       };
 
       node.plugins = [
-        new webpack.optimize.CommonsChunkPlugin(options.mainFilename, ['component']),
         new webpack.optimize.DedupePlugin(),
         //new webpack.NoErrorsPlugin(),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
           'SERVER_ENV': JSON.stringify(true),
-          'CLIENT_ENV': JSON.stringify(false)
+          'BROWSER_ENV': JSON.stringify(false)
         }),
         new webpack.BannerPlugin(
             options.copyright +
             '\nDate: '+new Date().toJSON()
-        ),
-        new webpack.BannerPlugin('require("source-map-support").install({handleUncaughtExceptions: false});', {
-          raw:true
-        })
+        )
       ];
 
       // for the browser version change to true source maps and minify the js

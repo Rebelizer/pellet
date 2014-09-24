@@ -32,6 +32,7 @@ module.exports = function(program, addToReadyQue) {
     .option('--output <path>', 'path to the pack file and base path for dist output', '___output.js')
     .option('--output-browser <dir>', 'Directory browser packed version saved to', 'browser')
     .option('--output-node <dir>', 'Directory nodejs packed version saved to', 'node')
+    .option('--server:webpack-mount-point <path>', 'Path the packed browser assets are served')
     .option('--mode <prod|dev>', 'Packaging mode')
     .option('--polyfill-rebuild', 'Rebuild polyfill files')
     .option('--es6', 'run with es6 support', false)
@@ -136,6 +137,7 @@ module.exports = function(program, addToReadyQue) {
           options.output = path.join(path.dirname(options.output), 'dist');
           options.outputBrowser = path.resolve(options.output, options.outputBrowser);
           options.outputNode = path.resolve(options.output, options.outputNode);
+          options.mountPoint = nconf.get('server:webpackMountPoint');
 
           if(options.mode) {
             if (options.mode.toLowerCase().trim().indexOf('prod') === 0) {
@@ -168,8 +170,8 @@ module.exports = function(program, addToReadyQue) {
 
             // build a function that sync the two step build into a single step that
             // builds the manifest profile and map. This also handles duplicate errors
-            var doneFn = utils.syncNodeAndBrowserBuilds(options.mode !== 'production',
-              utils.buildManifestProfileAndMap(options, function(err, buildManifestMap, browserStats, nodeStats) {
+            var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
+              options, function(err, buildManifestMap, browserStats, nodeStats) {
                 if (err) {
                   console.error('Can not build webpack files because:', err.message);
                   return;
@@ -177,19 +179,16 @@ module.exports = function(program, addToReadyQue) {
 
                 // get base node dir by using _MANIFEST.json and its relative path to node version
                 var baseNodeDir = path.resolve(options.output, buildManifestMap.node.relativePath)
-                  , initModule = path.join(baseNodeDir, buildManifestMap.node.init)
                   , componentModule = path.join(baseNodeDir, buildManifestMap.node.component);
 
                 if(isInitialLoad) {
-                  // now load the webpack code starting with WP init/bootstape then components
-                  console.log('Loading', initModule, 'webpack into pellet server.');
-                  console.log('Loading', componentModule, 'webpack into pellet server.');
-
                   try {
-                    require(initModule);
+                    console.log('Loading', componentModule, 'webpack into pellet server.');
+                    require("source-map-support").install({handleUncaughtExceptions: false});
                     require(componentModule);
                   } catch(ex) {
                     console.error('Can not load webpack code because:', ex.message);
+                    console.error(ex.stack);
                     process.exit(1); // initial load kill processes
                   }
 
@@ -216,12 +215,20 @@ module.exports = function(program, addToReadyQue) {
             // be setup here then the webpack code can require pellet
             // can listen to the events.
             config.browserConfig.externals = {
-              React: 'React',
-              pellet: require.resolve('../../src/pellet')
+              react: 'React'
             };
 
             config.nodeConfig.externals = {
-              React: 'react',
+              react: require.resolve('react')
+            };
+
+            config.browserConfig.resolve = Object.create(config.browserConfig.resolve);
+            config.browserConfig.resolve.alias = {
+              pellet: require.resolve('../../src/pellet')
+            };
+
+            config.nodeConfig.resolve = Object.create(config.nodeConfig.resolve);
+            config.nodeConfig.resolve.alias = {
               pellet: require.resolve('../../src/pellet')
             };
 
@@ -274,12 +281,23 @@ module.exports = function(program, addToReadyQue) {
           }
 
           // create express server
+          var morgan  = require('morgan');
           server = require('express');
           app = server();
+
+          //if(nconf.get('winston:containers:httplogger')) {
+            //combined
+            //var logStream = new stream.Writable();
+
+            //winston.loggers.add(logStream, nconf.get('winston:containers:httplogger'));
+
+            app.use(morgan(nconf.get('server.logFormat'))); //{stream: logStream}
+          //}
 
           // setup express static assets including the facicon.ico (replace __DEFAULT_STATIC_DIR with pellet internal path)
           app.use(require('serve-favicon')(resolveConfigPaths(nconf.get('server:favicon'))));
           app.use(server.static(resolveConfigPaths(nconf.get('server:static'))));
+          app.use(nconf.get('server:webpackMountPoint'), server.static(options.outputBrowser));
 
           // create a polyfill endpoint
           app.use(function (req, res, next) {
@@ -306,6 +324,7 @@ module.exports = function(program, addToReadyQue) {
 
           });
 
+          // wire up pellet middleware
           app.use(pellet.middleware);
         }
 
