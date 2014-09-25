@@ -1,11 +1,18 @@
 {
   "securityFilter": "\\s(user|pass|aws_)\\w*\\s+.+$",
 
+  "pellet": {
+    "output": "#PELLET_PROJECT_PATH#/build",
+    "outputBrowser" : "browser",
+    "outputServer" : "server"
+  },
+
   "server": {
     "favicon": "#PELLET_BIN_DIR#/public/favicon.ico",
     "static": "#PELLET_BIN_DIR#/public",
     "webpackMountPoint": "/js/",
-    "logFormat": "combined"
+    "logFormat": "combined",
+    "polyfillRebuild": false
   },
 
   "polyfill": {

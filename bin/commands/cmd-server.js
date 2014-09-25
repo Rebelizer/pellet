@@ -1,5 +1,5 @@
 var path = require('path')
-  , fs = require('fs')
+  , fs = require('fs-extra')
   , webpack = require('webpack')
   , glob = require('glob')
   , spdy = require('spdy')
@@ -19,8 +19,10 @@ var LAUNCH_CWD = process.cwd();
 
 module.exports = function(program, addToReadyQue) {
 
+  var PELLET_PROJECT_PATH = (program.pelletConfig && program.pelletConfig._filepath && path.dirname(program.pelletConfig._filepath)) || LAUNCH_CWD;
+
   program
-    .command('server <manifest> [options]')
+    .command('server [manifest] [options]')
     .alias('run')
     .description('Start Pellet server')
     .option('-v, --verbose [silly|debug|verbose|info|warn|error]', 'verbose mode', false)
@@ -29,15 +31,20 @@ module.exports = function(program, addToReadyQue) {
     .option('--http:address <ip>', 'http bind address', process.env.BIND_ADDR || '0.0.0.0')
     .option('--https:port <port>', 'https server port', process.env.SSL_PORT || 3001)
     .option('--https:address <ip>', 'https bind address', process.env.BIND_ADDR || '0.0.0.0')
-    .option('--output <path>', 'path to the pack file and base path for dist output', '___output.js')
-    .option('--output-browser <dir>', 'Directory browser packed version saved to', 'browser')
-    .option('--output-node <dir>', 'Directory nodejs packed version saved to', 'node')
+    .option('--pellet:output <path>', 'path to the build dir')
+    .option('--pellet:output-browser <dir>', 'Directory browser packed version saved to')
+    .option('--pellet:output-server <dir>', 'Directory nodejs packed version saved to')
     .option('--server:webpack-mount-point <path>', 'Path the packed browser assets are served')
     .option('--mode <prod|dev>', 'Packaging mode')
     .option('--polyfill-rebuild', 'Rebuild polyfill files')
     .option('--es6', 'run with es6 support', false)
     .option('--spdy', 'path to directory with spdy cert', false)
     .action(function (manifestGlob, name, options) {
+
+      if(!manifestGlob) {
+        manifestGlob = program.pelletConfig && program.pelletConfig.manifestFiles;
+      }
+
       // setup a callback hook that lets this sub command register
       // the logic needed to execute when the parent process is ready.
       // We do this so the parent process can load all the config info
@@ -103,12 +110,21 @@ module.exports = function(program, addToReadyQue) {
 
         // helper function to allow the config have access to dynamic paths
         // set at runtime i.e. CWD, path to bin dir, etc.
-        function resolveConfigPaths(fullpath) {
+        function resolveConfigPaths(fullpath, skipResolve) {
+          if(!fullpath) {
+            return fullpath;
+          }
+
           fullpath = fullpath.replace('#CWD#', LAUNCH_CWD)
+            .replace('#PELLET_PROJECT_PATH#', PELLET_PROJECT_PATH)
             .replace('#PELLET_BIN_DIR#', PELLET_BIN_PATH);
 
           if(fullpath.indexOf('#SERVER_STATIC_DIR#') != -1) {
-            fullpath = fullpath.replace('#SERVER_STATIC_DIR#', resolveConfigPaths(nconf.get('server:static')));
+            fullpath = fullpath.replace('#SERVER_STATIC_DIR#', resolveConfigPaths(nconf.get('server:static'), skipResolve));
+          }
+
+          if(skipResolve) {
+            return path.normalize(fullpath);
           }
 
           return path.resolve(LAUNCH_CWD, path.normalize(fullpath));
@@ -133,10 +149,10 @@ module.exports = function(program, addToReadyQue) {
           var ourManifest = new manifest();
           var isInitialLoad = true;
 
-          // make sure the paths are absolute and resolve from cwd
-          options.output = path.join(path.dirname(options.output), 'dist');
-          options.outputBrowser = path.resolve(options.output, options.outputBrowser);
-          options.outputNode = path.resolve(options.output, options.outputNode);
+          // make sure the paths are absolute
+          options.output = path.resolve(LAUNCH_CWD, (resolveConfigPaths(nconf.get('pellet:output')) || 'build'));
+          options.outputBrowser = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputBrowser'), true) || 'browser');
+          options.outputNode = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputServer'), true) || 'server');
           options.mountPoint = nconf.get('server:webpackMountPoint');
 
           if(options.mode) {
@@ -168,6 +184,9 @@ module.exports = function(program, addToReadyQue) {
               process.exit(1);
             }
 
+            // cache to help clean up build files
+            var lastManifestDetails = false;
+
             // build a function that sync the two step build into a single step that
             // builds the manifest profile and map. This also handles duplicate errors
             var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
@@ -177,9 +196,31 @@ module.exports = function(program, addToReadyQue) {
                   return;
                 }
 
+                if(!buildManifestMap.server.component) {
+                  console.error('Can not load because no component in manifest');
+                  return;
+                }
+
                 // get base node dir by using _MANIFEST.json and its relative path to node version
-                var baseNodeDir = path.resolve(options.output, buildManifestMap.node.relativePath)
-                  , componentModule = path.join(baseNodeDir, buildManifestMap.node.component);
+                var baseNodeDir = path.resolve(options.output, buildManifestMap.server.relativePath)
+                  , componentModule = path.join(baseNodeDir, buildManifestMap.server.component);
+
+                // in prod mode clean up old manifest files
+                // from the previous build
+                if(options.mode === 'production') {
+                  if (lastManifestDetails) {
+                    console.log('Clean up last build', lastManifestDetails.browser.hash, lastManifestDetails.server.hash);
+
+                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets+'.map'));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component+'.map'));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.assets));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.component));
+                  }
+
+                  lastManifestDetails = buildManifestMap;
+                }
 
                 if(isInitialLoad) {
                   try {

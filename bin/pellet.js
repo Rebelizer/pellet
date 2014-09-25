@@ -21,11 +21,41 @@ for(i in inquirer.prompts) {
   };
 }
 
+/**
+ * search for the pellet config file
+ * @param searchPath
+ * @returns {*}
+ */
+function findPelletConfigFile(searchPath) {
+  var filePath;
+
+  searchPath = path.resolve(process.cwd(), searchPath);
+
+  filePath = path.join(searchPath, '.pellet');
+  if (fs.existsSync(filePath)) {
+    return filePath;
+  }
+
+  // search parent folder for the manifest file
+  filePath = path.resolve(searchPath, '..');
+
+  // stop looking when we find the root dir
+  if (filePath == searchPath) return null;
+  return findPelletConfigFile(filePath);
+}
+
+// load the config by walk up (from CWD) looking for the .pellet config
+var pelletConfigFile = findPelletConfigFile('.');
+if(pelletConfigFile) {
+  program.pelletConfig = JSON.parse(fs.readFileSync(pelletConfigFile));
+  program.pelletConfig._filepath = pelletConfigFile;
+}
+
 program
   .version(require('../package.json').version)
   .option('-c, --config <path>', 'environment config file (override common config)', process.env.NODE_ENV ? process.env.NODE_ENV : 'development')
   .option('--config-common <path>', 'path to common config file', 'common')
-  .option('--config-dir <path>', 'path to config directory', process.env.PELLET_CONF_DIR ? path.resolve(process.cwd(), process.env.PELLET_CONF_DIR) : path.join(__dirname, 'config'))
+  .option('--config-dir <path>', 'path to config directory', process.env.PELLET_CONF_DIR ? path.resolve(process.cwd(), process.env.PELLET_CONF_DIR) : (pelletConfigFile ? path.resolve(pelletConfigFile, '..', program.pelletConfig.configDir) : path.join(__dirname, 'config')))
   .option('--command-dir <path>', 'path to directory containing additional commands', false)
   .option('--env-whitelist <string>', 'environment variable white list separated by ','', false)
   .option('--scrub-logs <string>', 'RegExp used to scrub launchDetails and logs', false)

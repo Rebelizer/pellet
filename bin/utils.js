@@ -206,7 +206,7 @@ var exports = module.exports = {
             assets: browserStats.assetsByChunkName['assets'],
             component: browserStats.assetsByChunkName['component']
           },
-          node: {
+          server: {
             //outputPath: options.outputNode,
             relativePath: exports.relativeToOutputFile(profileFilePath, options.outputNode),
             hash: nodeStats.hash,
@@ -217,8 +217,8 @@ var exports = module.exports = {
 
         // remove the source-map files
         if (options.mode === 'production') {
-          buildManifestMap.browser.assets = buildManifestMap.browser.assets[0];
-          buildManifestMap.browser.component = buildManifestMap.browser.component[0];
+          buildManifestMap.browser.assets = buildManifestMap.browser.assets && buildManifestMap.browser.assets[0];
+          buildManifestMap.browser.component = buildManifestMap.browser.component && buildManifestMap.browser.component[0];
         }
 
         fs.writeFileSync(profileFilePath, JSON.stringify(buildManifestMap, null, 2));

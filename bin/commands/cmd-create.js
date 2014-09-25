@@ -38,6 +38,16 @@ module.exports = function(program, addToReadyQue) {
     .option('--templateDir <path>', 'path to the template files', path.join(__dirname, '..', 'templates'))
     .action(function (type, name, options) {
 
+      var _type;
+
+      // make the type optional so if only one args and its not one of CREATE_TYPES use it as the name
+      if(type && (_type = type.charAt(0).toUpperCase()+type.slice(1).toLowerCase()) && CREATE_TYPES.indexOf(_type) != -1) {
+        type = _type;
+      } else if(!name) {
+        name = type;
+        type = false;
+      }
+
       // setup a callback hook that lets this sub command register
       // the logic needed to execute when the parent process is ready.
       // We do this so the parent process can load all the config info
@@ -146,7 +156,10 @@ module.exports = function(program, addToReadyQue) {
           for(var i in outputFiles) {
             if(fs.existsSync(i)) {
               console.log(' Overwrite:', i);
-              isOk = false;
+              // ignore manifest.json to abort overwrite flag
+              if(i.indexOf('manifest.json') == -1) {
+                isOk = false;
+              }
             } else {
               console.log(' Create:', i);
             }
@@ -159,7 +172,7 @@ module.exports = function(program, addToReadyQue) {
           inquirer.prompt({
             type: 'confirm',
             name: 'isOk',
-            default: isOk,
+            'default': isOk,
             message: 'Is this ok'
           }, function(confirmAnswer) {
             answer.isOk = confirmAnswer.isOk;
@@ -189,6 +202,7 @@ module.exports = function(program, addToReadyQue) {
           }
 
           var configDir = path.join(baseOutputDir, 'config');
+          answer.relitiveConfigDirPath = '.' + path.sep + 'config';
           outputFiles[configDir] = function(next) {
             fs.copy(path.resolve(__dirname, '..', 'config'), configDir, next);
           }
@@ -207,6 +221,8 @@ module.exports = function(program, addToReadyQue) {
           outputFiles[componentPath] = function(next) {
             fs.ensureDir(componentPath, next);
           }
+
+          renderFile(outputFiles, path.join(baseOutputDir, '.pellet'), path.join(options.templateDir, 'pellet.ejs'), answer);
 
           var componentEP, assetEP;
           // now build up the work needed to render/generate the template output
@@ -227,6 +243,7 @@ module.exports = function(program, addToReadyQue) {
           }
 
           var manifestOutputPath = path.join(baseOutputDir, 'manifest.json');
+          answer.relitiveManifestPath = '.' + path.sep + 'manifest.json';
           outputFiles[manifestOutputPath] = function (next) {
             var newManifest = new manifest();
             var newComponent = {
@@ -265,7 +282,7 @@ module.exports = function(program, addToReadyQue) {
           inquirer.prompt({
             type: 'confirm',
             name: 'isOk',
-            default: isOk,
+            'default': isOk,
             message: 'Is this ok'
           }, function(confirmAnswer) {
             answer.isOk = confirmAnswer.isOk;
@@ -289,7 +306,8 @@ module.exports = function(program, addToReadyQue) {
             }
 
             console.log('\n\nCreated the', answer.type, '(please comeback again WHINER!)');
-            console.log('Set the environment variable PELLET_CONF_DIR to', configDir);
+            console.log('Helpful tips: set PELLET_CONF_DIR environment variable and');
+            console.log('add .pellet to your .gitignore file');
           });
         }
 
@@ -302,7 +320,7 @@ module.exports = function(program, addToReadyQue) {
           message: 'Type to create',
           choices: CREATE_TYPES,
           when: function(answer) {
-            if(type && (type = type.charAt(0).toUpperCase()+typeslice(1).toLowerCase()) && CREATE_TYPES.indexOf(type) != -1) {
+            if(type) {
               answer.type = type;
               return false;
             }
@@ -313,7 +331,7 @@ module.exports = function(program, addToReadyQue) {
           type: 'input',
           name: 'name',
           message: 'Name',
-          default: path.basename(options.output),
+          'default': path.basename(options.output),
           validate: function(input) {
             return /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(input);
           },
@@ -329,23 +347,29 @@ module.exports = function(program, addToReadyQue) {
           type: 'input',
           name: 'version',
           message: 'Version',
-          default: '0.0.0'
+          'default': '0.0.0'
         },{
           type: 'confirm',
           name: 'createDir',
           message: 'Create Directory',
           'default': function(answer) {
+            if(program.pelletConfig && typeof program.pelletConfig.defaults.createDir !== 'undefined') {
+              return program.pelletConfig.defaults.createDir;
+            }
+
             return (answer.name !== path.basename(options.output));
           }
         },{
           type: 'list',
           name: 'lang',
           message: 'Language',
+          'default': program.pelletConfig && program.pelletConfig.defaults.lang,
           choices: ['JavaScript', 'CoffeeScript']
         },{
           type: 'list',
           name: 'assets',
           message: 'Styles',
+          'default': program.pelletConfig && program.pelletConfig.defaults.assets,
           choices: ['stylus', 'css', 'none']
         }], switchTypes);
 
@@ -354,11 +378,13 @@ module.exports = function(program, addToReadyQue) {
             inquirer.prompt([{
               type: 'confirm',
               name: 'test',
+              'default': program.pelletConfig && program.pelletConfig.defaults.test,
               message: 'Include unit tests'
             },{
               type: 'list',
               name: 'mergeManifest',
               message: 'Manifest location',
+              'default': program.pelletConfig && program.pelletConfig.defaults.mergeManifest,
               choices: function(answer) {
                 var opt = ['None (skip updating manifest)'];
 
