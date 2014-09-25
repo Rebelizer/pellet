@@ -1,5 +1,5 @@
-var path = require("path")
-  , fs = require("fs")
+var path = require('path')
+  , fs = require('fs-extra')
   , crypto = require('crypto');
 
 var VALID_MANIFEST_FILES = [/*'package.json',*/ 'pellet.json', 'manifest.json'];
@@ -153,7 +153,7 @@ var exports = module.exports = {
 
           safeHash = exports.md5(safeHash);
 
-          console.info('\n\n-------------------------', type === 0 ? 'browser' : 'node js', safeHash);
+          console.info('\n\n-------------------------', type === 0 ? 'browser' : 'server', safeHash);
           console.info(info.toString({chunkModules:false, chunks:false}));
 
           stacks[type].push(safeHash);
