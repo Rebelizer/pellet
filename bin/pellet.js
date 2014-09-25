@@ -2,16 +2,16 @@
 
 "use strict";
 
-var program = require("commander")
-  , os = require("os")
-  , util = require("util")
-  , path = require("path")
-  , fs = require("fs")
-  , nconf = require("nconf")
-  , inquirer = require("inquirer")
-  , ejs = require("ejs")
-  , utils = require("./utils")
-  , version = require("../package.json").version
+var program = require('commander')
+  , os = require('os')
+  , util = require('util')
+  , path = require('path')
+  , fs = require('fs-extra')
+  , nconf = require('nconf')
+  , inquirer = require('inquirer')
+  , ejs = require('ejs')
+  , utils = require('./utils')
+  , version = require('../package.json').version
   , i;
 
 // monkey patch inquirer (nicer formatting)
