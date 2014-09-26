@@ -370,7 +370,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
             { test: /\.css$/, loader: 'style!css!autoprefixer' },
             { test: /\.coffee/, loader: 'coffee' },
 
-            //{ test: /\.png$/, loader: "url-loader?limit=100000&mimetype=image/png" },
+            { test: /\.svg$/, loader: "url-loader?limit=100000&mimetype=image/svg+xml" },
             { test: /\.png$/, loader: 'file-loader' },
             { test: /\.jpg$/, loader: 'file-loader' }
           ]
