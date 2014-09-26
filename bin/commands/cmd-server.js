@@ -35,6 +35,7 @@ module.exports = function(program, addToReadyQue) {
     .option('--pellet:output-browser <dir>', 'Directory browser packed version saved to')
     .option('--pellet:output-server <dir>', 'Directory nodejs packed version saved to')
     .option('--server:webpack-mount-point <path>', 'Path the packed browser assets are served')
+    .option('--watch <browser|both|once>', 'Watch manifest dependencies and rebuild', false)
     .option('--mode <prod|dev>', 'Packaging mode')
     .option('--polyfill-rebuild', 'Rebuild polyfill files')
     .option('--es6', 'run with es6 support', false)
@@ -146,137 +147,160 @@ module.exports = function(program, addToReadyQue) {
         // all our entry points. I need this to load all the the packages and map all the
         // static files.
         if(!process.env.CLUSTER_SLAVE) {
-          var ourManifest = new manifest();
-          var isInitialLoad = true;
-
           // make sure the paths are absolute
           options.output = path.resolve(LAUNCH_CWD, (resolveConfigPaths(nconf.get('pellet:output')) || 'build'));
           options.outputBrowser = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputBrowser'), true) || 'browser');
           options.outputNode = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputServer'), true) || 'server');
           options.mountPoint = nconf.get('server:webpackMountPoint');
 
-          if(options.mode) {
-            if (options.mode.toLowerCase().trim().indexOf('prod') === 0) {
-              options.mode = 'production';
-            } else {
-              options.mode = 'development';
-            }
-          }
+          if(!options.watch) {
+            try {
+              var componentModule = path.join(options.output, '_MANIFEST.json');
 
-          // init the polyfill and rebuild cache is needed
-          var polyfillOptions = nconf.get('polyfill');
-          polyfillOptions.cache = resolveConfigPaths(polyfillOptions.cache);
-          polyfill = polyfill(polyfillOptions);
-          if(options.polyfillRebuild) {
-            polyfill.clean();
-          }
+              if(!fs.existsSync(componentModule)) {
+                console.error('Can not find build output. Please build and insure ', componentModule, 'exists.');
+                process.exit(1);
+              }
 
-          if(!nconf.get('silent')) {
-            console.info('Polyfill:', polyfillOptions);
-            if(options.polyfillRebuild) {
-              console.info('Cleaned Polyfill');
-            }
-          }
-
-          ourManifest.buildWebpackConfig(manifestGlob, options, function(err, config) {
-            if (err) {
-              console.error('Can not build Webpack config because:', err.message);
-              process.exit(1);
+              console.log('Loading', componentModule, 'webpack into pellet server.');
+              require('source-map-support').install({handleUncaughtExceptions: false});
+              require(componentModule);
+            } catch (ex) {
+              console.error('Can not load webpack code because:', ex.message);
+              console.error(ex.stack);
+              process.exit(1); // initial load kill processes
             }
 
-            // cache to help clean up build files
-            var lastManifestDetails = false;
+            // now let pellet know we are ready!
+            pellet.startInit();
+          } else {
 
-            // build a function that sync the two step build into a single step that
-            // builds the manifest profile and map. This also handles duplicate errors
-            var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
-              options, function(err, buildManifestMap, browserStats, nodeStats) {
-                if (err) {
-                  console.error('Can not build webpack files because:', err.message);
-                  return;
-                }
+            var ourManifest = new manifest();
+            var isInitialLoad = true;
 
-                if(!buildManifestMap.server.component) {
-                  console.error('Can not load because no component in manifest');
-                  return;
-                }
+            if (options.mode) {
+              if (options.mode.toLowerCase().trim().indexOf('prod') === 0) {
+                options.mode = 'production';
+              } else {
+                options.mode = 'development';
+              }
+            }
 
-                // get base node dir by using _MANIFEST.json and its relative path to node version
-                var baseNodeDir = path.resolve(options.output, buildManifestMap.server.relativePath)
-                  , componentModule = path.join(baseNodeDir, buildManifestMap.server.component);
+            // init the polyfill and rebuild cache is needed
+            var polyfillOptions = nconf.get('polyfill');
+            polyfillOptions.cache = resolveConfigPaths(polyfillOptions.cache);
+            polyfill = polyfill(polyfillOptions);
+            if (options.polyfillRebuild) {
+              polyfill.clean();
+            }
 
-                // in prod mode clean up old manifest files
-                // from the previous build
-                if(options.mode === 'production') {
-                  if (lastManifestDetails) {
-                    console.log('Clean up last build', lastManifestDetails.browser.hash, lastManifestDetails.server.hash);
+            if (!nconf.get('silent')) {
+              console.info('Polyfill:', polyfillOptions);
+              if (options.polyfillRebuild) {
+                console.info('Cleaned Polyfill');
+              }
+            }
 
-                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets));
-                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component));
-                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets+'.map'));
-                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component+'.map'));
-                    fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.assets));
-                    fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.component));
+            ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
+              if (err) {
+                console.error('Can not build Webpack config because:', err.message);
+                process.exit(1);
+              }
+
+              // cache to help clean up build files
+              var lastManifestDetails = false;
+
+              // build a function that sync the two step build into a single step that
+              // builds the manifest profile and map. This also handles duplicate errors
+              var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
+                options, function (err, buildManifestMap, browserStats, nodeStats) {
+                  if (err) {
+                    console.error('Can not build webpack files because:', err.message);
+                    return;
                   }
 
-                  lastManifestDetails = buildManifestMap;
-                }
-
-                if(isInitialLoad) {
-                  try {
-                    console.log('Loading', componentModule, 'webpack into pellet server.');
-                    require("source-map-support").install({handleUncaughtExceptions: false});
-                    require(componentModule);
-                  } catch(ex) {
-                    console.error('Can not load webpack code because:', ex.message);
-                    console.error(ex.stack);
-                    process.exit(1); // initial load kill processes
+                  if (!buildManifestMap.server.component) {
+                    console.error('Can not load because no component in manifest');
+                    return;
                   }
 
-                  // now let pellet know we are ready!
-                  pellet.startInit();
+                  // get base node dir by using _MANIFEST.json and its relative path to node version
+                  var baseNodeDir = path.resolve(options.output, buildManifestMap.server.relativePath)
+                    , componentModule = path.join(baseNodeDir, buildManifestMap.server.component);
 
-                  isInitialLoad = false;
-                  return;
-                }
+                  // in prod mode clean up old manifest files
+                  // from the previous build
+                  if (options.mode === 'production') {
+                    if (lastManifestDetails) {
+                      console.log('Clean up last build', lastManifestDetails.browser.hash, lastManifestDetails.server.hash);
 
-                if(process.env.CLUSTER_SLAVE) {
-                  cluster.restart();
-                }
-              }));
+                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets));
+                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component));
+                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets + '.map'));
+                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component + '.map'));
+                      fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.assets));
+                      fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.component));
+                    }
 
-            config.browserConfig.bail = false;
-            config.nodeConfig.bail = false;
+                    lastManifestDetails = buildManifestMap;
+                  }
 
-            // map webpacks react & pellet externals to our CLI versions
-            // so we can make sure we are running our version not
-            // anything else and the packed code will share the same
-            // nodejs require modules allowing the CLI server to share
-            // information to the webpack code. i.e. route events can
-            // be setup here then the webpack code can require pellet
-            // can listen to the events.
-            config.browserConfig.externals = {
-              react: 'React'
-            };
+                  if (isInitialLoad) {
+                    try {
+                      console.log('Loading', componentModule, 'webpack into pellet server.');
+                      require("source-map-support").install({handleUncaughtExceptions: false});
+                      require(componentModule);
+                    } catch (ex) {
+                      console.error('Can not load webpack code because:', ex.message);
+                      console.error(ex.stack);
+                      process.exit(1); // initial load kill processes
+                    }
 
-            config.nodeConfig.externals = {
-              react: require.resolve('react')
-            };
+                    // now let pellet know we are ready!
+                    pellet.startInit();
 
-            config.browserConfig.resolve = Object.create(config.browserConfig.resolve);
-            config.browserConfig.resolve.alias = {
-              pellet: require.resolve('../../src/pellet')
-            };
+                    isInitialLoad = false;
+                    return;
+                  }
 
-            config.nodeConfig.resolve = Object.create(config.nodeConfig.resolve);
-            config.nodeConfig.resolve.alias = {
-              pellet: require.resolve('../../src/pellet')
-            };
+                  if (process.env.CLUSTER_SLAVE) {
+                    cluster.restart();
+                  }
+                }));
 
-            // start watching both
-            webpack(config.browserConfig).watch(100, doneFn(0));
-            webpack(config.nodeConfig).watch(100, doneFn(1));
-          });
+              config.browserConfig.bail = false;
+              config.nodeConfig.bail = false;
+
+              // map webpacks react & pellet externals to our CLI versions
+              // so we can make sure we are running our version not
+              // anything else and the packed code will share the same
+              // nodejs require modules allowing the CLI server to share
+              // information to the webpack code. i.e. route events can
+              // be setup here then the webpack code can require pellet
+              // can listen to the events.
+              config.browserConfig.externals = {
+                react: 'React'
+              };
+
+              config.nodeConfig.externals = {
+                react: require.resolve('react')
+              };
+
+              config.browserConfig.resolve = Object.create(config.browserConfig.resolve);
+              config.browserConfig.resolve.alias = {
+                pellet: require.resolve('../../src/pellet')
+              };
+
+              config.nodeConfig.resolve = Object.create(config.nodeConfig.resolve);
+              config.nodeConfig.resolve.alias = {
+                pellet: require.resolve('../../src/pellet')
+              };
+
+              // start watching both
+              webpack(config.browserConfig).watch(100, doneFn(0));
+              webpack(config.nodeConfig).watch(100, doneFn(1));
+            });
+          }
         }
 
         // after we have make sure we have all the configuration and error handling

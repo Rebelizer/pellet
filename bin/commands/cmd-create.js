@@ -69,10 +69,15 @@ module.exports = function(program, addToReadyQue) {
         function validateComponent(answer) {
           var outputFiles = {};
 
+          // make sure component is camelcased
+
+          answer.fileName = answer.name;
+          answer.name = utils.camelcase(answer.fileName);
+
           // get the base directory for output data
           var baseOutputDir = options.output;
           if(answer.createDir) {
-            baseOutputDir = path.join(baseOutputDir, answer.name);
+            baseOutputDir = path.join(baseOutputDir, answer.fileName);
             outputFiles[baseOutputDir] = function(next) {
               fs.exists(baseOutputDir, function(exists) {
                 if(exists) {
@@ -87,24 +92,24 @@ module.exports = function(program, addToReadyQue) {
           var componentEP, assetEP;
           // now build up the work needed to render/generate the template output
           if (answer.lang === 'JavaScript') {
-            componentEP = path.join(baseOutputDir, answer.name + '.jsx');
+            componentEP = path.join(baseOutputDir, answer.fileName + '.jsx');
             renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-js.ejs'), answer);
           } else if (answer.lang === 'CoffeeScript') {
-            componentEP = path.join(baseOutputDir, answer.name + '.cjsx');
+            componentEP = path.join(baseOutputDir, answer.fileName + '.cjsx');
             renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-cs.ejs'), answer);
           }
 
           if (answer.assets === 'stylus') {
-            assetEP = path.join(baseOutputDir, answer.name + '.styl');
+            assetEP = path.join(baseOutputDir, answer.fileName + '.styl');
             renderFile(outputFiles, assetEP, path.join(options.templateDir, 'comp-assets-styl.ejs'), answer);
           } else if (answer.assets === 'css') {
-            assetEP = path.join(baseOutputDir, answer.name + '.css');
+            assetEP = path.join(baseOutputDir, answer.fileName + '.css');
             renderFile(outputFiles, assetEP, path.join(options.templateDir, 'comp-assets-css.ejs'), answer);
           }
 
           // todo: add test types i.e. karma vs moka
           if (answer.test) {
-            renderFile(outputFiles, path.join(baseOutputDir, answer.name + '.test.js'), path.join(options.templateDir, 'comp-test.ejs'), answer);
+            renderFile(outputFiles, path.join(baseOutputDir, answer.fileName + '.test.js'), path.join(options.templateDir, 'comp-test.ejs'), answer);
           }
 
           // now update or create the manifest AFTER all our files have been created.
@@ -186,10 +191,13 @@ module.exports = function(program, addToReadyQue) {
         function validateProject(answer) {
           var outputFiles = {};
 
+          answer.fileName = answer.name;
+          answer.name = utils.camelcase(answer.fileName);
+
           // get the base directory for output data
           var baseOutputDir = options.output;
           if(answer.createDir) {
-            baseOutputDir = path.join(baseOutputDir, answer.name);
+            baseOutputDir = path.join(baseOutputDir, answer.fileName);
             outputFiles[baseOutputDir] = function(next) {
               fs.exists(baseOutputDir, function(exists) {
                 if(exists) {
@@ -204,7 +212,12 @@ module.exports = function(program, addToReadyQue) {
           var configDir = path.join(baseOutputDir, 'config');
           answer.relitiveConfigDirPath = '.' + path.sep + 'config';
           outputFiles[configDir] = function(next) {
-            fs.copy(path.resolve(__dirname, '..', 'config'), configDir, next);
+            fs.copy(path.resolve(__dirname, '..', 'config'), configDir, function(err) {
+              // hack to repalce the common.json PELLET_BIN_DIR to use PELLET_PROJECT_PATH
+              var updateFile = path.resolve(__dirname, '..', 'config', 'common.json');
+              fs.writeFileSync(updateFile, fs.readFileSync(updateFile).toString().replace(/#PELLET_BIN_DIR#/gm, '#PELLET_PROJECT_PATH#'))
+              next(null);
+            });
           }
 
           var publicDir = path.join(baseOutputDir, 'public');
@@ -227,18 +240,18 @@ module.exports = function(program, addToReadyQue) {
           var componentEP, assetEP;
           // now build up the work needed to render/generate the template output
           if (answer.lang === 'JavaScript') {
-            componentEP = path.join(baseOutputDir, 'src', answer.name + '.js');
+            componentEP = path.join(baseOutputDir, 'src', answer.fileName + '.js');
             renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-js.ejs'), answer);
           } else if (answer.lang === 'CoffeeScript') {
-            componentEP = path.join(baseOutputDir, 'src', answer.name + '.coffee');
+            componentEP = path.join(baseOutputDir, 'src', answer.fileName + '.coffee');
             renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-cs.ejs'), answer);
           }
 
           if (answer.assets === 'stylus') {
-            assetEP = path.join(baseOutputDir, 'assets', answer.name + '.styl');
+            assetEP = path.join(baseOutputDir, 'assets', answer.fileName + '.styl');
             renderFile(outputFiles, assetEP, path.join(options.templateDir, 'project-assets-site-styl.ejs'), answer);
           } else if (answer.assets === 'css') {
-            assetEP = path.join(baseOutputDir, 'assets', answer.name + '.css');
+            assetEP = path.join(baseOutputDir, 'assets', answer.fileName + '.css');
             renderFile(outputFiles, assetEP, path.join(options.templateDir, 'project-assets-site-css.ejs'), answer);
           }
 

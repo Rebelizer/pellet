@@ -8,15 +8,15 @@
   },
 
   "server": {
-    "favicon": "#PELLET_BIN_DIR#/public/favicon.ico",
-    "static": "#PELLET_BIN_DIR#/public",
+    "favicon": "#PELLET_PROJECT_PATH#/public/favicon.ico",
+    "static": "#PELLET_PROJECT_PATH#/public",
     "webpackMountPoint": "/js/",
     "logFormat": "combined",
     "polyfillRebuild": false
   },
 
   "polyfill": {
-    "cache": "#PELLET_BIN_DIR#/public/js/polyfill",
+    "cache": "#PELLET_PROJECT_PATH#/public/js/polyfill",
     "include": ["domelements", "dom4", "es5"]
   },
 
