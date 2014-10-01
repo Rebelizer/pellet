@@ -1,0 +1,25 @@
+# @cjsx React.DOM
+
+React = require "react"
+pellet = require "pellet"
+
+module.exports = <%- name %>Layout = pellet.createClass
+  setupInitialRender: (ctx, next) ->
+    ctx.setProps myData: "loaded from an API"
+    ctx.setProps userName: "Pellet"
+    next()
+
+  render: ->
+
+    <div className="<%- name %>-layout">
+    </div>
+
+###
+require.ensure [], () ->
+  require './other.js'
+
+process.env.NODE_ENV
+if process.env.SERVER_ENV
+if process.env.BROWSER_ENV
+
+###
