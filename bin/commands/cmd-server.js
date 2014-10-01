@@ -43,7 +43,8 @@ module.exports = function(program, addToReadyQue) {
     .action(function (manifestGlob, name, options) {
 
       if(!manifestGlob) {
-        manifestGlob = program.pelletConfig && program.pelletConfig.manifestFiles;
+        manifestGlob = program.pelletConfig && program.pelletConfig.manifestFiles &&
+          path.resolve(PELLET_PROJECT_PATH, program.pelletConfig.manifestFiles);
       }
 
       // setup a callback hook that lets this sub command register
@@ -57,6 +58,9 @@ module.exports = function(program, addToReadyQue) {
         if(nconf.get('verbose')) {
           nconf.set('winston:containers:console:console:level', nconf.get('verbose'));
         }
+
+        // merge in the mount point to pellet can render the correct js directory
+        nconf.set('publicAppConfig:jsMountPoint', nconf.get('server:webpackMountPoint'));
 
         // setup the apps default logger and overwrite the javascript console to use our logger
         var pelletLogger = winston.loggers.add('pellet', nconf.get('winston:containers:console'));
@@ -172,7 +176,7 @@ module.exports = function(program, addToReadyQue) {
             }
 
             // now let pellet know we are ready!
-            pellet.startInit();
+            pellet.startInit(nconf.get('publicAppConfig'));
           } else {
 
             var ourManifest = new manifest();
@@ -257,7 +261,7 @@ module.exports = function(program, addToReadyQue) {
                     }
 
                     // now let pellet know we are ready!
-                    pellet.startInit();
+                    pellet.startInit(nconf.get('publicAppConfig'));
 
                     isInitialLoad = false;
                     return;
@@ -288,12 +292,12 @@ module.exports = function(program, addToReadyQue) {
 
               config.browserConfig.resolve = Object.create(config.browserConfig.resolve);
               config.browserConfig.resolve.alias = {
-                pellet: require.resolve('../../src/pellet')
+                pellet: require.resolve('../../index')
               };
 
               config.nodeConfig.resolve = Object.create(config.nodeConfig.resolve);
               config.nodeConfig.resolve.alias = {
-                pellet: require.resolve('../../src/pellet')
+                pellet: require.resolve('../../index')
               };
 
               // start watching both
@@ -350,14 +354,23 @@ module.exports = function(program, addToReadyQue) {
           server = require('express');
           app = server();
 
-          //if(nconf.get('winston:containers:httplogger')) {
-            //combined
-            //var logStream = new stream.Writable();
+          if(nconf.get('server.accessLog')) {
+            if(nconf.get('server.accessLog.logFile') === 'STDOUT') {
+              app.use(morgan(nconf.get('server.accessLog.format')));
+            } else {
+              var logFile = resolveConfigPaths(nconf.get('server.accessLog.logFile'));
 
-            //winston.loggers.add(logStream, nconf.get('winston:containers:httplogger'));
+              ensureFile(logFile, function (err) {
+                if(err) {
+                  console.error('Can not create log file because:', err.message);
+                  process.exit(1);
+                }
 
-            app.use(morgan(nconf.get('server.logFormat'))); //{stream: logStream}
-          //}
+                var logStream = fs.createWriteStream(logFile, {flags: 'a'});
+                app.use(morgan(nconf.get('server.accessLog.format'), {stream: logStream}));
+              })
+            }
+          }
 
           // setup express static assets including the facicon.ico (replace __DEFAULT_STATIC_DIR with pellet internal path)
           app.use(require('serve-favicon')(resolveConfigPaths(nconf.get('server:favicon'))));
@@ -414,7 +427,7 @@ module.exports = function(program, addToReadyQue) {
                 console.log('Listen on', nconf.get('https:port'), nconf.get('https:address'));
               }
             });
-          })
+          });
         } else {
           pellet.onReady(function(err) {
             if(err) {

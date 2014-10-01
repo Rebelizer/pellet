@@ -14,6 +14,9 @@ var program = require('commander')
   , version = require('../package.json').version
   , i;
 
+process.env.SERVER_ENV = true;
+process.env.BROWSER_ENV = false;
+
 // monkey patch inquirer (nicer formatting)
 for(i in inquirer.prompts) {
   inquirer.prompts[i].prototype.prefix = function (str) {
@@ -68,6 +71,7 @@ function addToReadyQue(onReadyFn) {
 }
 
 // scan for command extensions and load them
+// i.e. anything starting with cmd-*.js
 function mapFilter(basePath) {
   return fs.readdirSync(basePath).map(function(file) {
     if(/^cmd-.+\.js$/.test(file)) return path.join(basePath, file);

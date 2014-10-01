@@ -97,8 +97,6 @@ manifestParser.prototype.load = function(fullPath, options, next) {
       return next(new Error('Cannot parse manifest file'));
     }
 
-    //todo: if file is to package.json we need to do something special!!!!! we need to wrap the shit for package.json files
-
     self.merge(fullPath, manifest, options, next);
   });
 };
@@ -118,8 +116,6 @@ manifestParser.prototype.save = function(fullPath, options, next) {
     next = options;
     options = {};
   }
-
-  //todo: if file is to package.json we need to do something special!!!!!
 
   if(sortedUid.length > 1) {
     for(i in sortedUid) {
@@ -394,8 +390,8 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         //new webpack.NoErrorsPlugin(),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-          'SERVER_ENV': JSON.stringify(false),
-          'BROWSER_ENV': JSON.stringify(true)
+          'process.env.SERVER_ENV': JSON.stringify(false),
+          'process.env.BROWSER_ENV': JSON.stringify(true)
         }),
         new webpack.BannerPlugin(
           options.copyright +
@@ -422,8 +418,8 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         //new webpack.NoErrorsPlugin(),
         new webpack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-          'SERVER_ENV': JSON.stringify(true),
-          'BROWSER_ENV': JSON.stringify(false)
+          'process.env.SERVER_ENV': JSON.stringify(true),
+          'process.env.BROWSER_ENV': JSON.stringify(false)
         }),
         new webpack.BannerPlugin(
             options.copyright +

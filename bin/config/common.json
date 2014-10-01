@@ -1,6 +1,14 @@
 {
   "securityFilter": "\\s(user|pass|aws_)\\w*\\s+.+$",
 
+  "publicAppConfig": {
+    "assetFileName": "assets.js",
+    "componentFileName": "component.js",
+    "polyfillPath": "/js/polyfills.js",
+    "polyfillPathIO": "//polyfill.io",
+    "googleTrackID": "UA-XXXXX-X"
+  },
+
   "pellet": {
     "output": "#PELLET_PROJECT_PATH#/build",
     "outputBrowser" : "browser",
@@ -11,7 +19,10 @@
     "favicon": "#PELLET_PROJECT_PATH#/public/favicon.ico",
     "static": "#PELLET_PROJECT_PATH#/public",
     "webpackMountPoint": "/js/",
-    "logFormat": "combined",
+    "accessLog": {
+      "format": "common",
+      "logFile": "/tmp/pellet.access.log"
+    },
     "polyfillRebuild": false
   },
 

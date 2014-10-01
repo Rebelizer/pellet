@@ -276,6 +276,5 @@ var exports = module.exports = {
         nconf.set(opt, val);
       }
     }
-
   }
 };

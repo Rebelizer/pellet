@@ -7,7 +7,7 @@ var path = require('path')
   , ejs = require('ejs');
 
 var CWD = process.cwd();
-var CREATE_TYPES = ['Component', 'Project'];
+var CREATE_TYPES = ['Component', 'Project', 'Page', 'Layout'];
 
 /**
  * Helper function to add template file to generate que
@@ -89,27 +89,36 @@ module.exports = function(program, addToReadyQue) {
             }
           }
 
+          var baseTemplateNames = [
+            ['comp-react', 'assets', 'comp'],
+            null,
+            ['page-react', 'assets', 'page'],
+            ['layout-react', 'assets', 'comp']
+          ];
+
+          baseTemplateNames = baseTemplateNames[CREATE_TYPES.indexOf(answer.type)];
+
           var componentEP, assetEP;
           // now build up the work needed to render/generate the template output
           if (answer.lang === 'JavaScript') {
             componentEP = path.join(baseOutputDir, answer.fileName + '.jsx');
-            renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-js.ejs'), answer);
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, baseTemplateNames[0]+'-js.ejs'), answer);
           } else if (answer.lang === 'CoffeeScript') {
             componentEP = path.join(baseOutputDir, answer.fileName + '.cjsx');
-            renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-cs.ejs'), answer);
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, baseTemplateNames[0]+'-cs.ejs'), answer);
           }
 
           if (answer.assets === 'stylus') {
             assetEP = path.join(baseOutputDir, answer.fileName + '.styl');
-            renderFile(outputFiles, assetEP, path.join(options.templateDir, 'comp-assets-styl.ejs'), answer);
+            renderFile(outputFiles, assetEP, path.join(options.templateDir, baseTemplateNames[1]+'-styl.ejs'), answer);
           } else if (answer.assets === 'css') {
             assetEP = path.join(baseOutputDir, answer.fileName + '.css');
-            renderFile(outputFiles, assetEP, path.join(options.templateDir, 'comp-assets-css.ejs'), answer);
+            renderFile(outputFiles, assetEP, path.join(options.templateDir, baseTemplateNames[1]+'-css.ejs'), answer);
           }
 
           // todo: add test types i.e. karma vs moka
           if (answer.test) {
-            renderFile(outputFiles, path.join(baseOutputDir, answer.fileName + '.test.js'), path.join(options.templateDir, 'comp-test.ejs'), answer);
+            renderFile(outputFiles, path.join(baseOutputDir, answer.fileName + '.test.js'), path.join(options.templateDir, baseTemplateNames[2]+'-test.ejs'), answer);
           }
 
           // now update or create the manifest AFTER all our files have been created.
@@ -230,7 +239,7 @@ module.exports = function(program, addToReadyQue) {
             fs.copy(path.join(options.templateDir, 'project-assets-reset.css'), resetFile, next);
           }
 
-          var componentPath = path.join(baseOutputDir, 'components');
+          var componentPath = path.join(baseOutputDir, 'frontend');
           outputFiles[componentPath] = function(next) {
             fs.ensureDir(componentPath, next);
           }
@@ -370,7 +379,8 @@ module.exports = function(program, addToReadyQue) {
               return program.pelletConfig.defaults.createDir;
             }
 
-            return (answer.name !== path.basename(options.output));
+            var currentBase = path.basename(options.output);
+            return (answer.name !== currentBase || currentBase === 'frontend');
           }
         },{
           type: 'list',
@@ -387,7 +397,7 @@ module.exports = function(program, addToReadyQue) {
         }], switchTypes);
 
         function switchTypes(answer) {
-          if(answer.type == 'Component') {
+          if(['Component', 'Page', 'Layout'].indexOf(answer.type) !== -1) {
             inquirer.prompt([{
               type: 'confirm',
               name: 'test',
@@ -430,7 +440,6 @@ module.exports = function(program, addToReadyQue) {
             validateProject(answer);
           }
         }
-
       });
     }).on('--help', function () {
       console.log(fs.readFileSync(path.join(__dirname, '..', 'help', 'create.txt')).toString());

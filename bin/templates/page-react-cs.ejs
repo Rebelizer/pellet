@@ -1,0 +1,28 @@
+# @cjsx React.DOM
+
+React = require "react"
+pellet = require "pellet"
+
+module.exports = <%- name %>Page = pellet.createClass
+  setupInitialRender: (ctx, next) ->
+    ctx.setProps myData: "loaded from an API"
+    ctx.setProps showTitle: "my title", neat: "Neat"
+    next()
+
+  render: ->
+    {showTitle, neat} = @props
+
+    <div className="<%- name %>-page">
+    </div>
+
+pellet.addComponentRoute "/<%- name %>", <%- name %>Page
+
+###
+require.ensure [], () ->
+  require './other.js'
+
+process.env.NODE_ENV
+if process.env.SERVER_ENV
+if process.env.BROWSER_ENV
+
+###
