@@ -6,6 +6,8 @@
 [![Dependency Status](https://david-dm.org/Rebelizer/react-pellet.svg?style=flat)](https://david-dm.org/Rebelizer/react-pellet)
 [![License](http://img.shields.io/npm/l/express.svg?style=flat)](https://github.com/Rebelizer/react-pellet/blob/master/LICENSE)
 
+[ ![Codeship Status for Rebelizer/react-pellet](https://www.codeship.io/projects/583a1140-2c2a-0132-b244-7ed6f3cea7da/status)](https://www.codeship.io/projects/38759)
+
 ## Installation
 
     $ npm install -g react-pellet
