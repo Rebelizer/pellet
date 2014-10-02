@@ -4,6 +4,7 @@
 [![Issues](http://img.shields.io/github/issues/Rebelizer/react-pellet.svg?style=flat)](https://github.com/Rebelizer/react-pellet/issues)
 [![NPM Version](http://img.shields.io/npm/v/react-pellet.svg?style=flat)](https://www.npmjs.org/package/react-pellet)
 [![Dependency Status](https://david-dm.org/Rebelizer/react-pellet.svg?style=flat)](https://david-dm.org/Rebelizer/react-pellet)
+[![License](http://img.shields.io/npm/l/express.svg?style=flat)](https://github.com/Rebelizer/react-pellet/blob/master/LICENSE)
 
 ## Installation
 
@@ -19,4 +20,4 @@ You are also welcome to correct any spelling mistakes or any language issues, be
 
 ## License
 
-MIT (https://github.com/Rebelizer/react-pellet/blob/master/LICENSE)
+MIT
