@@ -140,7 +140,7 @@ var exports = module.exports = {
           }
 
           // because webpack processes the node and browser files differently
-          // the webpack build hash (info.hash) will be different and can not
+          // the webpack build hash (info.hash) will be different and cannot
           // be used to match up the two build passes so we need to build a
           // hash based on all the input files and their sizes.
           var safeHash='', file;
@@ -180,7 +180,8 @@ var exports = module.exports = {
         // because we make 2 passes to build a node and browser version
         // we get 2 errors most of the time so just air bag the second error
         if (lastError !== err.message) {
-          console.error(err.message);
+          console.error('Error in webpack passes (browser|server) because:', err.message);
+          console.log('Try deleting your webpack output directory');
           lastError = err.message
         } else {
           lastError = false;
@@ -223,7 +224,7 @@ var exports = module.exports = {
 
         fs.writeFileSync(profileFilePath, JSON.stringify(buildManifestMap, null, 2));
         if(next) {
-          next(null, buildManifestMap, browserStats, nodeStats);
+          next((lastError ? err : null), buildManifestMap, browserStats, nodeStats);
         }
       } catch (ex) {
         console.error('Error building manifest profile and map because:', ex.message);
