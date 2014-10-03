@@ -85,16 +85,20 @@ gulp.task('karma', 'in broswer love', function() {
 
 gulp.task('release', function(next) {
   git('stash').then(function(output) {
+    gutil.log('git stash');
+
     function cleanUpStash(noCB) {
       git('stash pop').then(function(output) {
+        gutil.log('git stash pop');
         if(!noCB) next();
       }).fail(function (err) {
-        gutil.log('#### ERROR CLEANING UP GIT STASH!!!!');
+        gutil.log('#### ERROR CLEANING UP GIT STASH!!!!', err.message || err);
         if(!noCB) next(err);
       });
     }
 
     git('pull origin master').then(function(output) {
+      gutil.log('git pull origin master');
 
       runSequence([/*'webpack-prod with clean',*/ 'test', 'document'], 'release:tag', function(err) {
         cleanUpStash();
@@ -170,9 +174,14 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
 
             var tagName = 'v'+pkg.version;
             git('add package.json CHANGELOG.md').then(function() {
+              gutil.log('git add package.json CHANGELOG.md');
+
               git('commit -m "chore(release): '+tagName+'"').then(function() {
+                gutil.log('git commit -m');
                 git('tag -a "'+tagName+'" -m "Release tagged by '+process.env.USER+' @ '+new Date().toJSON()+'"').then(function() {
+                  gutil.log('git tag -a -m');
                   git('push origin master').then(function() {
+                    gutil.log('git push origin master');
                     git('push origin '+tagName).then(function() {
 
                       if(fs.existsSync('.github-api-token')) {
@@ -191,7 +200,11 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
                             token: data.toString().trim()
                           });
 
-                          gutil.log('info>>>', tagName, changelog.subtitle, log)
+                          // only log the last build changelog entries
+                          log = log.split(/(### \d+\.\d+\.\d+ \()/m);
+                          log = log[1] + log[2];
+
+                          gutil.log('github API create releases tag');
                           github.releases.createRelease({
                             owner: 'Rebelizer',
                             repo: 'react-pellet',
@@ -199,7 +212,14 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
                             name: tagName + (changelog.subtitle ? (' ' + changelog.subtitle) : ''),
                             body: log
                           }, function(err, res) {
-                            gutil.log(JSON.stringify(res));
+                            if(err) {
+                              return next(err);
+                            }
+
+                            if(res.status != '201 Created') {
+                              gutil.log('Failed to create release tag');
+                            }
+
                             next(null);
                           });
                         });
