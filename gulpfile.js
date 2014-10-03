@@ -27,7 +27,7 @@ gulp.task('clean', 'Clean all the build files', function(next) {
 // ###############################################
 
 gulp.task('document', 'Build js documentation for the doghouse', function() {
-  gulp.src(['./src/**/isomorphic-*.js','./README.md'])
+  gulp.src(['./src/**/isomorphic-*.js', './docs/README.md'])
     .pipe((function(cb) {
       var files = [];
 
@@ -135,7 +135,7 @@ gulp.task('release', 'build, tag, release, deploy', [/*'webpack-prod with clean'
             if (err) return next(err);
 
             var tagName = 'v'+pkg.version;
-            git('add package.json CHANGELOG.md doghouse/docs').then(function() {
+            git('add package.json CHANGELOG.md').then(function() {
               git('commit -m "chore(release): '+tagName+'"').then(function() {
                 git('tag -a "'+tagName+'" -m "Tagged '+new Date().toString()+'"').then(function() {
 
