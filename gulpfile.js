@@ -218,7 +218,7 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
                             gutil.log('github API create releases tag');
                             github.releases.createRelease({
                               owner: 'Rebelizer',
-                              repo: 'react-pellet',
+                              repo: 'pellet',
                               tag_name: tagName,
                               name: tagName + (changelog.subtitle ? (' ' + changelog.subtitle) : ''),
                               body: log

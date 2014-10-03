@@ -1,11 +1,11 @@
 {
-  "name": "react-pellet",
+  "name": "pellet",
   "version": "0.0.8",
   "description": "",
   "author": "Demetrius Johnson <contact@demetriusj.com> (http://demetriusj.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Rebelizer/react-pellet.git"
+    "url": "https://github.com/Rebelizer/pellet.git"
   },
   "license": "MIT",
   "homepage": "http://pelletjs.com",
