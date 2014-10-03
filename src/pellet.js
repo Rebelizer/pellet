@@ -70,7 +70,7 @@ pellet.prototype.registerInitFn = function(fn) {
  */
 pellet.prototype.startInit = function(config) {
   if(typeof(this.readyError) != 'undefined') {
-    throw new Error('Can not reinit because pellet is all ready running.');
+    throw new Error('Cannot reinit because pellet is all ready running.');
   }
 
   this.config = config;
@@ -243,6 +243,13 @@ if(process.env.SERVER_ENV) {
 // between the native nodejs environment and the webpacks container.
 if(process.env.BROWSER_ENV) {
   globlePellet = new pellet();
+
+  // monky pach nodejs to have a window object
+  // so if running without webpack window.??? will not crash the system
+  if(typeof window == 'undefined') {
+    global.window = {};
+  }
+
   window.onload = function() {
     globlePellet.onReady(function() {
       var match = globlePellet.routes.parse(location.pathname + location.search);
