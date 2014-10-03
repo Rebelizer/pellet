@@ -248,10 +248,10 @@ describe "Isomorphic Context", ->
             container.setProps({field1: undefined})
             expect(container.props).eql({field2:"f2", field3:"f3", field4:{s1:1, s2:{s3:3}}})
 
-            expect(container.setProps.bind(container, ("test"))).to.throw("Can not merge non objects to root namespace")
-            expect(container.setProps.bind(container)).to.throw("Can not merge non objects to root namespace")
-            expect(container.setProps.bind(container, (1))).to.throw("Can not merge non objects to root namespace")
-            expect(container.setProps.bind(container, (undefined))).to.throw("Can not merge non objects to root namespace")
+            expect(container.setProps.bind(container, ("test"))).to.throw("Cannot merge non objects to root namespace")
+            expect(container.setProps.bind(container)).to.throw("Cannot merge non objects to root namespace")
+            expect(container.setProps.bind(container, (1))).to.throw("Cannot merge non objects to root namespace")
+            expect(container.setProps.bind(container, (undefined))).to.throw("Cannot merge non objects to root namespace")
 
         it "from child namespace", ->
             container = new isomorphicContext()
@@ -273,10 +273,10 @@ describe "Isomorphic Context", ->
             expect(childContainer.props).eql({ns1:{field1:"f1", field2:"f2"}});
             expect(container.props).eql({ns1:{field1:"f1", field2:"f2"}});
 
-            expect(childContainer.setProps.bind(childContainer, ("test"))).to.not.throw("Can not merge non objects to root namespace")
-            expect(childContainer.setProps.bind(childContainer)).to.not.throw("Can not merge non objects to root namespace")
-            expect(childContainer.setProps.bind(childContainer, (1))).to.not.throw("Can not merge non objects to root namespace")
-            expect(childContainer.setProps.bind(childContainer, (undefined))).to.not.throw("Can not merge non objects to root namespace")
+            expect(childContainer.setProps.bind(childContainer, ("test"))).to.not.throw("Cannot merge non objects to root namespace")
+            expect(childContainer.setProps.bind(childContainer)).to.not.throw("Cannot merge non objects to root namespace")
+            expect(childContainer.setProps.bind(childContainer, (1))).to.not.throw("Cannot merge non objects to root namespace")
+            expect(childContainer.setProps.bind(childContainer, (undefined))).to.not.throw("Cannot merge non objects to root namespace")
 
     describe "set serialize props", ->
         it "props get set also", ->

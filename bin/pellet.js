@@ -100,7 +100,7 @@ var commonConfigFile = path.resolve(program.configDir, program.configCommon)
   , config = utils.readConfigFile(configFile);
 
 if(!commonConfig || !config) {
-  console.error('Can not load common (', commonConfigFile, ') or environment (', configFile, ')');
+  console.error('Cannot load common (', commonConfigFile, ') or environment (', configFile, ')');
   process.exit(1);
 }
 

@@ -81,7 +81,7 @@ module.exports = function(program, addToReadyQue) {
                 body += 'CWD: ' + process.cwd() + '\n';
                 body += 'SYSTEM: ' + process.platform + ' pid: ' + process.pid;
 
-                // on windows can not use getuid or getgid
+                // on windows cannot use getuid or getgid
                 if(process.getuid && process.getgid) {
                   body += ' uid: ' + process.getuid() + ' gid: ' + process.getgid() + '\n';
                 } else {
@@ -162,7 +162,7 @@ module.exports = function(program, addToReadyQue) {
               var componentModule = path.join(options.output, '_MANIFEST.json');
 
               if(!fs.existsSync(componentModule)) {
-                console.error('Can not find build output. Please build and insure ', componentModule, 'exists.');
+                console.error('Cannot find build output. Please build and insure ', componentModule, 'exists.');
                 process.exit(1);
               }
 
@@ -170,7 +170,7 @@ module.exports = function(program, addToReadyQue) {
               require('source-map-support').install({handleUncaughtExceptions: false});
               require(componentModule);
             } catch (ex) {
-              console.error('Can not load webpack code because:', ex.message);
+              console.error('Cannot load webpack code because:', ex.message);
               console.error(ex.stack);
               process.exit(1); // initial load kill processes
             }
@@ -207,7 +207,7 @@ module.exports = function(program, addToReadyQue) {
 
             ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
               if (err) {
-                console.error('Can not build Webpack config because:', err.message);
+                console.error('Cannot build Webpack config because:', err.message);
                 process.exit(1);
               }
 
@@ -219,12 +219,12 @@ module.exports = function(program, addToReadyQue) {
               var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
                 options, function (err, buildManifestMap, browserStats, nodeStats) {
                   if (err) {
-                    console.error('Can not build webpack files because:', err.message);
+                    console.error('Cannot build webpack files because:', err.message, err.trace);
                     return;
                   }
 
                   if (!buildManifestMap.server.component) {
-                    console.error('Can not load because no component in manifest');
+                    console.error('Cannot load because no component in manifest');
                     return;
                   }
 
@@ -255,7 +255,7 @@ module.exports = function(program, addToReadyQue) {
                       require("source-map-support").install({handleUncaughtExceptions: false});
                       require(componentModule);
                     } catch (ex) {
-                      console.error('Can not load webpack code because:', ex.message);
+                      console.error('Cannot load webpack code because:', ex.message);
                       console.error(ex.stack);
                       process.exit(1); // initial load kill processes
                     }
@@ -362,7 +362,7 @@ module.exports = function(program, addToReadyQue) {
 
               ensureFile(logFile, function (err) {
                 if(err) {
-                  console.error('Can not create log file because:', err.message);
+                  console.error('Cannot create log file because:', err.message);
                   process.exit(1);
                 }
 

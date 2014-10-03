@@ -87,7 +87,7 @@ isomorphicContext.prototype.buildMergeObjFromNamespace = function(obj) {
 
 isomorphicContext.prototype.setProps = function(obj) {
   if(this.insertNode.key === false && typeof obj !== 'object') {
-    throw new Error('Can not merge non objects to root namespace')
+    throw new Error('Cannot merge non objects to root namespace')
   }
 
   var mergeObj = this.buildMergeObjFromNamespace(obj);
@@ -96,7 +96,7 @@ isomorphicContext.prototype.setProps = function(obj) {
 
 isomorphicContext.prototype.set = function(obj) {
   if(this.insertNode.key === false && typeof obj !== 'object') {
-    throw new Error('Can not merge non objects to root namespace')
+    throw new Error('Cannot merge non objects to root namespace')
   }
 
   var mergeObj = this.buildMergeObjFromNamespace(obj);

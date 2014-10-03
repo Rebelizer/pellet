@@ -144,7 +144,7 @@ module.exports = function(program, addToReadyQue) {
                 if(answer.mergeManifest[0] === 'Create') {
                   newManifest.merge(manifestOutputPath, newComponent, {ignoreUpdatingWebpackEP:true}, function(err) {
                     if(err) {
-                      console.error('Can not create manifest because:', err.message);
+                      console.error('Cannot create manifest because:', err.message);
                     }
 
                     newManifest.save(manifestOutputPath, next);
@@ -153,7 +153,7 @@ module.exports = function(program, addToReadyQue) {
                   newManifest.load(manifestOutputPath, {ignoreUpdatingWebpackEP:true}, function(err) {
                     newManifest.merge(manifestOutputPath, newComponent, {ignoreUpdatingWebpackEP:true, overwrite:true}, function(err) {
                       if(err) {
-                        console.error('Can not create manifest because:', err.message);
+                        console.error('Cannot create manifest because:', err.message);
                       }
 
                       newManifest.save(manifestOutputPath, next);
@@ -279,7 +279,7 @@ module.exports = function(program, addToReadyQue) {
 
             newManifest.merge(manifestOutputPath, newComponent, {ignoreUpdatingWebpackEP: true}, function (err) {
               if (err) {
-                console.error('Can not create manifest because:', err.message);
+                console.error('Cannot create manifest because:', err.message);
               }
 
               newManifest.save(manifestOutputPath, next);
