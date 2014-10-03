@@ -1,3 +1,11 @@
+### 0.0.4 (2014-10-02)
+
+
+#### Bug Fixes
+
+* auto tagging in gulp release task ([c40078f8](https://github.com/Rebelizer/react-pellet.git/commit/c40078f8be2432cc642abc76ca0a33700b4488f1))
+
+
 ### 0.0.3 (2014-10-02)
 
 
