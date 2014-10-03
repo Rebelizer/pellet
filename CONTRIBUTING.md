@@ -77,11 +77,11 @@ included in the project:
 
    ```bash
    # Clone your fork of the repo into the current directory
-   git clone https://github.com/<your-username>/expdy.git
+   git clone https://github.com/<your-username>/pellet.git
    # Navigate to the newly cloned directory
-   cd expdy
+   cd pellet
    # Assign the original repo to a remote called "upstream"
-   git remote add upstream https://github.com/Rebelizer/expdy.git
+   git remote add upstream https://github.com/Rebelizer/pellet.git
    ```
 
 2. If you cloned a while ago, get the latest changes from upstream:
