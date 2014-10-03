@@ -84,8 +84,9 @@ gulp.task('karma', 'in broswer love', function() {
 // ###############################################
 
 gulp.task('release', function(next) {
+  gutil.log('git stash');
   git('stash').then(function(output) {
-    gutil.log('git stash');
+    gutil.log(output);
 
     function cleanUpStash(noCB) {
       git('stash pop').then(function(output) {
@@ -104,8 +105,8 @@ gulp.task('release', function(next) {
         cleanUpStash();
       });
 
-    }).fail(function (err) {cleanUpStash(true); next(err);});
-  }).fail(function (err) {next(err);});
+    }).fail(function (err) {gutil.log('Git error:', err.message || err); cleanUpStash(true); next(err);});
+  }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
 
 });
 
@@ -204,24 +205,27 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
                           log = log.split(/(### \d+\.\d+\.\d+ \()/m);
                           log = log[1] + log[2];
 
-                          gutil.log('github API create releases tag');
-                          github.releases.createRelease({
-                            owner: 'Rebelizer',
-                            repo: 'react-pellet',
-                            tag_name: tagName,
-                            name: tagName + (changelog.subtitle ? (' ' + changelog.subtitle) : ''),
-                            body: log
-                          }, function(err, res) {
-                            if(err) {
-                              return next(err);
-                            }
+                          gutil.log('github API waiting... (2 sec)');
+                          setTimeout(function() {
+                            gutil.log('github API create releases tag');
+                            github.releases.createRelease({
+                              owner: 'Rebelizer',
+                              repo: 'react-pellet',
+                              tag_name: tagName,
+                              name: tagName + (changelog.subtitle ? (' ' + changelog.subtitle) : ''),
+                              body: log
+                            }, function(err, res) {
+                              if(err) {
+                                return next(err);
+                              }
 
-                            if(res.status != '201 Created') {
-                              gutil.log('Failed to create release tag');
-                            }
+                              if(res.status != '201 Created') {
+                                gutil.log('Failed to create release tag');
+                              }
 
-                            next(null);
-                          });
+                              next(null);
+                            });
+                          }, 2000);
                         });
                       } else {
                         next(null);
