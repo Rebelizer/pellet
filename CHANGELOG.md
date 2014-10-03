@@ -1,3 +1,11 @@
+### 0.0.4 (2014-10-02)
+
+
+#### Bug Fixes
+
+* github integration in gulp release task ([bd7e7f96](https://github.com/Rebelizer/react-pellet.git/commit/bd7e7f96c03a47e36448debe77b0a7617792576f))
+
+
 ### 0.0.3 (2014-10-02)
 
 
