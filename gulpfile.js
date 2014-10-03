@@ -96,8 +96,8 @@ gulp.task('release', function(next) {
         return next();
       }
 
+      gutil.log('git stash pop');
       git('stash pop').then(function(output) {
-        gutil.log('git stash pop');
         if(!noCB) next();
       }).fail(function (err) {
         gutil.log('#### ERROR CLEANING UP GIT STASH!!!!', err.message || err);
@@ -105,8 +105,8 @@ gulp.task('release', function(next) {
       });
     }
 
+    gutil.log('git pull origin master');
     git('pull origin master').then(function(output) {
-      gutil.log('git pull origin master');
 
       runSequence([/*'webpack-prod with clean',*/ 'test', 'document'], 'release:tag', function(err) {
         cleanUpStash();
@@ -181,15 +181,16 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
             if (err) return next(err);
 
             var tagName = 'v'+pkg.version;
+            gutil.log('git add package.json CHANGELOG.md');
             git('add package.json CHANGELOG.md').then(function() {
-              gutil.log('git add package.json CHANGELOG.md');
 
+              gutil.log('git commit -m');
               git('commit -m "chore(release): '+tagName+'"').then(function() {
-                gutil.log('git commit -m');
+                gutil.log('git tag -a -m');
                 git('tag -a "'+tagName+'" -m "Release tagged by '+process.env.USER+' @ '+new Date().toJSON()+'"').then(function() {
-                  gutil.log('git tag -a -m');
+                  gutil.log('git push origin master');
                   git('push origin master').then(function() {
-                    gutil.log('git push origin master');
+                    gutil.log('git push origin <tag>');
                     git('push origin '+tagName).then(function() {
 
                       if(fs.existsSync('.github-api-token')) {
