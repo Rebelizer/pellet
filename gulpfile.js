@@ -42,7 +42,11 @@ gulp.task('document', 'Build js documentation for the doghouse', function() {
           cmd += ' ' + files.join(' ');
 
           exec(cmd, function(err) {
-            cb(err);
+            if(err) {
+              gutil.log(err.message || err);
+            }
+
+            cb();
           });
         });
       })());
