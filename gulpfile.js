@@ -86,9 +86,16 @@ gulp.task('karma', 'in broswer love', function() {
 gulp.task('release', function(next) {
   gutil.log('git stash');
   git('stash').then(function(output) {
-    gutil.log(output);
+    var skipStash = false;
+    if(output == 'No local changes to save') {
+      skipStash = true;
+    }
 
     function cleanUpStash(noCB) {
+      if(skipStash) {
+        return next();
+      }
+
       git('stash pop').then(function(output) {
         gutil.log('git stash pop');
         if(!noCB) next();
@@ -219,7 +226,7 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
                                 return next(err);
                               }
 
-                              if(res.status != '201 Created') {
+                              if(res.status.indexOf('201 Created') != -1) {
                                 gutil.log('Failed to create release tag');
                               }
 
