@@ -5,4 +5,4 @@ node_modules/
 npm-debug.log
 bower_components/
 bin/config/local.json
-doghouse/docs
+doghouse/public/docs/
