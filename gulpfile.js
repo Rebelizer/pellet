@@ -185,14 +185,15 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
                           token: data.toString().trim()
                         });
 
+                        gutil.log('info>>>', tagName, changelog.subtitle, log)
                         github.releases.createRelease({
-                          owner:'Rebelizer',
-                          repo:'react-pellet',
+                          owner: 'Rebelizer',
+                          repo: 'react-pellet',
                           tag_name: tagName,
                           name: tagName + (changelog.subtitle ? (' ' + changelog.subtitle) : ''),
                           body: log
                         }, function(err, res) {
-                          console.log(JSON.stringify(res));
+                          gutil.log(JSON.stringify(res));
                           next(null);
                         });
                       });
