@@ -27,10 +27,10 @@
   "bin": {
     "pellet": "./bin/pellet.js"
   },
-  "man": "pellet.1",
+  "man": "./docs/pellet.1",
   "bugs": "https://github.com/Rebelizer/pellet/issues",
   "scripts": {
-    "prepublish": "marked-man --name pellet docs/CLI.md > pellet.1",
+    "prepublish": "marked-man --name pellet docs/CLI.md > docs/pellet.1",
     "lint": "jshint lib bin index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
     "test": "mocha --compilers coffee:coffee-script/register ./test/"
   },
