@@ -1,12 +1,14 @@
 'use strict';
 
 var gulp = require('gulp')
+  , gutil = require('gulp-util')
   , fs = require('fs')
   , path = require('path')
   , plugins = require('gulp-load-plugins')()
   , git = require("git-promise")
   , through = require('through2')
   , exec = require('child_process').exec
+  , runSequence = require('run-sequence')
   , conventionalChangelog = require('conventional-changelog');
 
 plugins.help(gulp);
@@ -77,7 +79,35 @@ gulp.task('karma', 'in broswer love', function() {
 // DEPLOYMENT SCRIPTS
 // ###############################################
 
-gulp.task('release', 'build, tag, release, deploy', [/*'webpack-prod with clean',*/ 'test', 'document'], function(next) {
+gulp.task('release', function(next) {
+  git('stash').then(function(output) {
+    function cleanUpStash(noCB) {
+      git('stash pop').then(function(output) {
+        if(!noCB) next();
+      }).fail(function (err) {
+        gutil.log('#### ERROR CLEANING UP GIT STASH!!!!');
+        if(!noCB) next(err);
+      });
+    }
+
+    git('pull origin master').then(function(output) {
+
+      runSequence([/*'webpack-prod with clean',*/ 'test', 'document'], 'release:tag', function(err) {
+        cleanUpStash();
+      });
+
+    }).fail(function (err) {cleanUpStash(true); next(err);});
+  }).fail(function (err) {next(err);});
+
+});
+
+
+gulp.task('go', function(next) {
+  gutil.log('hide demi');
+  next(null);
+});
+
+gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
   var program = require('commander');
 
   program
@@ -138,37 +168,39 @@ gulp.task('release', 'build, tag, release, deploy', [/*'webpack-prod with clean'
             git('add package.json CHANGELOG.md').then(function() {
               git('commit -m "chore(release): '+tagName+'"').then(function() {
                 git('tag -a "'+tagName+'" -m "Tagged '+new Date().toString()+'"').then(function() {
+                  git('push origin master').then(function() {
 
-                  if(fs.existsSync('.github-api-token')) {
-                    fs.readFile('.github-api-token', function(err, data) {
-                      if (err) return next(err);
+                    if(fs.existsSync('.github-api-token')) {
+                      fs.readFile('.github-api-token', function(err, data) {
+                        if (err) return next(err);
 
-                      var github = new require("github")({
-                        version: "3.0.0",
-                        protocol: "https",
-                        timeout: 5000
+                        var github = new require("github")({
+                          version: "3.0.0",
+                          protocol: "https",
+                          timeout: 5000
+                        });
+
+                        github.authenticate({
+                          type: "oauth",
+                          token: data.toString().trim()
+                        });
+
+                        github.releases.createRelease({
+                          owner:'Rebelizer',
+                          repo:'react-pellet',
+                          tag_name: tagName,
+                          name: tagName + (changelog.subtitle ? (' ' + changelog.subtitle) : ''),
+                          body: log
+                        }, function(err, res) {
+                          console.log(JSON.stringify(res));
+                          next(null);
+                        });
                       });
+                    } else {
+                      next(null);
+                    }
 
-                      github.authenticate({
-                        type: "oauth",
-                        token: data.toString().trim()
-                      });
-
-                      github.releases.createRelease({
-                        owner:'Rebelizer',
-                        repo:'react-pellet',
-                        tag_name: tagName,
-                        name: tagName + (changelog.subtitle ? (' ' + changelog.subtitle) : ''),
-                        body: log
-                      }, function(err, res) {
-                        console.log(JSON.stringify(res));
-                        next(null);
-                      });
-                    });
-                  } else {
-                    next(null);
-                  }
-
+                  }).fail(function (err) {next(err);});
                 }).fail(function (err) {next(err);});
               }).fail(function (err) {next(err);});
             }).fail(function (err) {next(err);});
