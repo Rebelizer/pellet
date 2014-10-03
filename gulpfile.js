@@ -18,14 +18,14 @@ plugins.help(gulp);
 // ###############################################
 
 gulp.task('clean', 'Clean all the build files', function(next) {
-  gulp.src(['./doghouse/docs/**/*'
+  gulp.src(['./doghouse/public/docs/**/*', './doghouse/build/**/*'
   ], {read: false})
     .pipe(require('gulp-print')())
     //.pipe(plugins.clean())
 });
 
 // ###############################################
-// BUILD DOCS
+// BUILD DOCS (output is in doghouse)
 // ###############################################
 
 gulp.task('document', 'Build js documentation for the doghouse', function() {
@@ -33,6 +33,7 @@ gulp.task('document', 'Build js documentation for the doghouse', function() {
     .pipe((function(cb) {
       var files = [];
 
+      // use /doghouse/jsdoc-template/config.json to config jsdoc
       return through.obj(function (file, enc, callback) {
           files.push(file.path);
           return callback();
