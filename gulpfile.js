@@ -171,40 +171,42 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
             var tagName = 'v'+pkg.version;
             git('add package.json CHANGELOG.md').then(function() {
               git('commit -m "chore(release): '+tagName+'"').then(function() {
-                git('tag -a "'+tagName+'" -m "Tagged '+new Date().toString()+'"').then(function() {
+                git('tag -a "'+tagName+'" -m "Release tagged by '+process.env.USER+' @ '+new Date().toJSON()+'"').then(function() {
                   git('push origin master').then(function() {
+                    git('push origin '+tagName).then(function() {
 
-                    if(fs.existsSync('.github-api-token')) {
-                      fs.readFile('.github-api-token', function(err, data) {
-                        if (err) return next(err);
+                      if(fs.existsSync('.github-api-token')) {
+                        fs.readFile('.github-api-token', function(err, data) {
+                          if (err) return next(err);
 
-                        var github = new require("github")({
-                          version: "3.0.0",
-                          protocol: "https",
-                          timeout: 5000
+                          var github = new require("github")({
+                            version: "3.0.0",
+                            protocol: "https",
+                            timeout: 5000
+                          });
+
+                          github.authenticate({
+                            type: "oauth",
+                            token: data.toString().trim()
+                          });
+
+                          gutil.log('info>>>', tagName, changelog.subtitle, log)
+                          github.releases.createRelease({
+                            owner: 'Rebelizer',
+                            repo: 'react-pellet',
+                            tag_name: tagName,
+                            name: tagName + (changelog.subtitle ? (' ' + changelog.subtitle) : ''),
+                            body: log
+                          }, function(err, res) {
+                            gutil.log(JSON.stringify(res));
+                            next(null);
+                          });
                         });
+                      } else {
+                        next(null);
+                      }
 
-                        github.authenticate({
-                          type: "oauth",
-                          token: data.toString().trim()
-                        });
-
-                        gutil.log('info>>>', tagName, changelog.subtitle, log)
-                        github.releases.createRelease({
-                          owner: 'Rebelizer',
-                          repo: 'react-pellet',
-                          tag_name: tagName,
-                          name: tagName + (changelog.subtitle ? (' ' + changelog.subtitle) : ''),
-                          body: log
-                        }, function(err, res) {
-                          gutil.log(JSON.stringify(res));
-                          next(null);
-                        });
-                      });
-                    } else {
-                      next(null);
-                    }
-
+                    }).fail(function (err) {next(err);});
                   }).fail(function (err) {next(err);});
                 }).fail(function (err) {next(err);});
               }).fail(function (err) {next(err);});
