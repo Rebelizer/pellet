@@ -179,7 +179,8 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
                         fs.readFile('.github-api-token', function(err, data) {
                           if (err) return next(err);
 
-                          var github = new require("github")({
+                          var githubAPI = require("github");
+                          var github = new githubAPI({
                             version: "3.0.0",
                             protocol: "https",
                             timeout: 5000
@@ -206,11 +207,11 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
                         next(null);
                       }
 
-                    }).fail(function (err) {next(err);});
-                  }).fail(function (err) {next(err);});
-                }).fail(function (err) {next(err);});
-              }).fail(function (err) {next(err);});
-            }).fail(function (err) {next(err);});
+                    }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
+                  }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
+                }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
+              }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
+            }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
           });
         });
       });
