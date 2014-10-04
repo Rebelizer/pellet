@@ -1,10 +1,10 @@
 var kefir = require('kefir')
-  , isomorphicRender = require('./isomorphic-render.js')
+  , isomorphicRender = require('./isomorphic-render')
   , routeTable = require('./route-table')
-  , globlePellet;
 
 /**
  * @class pellet
+ *
  */
 function pellet() {
   this.readyFnQue = [];
@@ -19,7 +19,7 @@ function pellet() {
  *
  * @type {exports}
  */
-pellet.prototype.createClass = require('./isomorphic-wrapper.js');
+pellet.prototype.createClass = require('./pellet-create-class');
 
 /**
  *
@@ -114,9 +114,12 @@ pellet.prototype.startInit = function(config) {
  * @param options
  */
 pellet.prototype.addComponentRoute = function(route, component, options) {
+  var self = this;
+
   this.routes.add(route, function() {
     routeContext = this;
 
+    // todo: not sure this is safe... if options is updated will all future request get modified?
     if(!options) {
       options = {};
     }
@@ -150,13 +153,14 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
       if(process.env.SERVER_ENV) {
         var markup;
 
+        // todo: this about letting someone pass in a ejs template and we use that to render (so we can have jade etc to build the wrapper)
         if(!routeContext) {
           console.error('DIE because we have to have the routeContext')
           throw new Error('xxxxx');
         }
 
-        var assetPath = globlePellet.config.jsMountPoint + globlePellet.config.assetFileName;
-        var appPath = globlePellet.config.jsMountPoint + globlePellet.config.componentFileName;
+        var assetPath = self.config.jsMountPoint + self.config.assetFileName;
+        var appPath = self.config.jsMountPoint + self.config.componentFileName;
 
         var ourBodyScripts = '<script src="//cdnjs.cloudflare.com/ajax/libs/history.js/1.8/native.history.min.js"></script>'+
           '<script src="//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react-with-addons.js"></script>'+
@@ -166,16 +170,16 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
           ourBodyScripts += '<script>window.__pellet__ctx = "' + ctx.toJSON().replace(/"/g,'\\"') + '";</script>';
         }
 
-        ourBodyScripts += '<script>window.__pellet__config = ' + JSON.stringify(globlePellet.config) + ';</script>';
+        ourBodyScripts += '<script>window.__pellet__config = ' + JSON.stringify(self.config) + ';</script>';
 
-        ourBodyScripts += '<!-- Google Analytics: change UA-XXXXX-X to be your site\'s ID. -->\n'+
+        ourBodyScripts += '<!-- Google Analytics: change ' + self.config.googleTrackID + ' to be your site\'s ID. -->\n'+
         '<script>\n'+
           '(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=\n'+
           'function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;\n'+
           'e=o.createElement(i);r=o.getElementsByTagName(i)[0];\n'+
           'e.src=\'//www.google-analytics.com/analytics.js\';\n'+
           'r.parentNode.insertBefore(e,r)}(window,document,\'script\',\'ga\'));\n'+
-          'ga(\'create\',\'' + globlePellet.config.googleTrackID + '\');ga(\'send\',\'pageview\');\n'+
+          'ga(\'create\',\'' + self.config.googleTrackID + '\');ga(\'send\',\'pageview\');\n'+
         '</script>';
 
         if(ctx) {
@@ -193,7 +197,7 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
             //((message.meta && message.meta.title) ? '  <title>' + message.meta.title + '</title>' : '') +
             '<meta name="description" content="">'+
             '<meta name="viewport" content="width=device-width, initial-scale=1">'+
-            '<script src="' + globlePellet.config.polyfillPath + '"></script>'+
+            '<script src="' + self.config.polyfillPath + '"></script>'+
             '<script src="' + assetPath + '"></script>'+
           '</head>'+
           '<body>'+
@@ -211,11 +215,12 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
   }, options);
 };
 
-// for the server environment define the middleware
+// SERVER ENVIRONMENT
+// export a middleware wrapper to help with routes.
 if(process.env.SERVER_ENV) {
   pellet.prototype.middleware = function (req, res, next) {
 
-    var match = globlePellet.routes.parse(req.path);
+    var match = __pellet__ref.routes.parse(req.path);
     if (!match) {
       return next();
     }
@@ -237,32 +242,23 @@ if(process.env.SERVER_ENV) {
      });
      */
   };
+
+  module.exports = global.__pellet__ref = new pellet();
 }
 
-// hack the environment so that we can create a singleton that can be shared
-// between the native nodejs environment and the webpacks container.
-if(process.env.BROWSER_ENV) {
-  globlePellet = new pellet();
-
-  // monky pach nodejs to have a window object
-  // so if running without webpack window.??? will not crash the system
-  if(typeof window == 'undefined') {
-    global.window = {};
-  }
+// BROWSER ENVIRONMENT
+// bootstrap the browser envirment but triggering the route
+// the page was loaded and replay the events on the server
+// render.
+else if(process.env.BROWSER_ENV) {
+  module.exports = window.__pellet__ref = new pellet();
 
   window.onload = function() {
-    globlePellet.onReady(function() {
-      var match = globlePellet.routes.parse(location.pathname + location.search);
+    window.__pellet__ref.onReady(function() {
+      var match = window.__pellet__ref.routes.parse(location.pathname + location.search);
       match.fn.call(match);
     });
-    globlePellet.startInit(window.__pellet__config);
-  }
-} else {
-  if(global.__pelletSingleton) {
-    globlePellet = global.__pelletSingleton;
-  } else {
-    globlePellet = global.__pelletSingleton = new pellet();
+
+    window.__pellet__ref.startInit(window.__pellet__config);
   }
 }
-
-module.exports = globlePellet;

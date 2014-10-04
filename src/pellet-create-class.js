@@ -1,7 +1,7 @@
 var react = require('react')
   , isomorphicMixin = require('./isomorphic-mixin.js');
 
-function isomorphicWrapper(spec) {
+module.exports = function(spec) {
   if(!spec.mixins) {
     spec.mixins = [];
   }
@@ -21,5 +21,3 @@ function isomorphicWrapper(spec) {
 
   return react.createClass(spec);
 }
-
-module.exports = isomorphicWrapper;

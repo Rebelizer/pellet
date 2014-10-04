@@ -339,6 +339,10 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
             .replace(/\s+[{},\]]+/g, "")
             .replace(/[{\[":,]/g, ""));
 
+      // merge in pellet into the components so its loaded and can bootstape environment
+      var pelletEntryPointPath = path.resolve(__dirname, './pellet.js');
+      ourManifest.webpackEP.component.push(pelletEntryPointPath);
+
       var config = {
         bail: true,
         cache: true,
@@ -347,7 +351,10 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         entry: ourManifest.webpackEP,
         recordsPath: path.join(path.resolve(process.cwd(), options.output || '/tmp/dist'), '_MAP.json'),
         resolve: {
-          extensions: ['', '.js', '.coffee', '.jsx', '.cjsx']
+          extensions: ['', '.js', '.coffee', '.jsx', '.cjsx'],
+          alias: {
+            pellet: pelletEntryPointPath
+          }
         },
         resolveLoader: {
           root: [path.resolve(__dirname, '..', 'node_modules'), process.cwd()],

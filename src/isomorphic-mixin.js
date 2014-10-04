@@ -32,11 +32,10 @@ module.exports = {
 
 
 //*********************
-
+/*
 var testA = react.createClass({
   mixins: [module.exports],
   render: function() {
-    console.log('AAA>>>', this.context.isomorphicContext.props);
     return react.DOM.div(null, 'testA:');
   }
 });
@@ -83,3 +82,4 @@ testComp.setupInitialRender(r, function() {
 });
 
 
+*/

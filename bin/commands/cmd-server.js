@@ -9,7 +9,6 @@ var path = require('path')
   , cluster = require('cluster-master')
   , polyfill = require('polyfills')
   , ejs = require('ejs')
-  , pellet = require('../../src/pellet')
   , react = require('react')
   , manifest = require('../../src/manifest')
   , utils = require('../utils');
@@ -147,36 +146,185 @@ module.exports = function(program, addToReadyQue) {
           }
         }
 
-        // build the webpack file (and pass the client/slaves the JSON file that defines
-        // all our entry points. I need this to load all the the packages and map all the
-        // static files.
-        if(!process.env.CLUSTER_SLAVE) {
-          // make sure the paths are absolute
-          options.output = path.resolve(LAUNCH_CWD, (resolveConfigPaths(nconf.get('pellet:output')) || 'build'));
-          options.outputBrowser = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputBrowser'), true) || 'browser');
-          options.outputNode = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputServer'), true) || 'server');
-          options.mountPoint = nconf.get('server:webpackMountPoint');
+        /*
+         * helper function called once we are done building
+         * the webpack files. This will load and start pellet
+         * so that we can start express or koa with pellet
+         * middleware.
+         */
 
-          if(!options.watch) {
+        function startServer(componentModule, isManifestFile) {
+          var app, server, pellet;
+
+          if(isManifestFile) {
             try {
-              var componentModule = path.join(options.output, '_MANIFEST.json');
+              componentModule = require(componentModule);
+            } catch (ex) {
+              console.error('Cannot load manifest', componentModule, 'because:', ex.message);
+              process.exit(1);
+            }
 
-              if(!fs.existsSync(componentModule)) {
-                console.error('Cannot find build output. Please build and insure ', componentModule, 'exists.');
+            // get base node dir by using _MANIFEST.json and its relative path to node version
+            var baseNodeDir = path.resolve(options.output, componentModule.server.relativePath)
+              , componentModule = path.join(baseNodeDir, componentModule.server.component);
+          }
+
+          if(!fs.existsSync(componentModule)) {
+            console.error('Cannot find build output. Please build and insure', componentModule, 'exists.');
+            process.exit(1);
+          }
+
+          try {
+            console.log('Loading', componentModule, 'webpack into pellet server.');
+            require('source-map-support').install({handleUncaughtExceptions: false});
+            pellet = require(componentModule);
+          } catch(ex) {
+            console.error('Cannot load', componentModule, 'because:', ex.message);
+            console.error(ex.stack);
+            process.exit(1);
+          }
+
+          // using Koa for ES6 mode else express
+          if ('function' === typeof Map) {
+            if (!nconf.get('silent')) {
+              console.info('Running in ES6 mode');
+            }
+
+            // create Koa server
+            server = require('koa');
+            app = server();
+
+          } else {
+            if (!nconf.get('silent')) {
+              console.info('Running in ES5 mode');
+            }
+
+            // create express server
+            var morgan = require('morgan');
+            server = require('express');
+            app = server();
+
+            if (nconf.get('server:accessLog')) {
+              if (nconf.get('server:accessLog:logFile') === 'STDOUT') {
+                app.use(morgan(nconf.get('server:accessLog:format')));
+              } else {
+                var logFile = resolveConfigPaths(nconf.get('server:accessLog:logFile'));
+
+                var logStream = fs.createWriteStream(logFile, {flags: 'a'});
+                logStream.write("START LOGGING:"+(new Date()).toJSON()+" PID:"+process.pid+"\n");
+                app.use(morgan(nconf.get('server:accessLog:format'), {stream: logStream, buffer: 1000}));
+              }
+            }
+
+            // setup express static assets including the facicon.ico (replace __DEFAULT_STATIC_DIR with pellet internal path)
+            app.use(require('serve-favicon')(resolveConfigPaths(nconf.get('server:favicon'))));
+            app.use(server.static(resolveConfigPaths(nconf.get('server:static'))));
+            app.use(nconf.get('server:webpackMountPoint'), server.static(options.outputBrowser));
+
+            // only rebuild the cache if master i.e. once per launch
+            if(!process.env.CLUSTER_SLAVE) {
+              // init the polyfill and rebuild cache is needed
+              var polyfillOptions = nconf.get('polyfill');
+              polyfillOptions.cache = resolveConfigPaths(polyfillOptions.cache);
+
+              if (!nconf.get('silent')) {
+                console.info('Polyfill:', polyfillOptions);
+              }
+
+              polyfill = polyfill(polyfillOptions);
+              if (options.polyfillRebuild) {
+                if (!nconf.get('silent')) {
+                  console.info('Cleaned Polyfill');
+                }
+                polyfill.clean();
+              }
+            }
+
+            // create a polyfill endpoint
+            app.use(function (req, res, next) {
+              if (req.path !== '/js/polyfills.js') return next();
+
+              polyfill(req.headers['user-agent']).then(function (data) {
+                // you probably want to do content negotiation here
+                res.setHeader('Content-Encoding', 'gzip');
+                res.setHeader('Content-Length', data.length['.min.js.gz']);
+                res.setHeader('Content-Type', 'application/javascript');
+                res.setHeader('ETag', '"' + data.hash + '"');
+                res.setHeader('Last-Modified', data.date.toUTCString());
+
+                if (req.fresh) {
+                  res.statusCode = 304;
+                  res.end();
+                  return
+                }
+
+                return polyfill.read(data.name, '.min.js.gz').then(function (buf) {
+                  res.end(buf)
+                });
+              }).catch(next);
+
+            });
+
+            // wire up pellet middleware
+            app.use(pellet.middleware);
+          }
+
+          if (nconf.get('spdy')) {
+            var spdyPath = resolveConfigPaths(nconf.get('spdy'));
+            var opt = {
+              key: fs.readFileSync(path.join(spdyPath, 'spdy-key.pem')),
+              cert: fs.readFileSync(path.join(spdyPath, 'spdy-cert.pem')),
+              ca: fs.readFileSync(path.join(spdyPath, 'spdy-ca.pem')),
+              windowSize: 1024 * 1024,
+              autoSpdy31: false
+            };
+
+            pellet.startInit(nconf.get('publicAppConfig'));
+            pellet.onReady(function (err) {
+              if (err) {
+                console.error('Error in initializing Pellet:', err.message);
                 process.exit(1);
               }
 
-              console.log('Loading', componentModule, 'webpack into pellet server.');
-              require('source-map-support').install({handleUncaughtExceptions: false});
-              require(componentModule);
-            } catch (ex) {
-              console.error('Cannot load webpack code because:', ex.message);
-              console.error(ex.stack);
-              process.exit(1); // initial load kill processes
-            }
-
-            // now let pellet know we are ready!
+              spdy.createServer(opt, app).listen(nconf.get('https:port'), function () {
+                if (!nconf.get('silent')) {
+                  console.log('Listen on', nconf.get('https:port'), nconf.get('https:address'));
+                }
+              });
+            });
+          } else {
             pellet.startInit(nconf.get('publicAppConfig'));
+            pellet.onReady(function (err) {
+              if (err) {
+                console.error('Error in initializing Pellet:', err.message);
+                process.exit(1);
+              }
+
+              app.listen(nconf.get('http:port'), nconf.get('http:address'), nconf.get('http:max_syn_backlog'), function () {
+                if (!nconf.get('silent')) {
+                  console.log('Listen on', nconf.get('http:port'), nconf.get('http:address'));
+                }
+              });
+            });
+          }
+        }
+
+        // make sure the paths are absolute
+        options.output = path.resolve(LAUNCH_CWD, (resolveConfigPaths(nconf.get('pellet:output')) || 'build'));
+        options.outputBrowser = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputBrowser'), true) || 'browser');
+        options.outputNode = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputServer'), true) || 'server');
+        options.mountPoint = nconf.get('server:webpackMountPoint');
+
+        var componentModule = path.join(options.output, '_MANIFEST.json');
+
+        // For cluster(master) and standalone we need to build the manifest and load pellet
+        // main entry point. For slave processed we DO NOT want to build the manifest
+        // because their parent process is doing that work so, all we need to do is
+        // load pellet and start the web server.
+        if(!process.env.CLUSTER_SLAVE) {
+
+          if(!options.watch) {
+            startServer(componentModule, true);
           } else {
 
             var ourManifest = new manifest();
@@ -187,21 +335,6 @@ module.exports = function(program, addToReadyQue) {
                 options.mode = 'production';
               } else {
                 options.mode = 'development';
-              }
-            }
-
-            // init the polyfill and rebuild cache is needed
-            var polyfillOptions = nconf.get('polyfill');
-            polyfillOptions.cache = resolveConfigPaths(polyfillOptions.cache);
-            polyfill = polyfill(polyfillOptions);
-            if (options.polyfillRebuild) {
-              polyfill.clean();
-            }
-
-            if (!nconf.get('silent')) {
-              console.info('Polyfill:', polyfillOptions);
-              if (options.polyfillRebuild) {
-                console.info('Cleaned Polyfill');
               }
             }
 
@@ -249,24 +382,17 @@ module.exports = function(program, addToReadyQue) {
                     lastManifestDetails = buildManifestMap;
                   }
 
+                  // because we are called multiple times
+                  // and you can only run the webserver once
+                  // track if we are loading for the first time
                   if (isInitialLoad) {
-                    try {
-                      console.log('Loading', componentModule, 'webpack into pellet server.');
-                      require("source-map-support").install({handleUncaughtExceptions: false});
-                      require(componentModule);
-                    } catch (ex) {
-                      console.error('Cannot load webpack code because:', ex.message);
-                      console.error(ex.stack);
-                      process.exit(1); // initial load kill processes
-                    }
-
-                    // now let pellet know we are ready!
-                    pellet.startInit(nconf.get('publicAppConfig'));
-
+                    startServer(componentModule);
                     isInitialLoad = false;
                     return;
                   }
 
+                  // restart all child process so they load
+                  // the new code
                   if (process.env.CLUSTER_SLAVE) {
                     cluster.restart();
                   }
@@ -275,13 +401,6 @@ module.exports = function(program, addToReadyQue) {
               config.browserConfig.bail = false;
               config.nodeConfig.bail = false;
 
-              // map webpacks react & pellet externals to our CLI versions
-              // so we can make sure we are running our version not
-              // anything else and the packed code will share the same
-              // nodejs require modules allowing the CLI server to share
-              // information to the webpack code. i.e. route events can
-              // be setup here then the webpack code can require pellet
-              // can listen to the events.
               config.browserConfig.externals = {
                 react: 'React'
               };
@@ -290,157 +409,38 @@ module.exports = function(program, addToReadyQue) {
                 react: require.resolve('react')
               };
 
-              config.browserConfig.resolve = Object.create(config.browserConfig.resolve);
-              config.browserConfig.resolve.alias = {
-                pellet: require.resolve('../../index')
-              };
-
-              config.nodeConfig.resolve = Object.create(config.nodeConfig.resolve);
-              config.nodeConfig.resolve.alias = {
-                pellet: require.resolve('../../index')
-              };
-
-              // start watching both
+              // build both the server and browser webpack files
               webpack(config.browserConfig).watch(100, doneFn(0));
               webpack(config.nodeConfig).watch(100, doneFn(1));
             });
           }
-        }
 
-        // after we have make sure we have all the configuration and error handling
-        // start the cluster.
-        if(options['cluster:count'] > 0 && !process.env.CLUSTER_SLAVE) {
-          process.env.CLUSTER_SLAVE = true;
+          // after we have make sure we have all the configuration
+          // and error handling start the cluster.
+          if(options['cluster:count'] > 0) {
+            process.env.CLUSTER_SLAVE = true;
 
-          // update args for the worker version
-          var args = process.argv.splice(2);
-          args.push('--silent');
+            // update args for the worker version
+            var args = process.argv.splice(2);
+            args.push('--silent');
 
-          cluster({
-            exec: path.resolve(__dirname, '..', 'pellet.js'),
-            size: parseInt(options['cluster:count'], 10),
-            env: process.env,
-            args: args,
-            silent: false,
-            signals: true,
-            repl: nconf.get('cluster:repl') && {port:parseInt(nconf.get('cluster:repl:port')), address:nconf.get('cluster:repl:address')},
-            onMessage: function (message) {
-              console.error('SLAVE %s %j', this.uniqueID, message);
-            }
-          });
-
-          return;
-        }
-
-        var app, server;
-
-        // using Koa for ES6 mode else express
-        if('function' === typeof Map) {
-          if(!nconf.get('silent')) {
-            console.info('Running in ES6 mode');
-          }
-
-          // create Koa server
-          server = require('koa');
-          app = server();
-
-        } else {
-          if(!nconf.get('silent')) {
-            console.info('Running in ES5 mode');
-          }
-
-          // create express server
-          var morgan  = require('morgan');
-          server = require('express');
-          app = server();
-
-          if(nconf.get('server.accessLog')) {
-            if(nconf.get('server.accessLog.logFile') === 'STDOUT') {
-              app.use(morgan(nconf.get('server.accessLog.format')));
-            } else {
-              var logFile = resolveConfigPaths(nconf.get('server.accessLog.logFile'));
-
-              ensureFile(logFile, function (err) {
-                if(err) {
-                  console.error('Cannot create log file because:', err.message);
-                  process.exit(1);
-                }
-
-                var logStream = fs.createWriteStream(logFile, {flags: 'a'});
-                app.use(morgan(nconf.get('server.accessLog.format'), {stream: logStream}));
-              })
-            }
-          }
-
-          // setup express static assets including the facicon.ico (replace __DEFAULT_STATIC_DIR with pellet internal path)
-          app.use(require('serve-favicon')(resolveConfigPaths(nconf.get('server:favicon'))));
-          app.use(server.static(resolveConfigPaths(nconf.get('server:static'))));
-          app.use(nconf.get('server:webpackMountPoint'), server.static(options.outputBrowser));
-
-          // create a polyfill endpoint
-          app.use(function (req, res, next) {
-            if (req.path !== '/js/polyfills.js') return next();
-
-            polyfill(req.headers['user-agent']).then(function (data) {
-              // you probably want to do content negotiation here
-              res.setHeader('Content-Encoding', 'gzip');
-              res.setHeader('Content-Length', data.length['.min.js.gz']);
-              res.setHeader('Content-Type', 'application/javascript');
-              res.setHeader('ETag', '"' + data.hash + '"');
-              res.setHeader('Last-Modified', data.date.toUTCString());
-
-              if (req.fresh) {
-                res.statusCode = 304;
-                res.end();
-                return
-              }
-
-              return polyfill.read(data.name, '.min.js.gz').then(function (buf) {
-                res.end(buf)
-              });
-            }).catch(next);
-
-          });
-
-          // wire up pellet middleware
-          app.use(pellet.middleware);
-        }
-
-        if(nconf.get('spdy')) {
-          var spdyPath = resolveConfigPaths(nconf.get('spdy'));
-          var opt = {
-            key: fs.readFileSync(path.join(spdyPath, 'spdy-key.pem')),
-            cert: fs.readFileSync(path.join(spdyPath, 'spdy-cert.pem')),
-            ca: fs.readFileSync(path.join(spdyPath, 'spdy-ca.pem')),
-            windowSize: 1024 * 1024,
-            autoSpdy31: false
-          };
-
-          pellet.onReady(function(err) {
-            if(err) {
-              console.error('Error in initializing Pellet:', err.message);
-              process.exit(1);
-            }
-
-            spdy.createServer(opt, app).listen(nconf.get('https:port'), function () {
-              if(!nconf.get('silent')) {
-                console.log('Listen on', nconf.get('https:port'), nconf.get('https:address'));
+            cluster({
+              exec: path.resolve(__dirname, '..', 'pellet.js'),
+              size: parseInt(options['cluster:count'], 10),
+              env: process.env,
+              args: args,
+              silent: false,
+              signals: true,
+              repl: nconf.get('cluster:repl') && {port:parseInt(nconf.get('cluster:repl:port')), address:nconf.get('cluster:repl:address')},
+              onMessage: function (message) {
+                console.error('SLAVE %s %j', this.uniqueID, message);
               }
             });
-          });
-        } else {
-          pellet.onReady(function(err) {
-            if(err) {
-              console.error('Error in initializing Pellet:', err.message);
-              process.exit(1);
-            }
 
-            app.listen(nconf.get('http:port'), nconf.get('http:address'), nconf.get('http:max_syn_backlog'), function () {
-              if (!nconf.get('silent')) {
-                console.log('Listen on', nconf.get('http:port'), nconf.get('http:address'));
-              }
-            });
-          });
+            return;
+          }
+        } else {
+          startServer(componentModule, true);
         }
       });
 
