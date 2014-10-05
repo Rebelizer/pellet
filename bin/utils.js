@@ -200,6 +200,7 @@ var exports = module.exports = {
         profileFilePath = path.resolve(options.output, '_MANIFEST.json');
         var buildManifestMap = {
           date: new Date().toJSON(),
+          mode: options.mode,
           browser: {
             //outputPath: options.outputBrowser,
             relativePath: exports.relativeToOutputFile(profileFilePath, options.outputBrowser),
