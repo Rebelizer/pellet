@@ -1,4 +1,4 @@
-var fs = require('fs')
+var fs = require('fs-extra')
   , path = require('path')
   , async = require('async')
   , webpack = require('webpack')
@@ -338,6 +338,26 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       console.info(JSON.stringify(ourManifest.webpackEP, null, 2)
             .replace(/\s+[{},\]]+/g, "")
             .replace(/[{\[":,]/g, ""));
+
+      // embed the manifest details to make look up easy
+      if(options.embedManifestIndex) {
+        var embedFilePath = path.resolve(__dirname, options.embedManifestIndex);
+
+        var subNode, manifestIndex = ourManifest.manifest;
+        var indexScript = 'var index = {};';
+        for(var ix in manifestIndex) {
+          if((subNode = manifestIndex[ix])) {
+            if(subNode.component) {
+              indexScript += 'index["' + ix + '"] = require("' + subNode.component + '");';
+            }
+          }
+        }
+
+        indexScript += 'require("pellet").loadManifestComponents(index);';
+
+        fs.outputFileSync(embedFilePath, indexScript);
+        ourManifest.webpackEP.component.push(embedFilePath);
+      }
 
       // merge in pellet into the components so its loaded and can bootstape environment
       var pelletEntryPointPath = path.resolve(__dirname, './pellet.js');

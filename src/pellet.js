@@ -1,6 +1,8 @@
-var kefir = require('kefir')
+var react = require('react')
+  , kefir = require('kefir')
   , isomorphicRender = require('./isomorphic-render')
   , routeTable = require('./route-table')
+  , isomorphicMixin = require('./isomorphic-mixin.js');
 
 /**
  * @class pellet
@@ -9,8 +11,8 @@ var kefir = require('kefir')
 function pellet() {
   this.readyFnQue = [];
   this.initFnQue = [];
-
   this.emitters = {};
+  this.components = {};
 
   this.routes = new routeTable();
 }
@@ -19,7 +21,54 @@ function pellet() {
  *
  * @type {exports}
  */
-pellet.prototype.createClass = require('./pellet-create-class');
+pellet.prototype.createClass = function(spec) {
+  if(!spec.mixins) {
+    spec.mixins = [];
+  }
+
+  if(!(isomorphicMixin in spec.mixins)) {
+    spec.mixins.push(isomorphicMixin);
+  }
+
+  if(spec.setupInitialRender) {
+    if(!spec.statics) {
+      spec.statics = {};
+    }
+
+    spec.statics.setupInitialRender = spec.setupInitialRender;
+    delete spec.setupInitialRender;
+  }
+
+  return react.createClass(spec);;
+}
+
+pellet.prototype.loadManifestComponents = function(manifest) {
+  var last, id, key, keys
+
+  if(!manifest || typeof(manifest) !== 'object') {
+    return;
+  }
+
+  keys = Object.keys(manifest);
+
+  keys.sort().reverse();
+  for(var i in keys) {
+    key = keys[i];
+    id = key.substring(0, key.indexOf('@'));
+    if(id) {
+      if(last !== id) {
+        if(this.components[id]) {
+          console.warn('duplicate manifest component loaded:', id)
+        }
+
+        this.components[id] = manifest[key];
+        last = id;
+      }
+
+      this.components[key] = manifest[key];
+    }
+  }
+}
 
 /**
  *
