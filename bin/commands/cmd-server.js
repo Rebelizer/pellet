@@ -201,6 +201,10 @@ module.exports = function(program, addToReadyQue) {
 
             // create express server
             var morgan = require('morgan');
+            morgan.token('pid', function(req, res) {
+              return process.pid;
+            });
+
             server = require('express');
             app = server();
 
@@ -221,30 +225,21 @@ module.exports = function(program, addToReadyQue) {
             app.use(server.static(resolveConfigPaths(nconf.get('server:static'))));
             app.use(nconf.get('server:webpackMountPoint'), server.static(options.outputBrowser));
 
-            // only rebuild the cache if master i.e. once per launch
-            if(!process.env.CLUSTER_SLAVE) {
-              // init the polyfill and rebuild cache is needed
-              var polyfillOptions = nconf.get('polyfill');
-              polyfillOptions.cache = resolveConfigPaths(polyfillOptions.cache);
+            // init the polyfill and rebuild cache is needed
+            var polyfillOptions = nconf.get('polyfill');
+            polyfillOptions.cache = resolveConfigPaths(polyfillOptions.cache);
 
-              if (!nconf.get('silent')) {
-                console.info('Polyfill:', polyfillOptions);
-              }
-
-              polyfill = polyfill(polyfillOptions);
-              if (options.polyfillRebuild) {
-                if (!nconf.get('silent')) {
-                  console.info('Cleaned Polyfill');
-                }
-                polyfill.clean();
-              }
+            if (!nconf.get('silent')) {
+              console.info('Polyfill:', polyfillOptions);
             }
+
+            var _polyfill = polyfill(polyfillOptions);
 
             // create a polyfill endpoint
             app.use(function (req, res, next) {
               if (req.path !== '/js/polyfills.js') return next();
 
-              polyfill(req.headers['user-agent']).then(function (data) {
+              _polyfill(req.headers['user-agent']).then(function (data) {
                 // you probably want to do content negotiation here
                 res.setHeader('Content-Encoding', 'gzip');
                 res.setHeader('Content-Length', data.length['.min.js.gz']);
@@ -258,7 +253,7 @@ module.exports = function(program, addToReadyQue) {
                   return
                 }
 
-                return polyfill.read(data.name, '.min.js.gz').then(function (buf) {
+                return _polyfill.read(data.name, '.min.js.gz').then(function (buf) {
                   res.end(buf)
                 });
               }).catch(next);
@@ -323,97 +318,86 @@ module.exports = function(program, addToReadyQue) {
         // load pellet and start the web server.
         if(!process.env.CLUSTER_SLAVE) {
 
-          if(!options.watch) {
-            startServer(componentModule, true);
-          } else {
+          var ourManifest = new manifest();
 
-            var ourManifest = new manifest();
-            var isInitialLoad = true;
+          if (options.mode) {
+            if (options.mode.toLowerCase().trim().indexOf('prod') === 0) {
+              options.mode = 'production';
+            } else {
+              options.mode = 'development';
+            }
+          }
 
-            if (options.mode) {
-              if (options.mode.toLowerCase().trim().indexOf('prod') === 0) {
-                options.mode = 'production';
-              } else {
-                options.mode = 'development';
-              }
+          ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
+            if (err) {
+              console.error('Cannot build Webpack config because:', err.message);
+              process.exit(1);
             }
 
-            ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
-              if (err) {
-                console.error('Cannot build Webpack config because:', err.message);
-                process.exit(1);
-              }
+            // cache to help clean up build files
+            var lastManifestDetails = false;
 
-              // cache to help clean up build files
-              var lastManifestDetails = false;
+            // build a function that sync the two step build into a single step that
+            // builds the manifest profile and map. This also handles duplicate errors
+            var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
+              options, function (err, buildManifestMap, browserStats, nodeStats) {
+                if (err) {
+                  console.error('Cannot build webpack files because:', err.message, err.trace);
+                  return;
+                }
 
-              // build a function that sync the two step build into a single step that
-              // builds the manifest profile and map. This also handles duplicate errors
-              var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
-                options, function (err, buildManifestMap, browserStats, nodeStats) {
-                  if (err) {
-                    console.error('Cannot build webpack files because:', err.message, err.trace);
-                    return;
+                if (!buildManifestMap.server.component) {
+                  console.error('Cannot load because no component in manifest');
+                  return;
+                }
+
+                // get base node dir by using _MANIFEST.json and its relative path to node version
+                var baseNodeDir = path.resolve(options.output, buildManifestMap.server.relativePath)
+                  , componentModule = path.join(baseNodeDir, buildManifestMap.server.component);
+
+                // in prod mode clean up old manifest files
+                // from the previous build
+                if (options.mode === 'production') {
+                  if (lastManifestDetails) {
+                    console.log('Clean up last build', lastManifestDetails.browser.hash, lastManifestDetails.server.hash);
+
+                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets + '.map'));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component + '.map'));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.assets));
+                    fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.component));
                   }
 
-                  if (!buildManifestMap.server.component) {
-                    console.error('Cannot load because no component in manifest');
-                    return;
-                  }
+                  lastManifestDetails = buildManifestMap;
+                }
 
-                  // get base node dir by using _MANIFEST.json and its relative path to node version
-                  var baseNodeDir = path.resolve(options.output, buildManifestMap.server.relativePath)
-                    , componentModule = path.join(baseNodeDir, buildManifestMap.server.component);
+                // restart all child process so they load
+                // the new code
+                if (process.env.CLUSTER_SLAVE) {
+                  cluster.restart();
+                }
 
-                  // in prod mode clean up old manifest files
-                  // from the previous build
-                  if (options.mode === 'production') {
-                    if (lastManifestDetails) {
-                      console.log('Clean up last build', lastManifestDetails.browser.hash, lastManifestDetails.server.hash);
+                if(!options['cluster:count']) {
+                  startServer(componentModule);
+                }
+              }));
 
-                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets));
-                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component));
-                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets + '.map'));
-                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component + '.map'));
-                      fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.assets));
-                      fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.component));
-                    }
+            config.browserConfig.bail = false;
+            config.nodeConfig.bail = false;
 
-                    lastManifestDetails = buildManifestMap;
-                  }
+            config.browserConfig.externals = {
+              react: 'React'
+            };
 
-                  // because we are called multiple times
-                  // and you can only run the webserver once
-                  // track if we are loading for the first time
-                  if (isInitialLoad) {
-                    startServer(componentModule);
-                    isInitialLoad = false;
-                    return;
-                  }
+            config.nodeConfig.externals = {
+              react: require.resolve('react')
+            };
 
-                  // restart all child process so they load
-                  // the new code
-                  if (process.env.CLUSTER_SLAVE) {
-                    cluster.restart();
-                  }
-                }));
-
-              config.browserConfig.bail = false;
-              config.nodeConfig.bail = false;
-
-              config.browserConfig.externals = {
-                react: 'React'
-              };
-
-              config.nodeConfig.externals = {
-                react: require.resolve('react')
-              };
-
-              // build both the server and browser webpack files
-              webpack(config.browserConfig).watch(100, doneFn(0));
-              webpack(config.nodeConfig).watch(100, doneFn(1));
-            });
-          }
+            // build both the server and browser webpack files
+            webpack(config.browserConfig).watch(100, doneFn(0));
+            webpack(config.nodeConfig).watch(100, doneFn(1));
+          });
 
           // after we have make sure we have all the configuration
           // and error handling start the cluster.
@@ -436,8 +420,6 @@ module.exports = function(program, addToReadyQue) {
                 console.error('SLAVE %s %j', this.uniqueID, message);
               }
             });
-
-            return;
           }
         } else {
           startServer(componentModule, true);
