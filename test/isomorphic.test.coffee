@@ -19,7 +19,3 @@ bootstrapFn = (ctx, next)->
 describe "Isomorphic", ->
     describe "pellet component", ->
         it "", ->
-            c1 = pellet.createClass
-                render: ()->
-                    react.DOM.dom(null, "hello world!")
-
