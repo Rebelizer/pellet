@@ -6,3 +6,4 @@ npm-debug.log
 bower_components/
 bin/config/local.json
 doghouse/public/docs/
+doghouse/build/

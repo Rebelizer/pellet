@@ -1,0 +1,10 @@
+{
+  "configDir": "./config",
+
+  "manifestFiles": "./manifest.json",
+
+  "defaults": {
+    "lang": "CoffeeScript",
+    "assets": "stylus"
+  }
+}
