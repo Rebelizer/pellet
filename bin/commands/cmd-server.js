@@ -22,7 +22,7 @@ module.exports = function(program, addToReadyQue) {
   var PELLET_PROJECT_PATH = (program.pelletConfig && program.pelletConfig._filepath && path.dirname(program.pelletConfig._filepath)) || LAUNCH_CWD;
 
   program
-    .command('server [manifest] [options]')
+    .command('server [manifest]')
     .alias('run')
     .description('Start Pellet server')
     .option('-v, --verbose [silly|debug|verbose|info|warn|error]', 'verbose mode', false)
@@ -37,15 +37,21 @@ module.exports = function(program, addToReadyQue) {
     .option('--server:webpack-mount-point <path>', 'Path the packed browser assets are served')
     .option('--watch', 'Watch manifest dependencies and rebuild', false)
     .option('--build', 'Build manifest dependencies and run', false)
+    .option('--clean', 'Clean the build dir', false)
     .option('--mode <prod|dev>', 'Packaging mode')
     .option('--polyfill-rebuild', 'Rebuild polyfill files')
     .option('--es6', 'run with es6 support', false)
     .option('--spdy', 'path to directory with spdy cert', false)
-    .action(function (manifestGlob, name, options) {
+    .action(function (manifestGlob, options) {
 
       if(!manifestGlob) {
-        manifestGlob = program.pelletConfig && program.pelletConfig.manifestFiles &&
-          path.resolve(PELLET_PROJECT_PATH, program.pelletConfig.manifestFiles);
+        manifestGlob = [program.pelletConfig && program.pelletConfig.manifestFiles &&
+          path.resolve(PELLET_PROJECT_PATH, program.pelletConfig.manifestFiles)];
+      } else if(program.args) {
+        program.args.push(manifestGlob);
+        manifestGlob = program.args;
+      } else {
+        manifestGlob = [manifestGlob];
       }
 
       // setup a callback hook that lets this sub command register
@@ -328,6 +334,11 @@ module.exports = function(program, addToReadyQue) {
 
         var componentModule = path.join(options.output, '_MANIFEST.json');
 
+        if(options.clean) {
+          console.log('Cleaning:', options.output);
+          fs.deleteSync(options.output);
+        }
+
         // For cluster(master) and standalone we need to build the manifest and load pellet
         // main entry point. For slave processed we DO NOT want to build the manifest
         // because their parent process is doing that work so, all we need to do is
@@ -338,6 +349,8 @@ module.exports = function(program, addToReadyQue) {
 
             // embed the manifest index into the webpack so pellet can find all the components
             options.embedManifestIndex = path.join(options.output, '_EMBED_INDEX.js');
+
+            manifestGlob.push(path.resolve(__dirname, '../../components/core.manifest.json'));
 
             ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
               if (err) {
@@ -396,10 +409,12 @@ module.exports = function(program, addToReadyQue) {
               config.nodeConfig.bail = false;
 
               config.browserConfig.externals = {
+                React: 'React',
                 react: 'React'
               };
 
               config.nodeConfig.externals = {
+                React: require.resolve('react'),
                 react: require.resolve('react')
               };
 

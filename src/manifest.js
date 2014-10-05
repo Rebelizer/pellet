@@ -273,7 +273,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
     options = {};
   }
 
-  if(typeof manifestGlob == 'string') {
+  if(typeof manifestGlob === 'string') {
     manifestGlob = [manifestGlob];
   }
 
