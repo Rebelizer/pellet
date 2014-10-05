@@ -1,3 +1,19 @@
+### 0.0.8 (2014-10-05)
+
+
+#### Bug Fixes
+
+* fixed webpack build bugs feat: as a dev I want to "pellet run --build" to only b ([d50bca18](https://github.com/Rebelizer/pellet.git/commit/d50bca18b17ce4800f8710111c31e1780a94b4d9))
+* pass more informatoin on webpack errors ([f97206dd](https://github.com/Rebelizer/pellet.git/commit/f97206dd7249cebc7e51994047a0b6ccf089987a))
+* stub global window object in node envirment ([352b323c](https://github.com/Rebelizer/pellet.git/commit/352b323c2af8e62eae6f42d93cd25c4f1b53ad20))
+
+
+#### Features
+
+* as a dev I want pellet to handle multiple manifest files ([67de7802](https://github.com/Rebelizer/pellet.git/commit/67de78024e2d5db39acc8e2180c5e1af5cc226ee))
+* as dev I want to find a component by the name in the manifest chore: refactor to ([96f1a454](https://github.com/Rebelizer/pellet.git/commit/96f1a454a813c9bad08544c293efdc5697912d74))
+
+
 ### 0.0.4 (2014-10-02)
 
 
