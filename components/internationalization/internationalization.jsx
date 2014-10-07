@@ -5,16 +5,14 @@ var react = require('react')
   , pellet = require('pellet');
 
 var spec = {
-  locales: React.PropTypes.oneOfType([
-      React.PropTypes.string,
-      React.PropTypes.array
-  ]),
-
-  formats : React.PropTypes.object,
-  messages: React.PropTypes.object
+  value: react.PropTypes.string,
+  key: react.PropTypes.string,
+  missing: react.PropTypes.string
 };
 
 module.exports = pellet.createClass({
+  propsTypes: spec,
+
   getInitialState: function() {
 
     var state = {

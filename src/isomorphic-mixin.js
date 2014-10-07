@@ -3,10 +3,25 @@ var react = require('react')
 
 //todo: add events and route logic into the mixin
 
+var spec = {
+  isomorphicContext: react.PropTypes.instanceOf(isomorphicContext),
+  locales: react.PropTypes.oneOfType([
+      react.PropTypes.string,
+      react.PropTypes.array
+  ])
+};
+
 module.exports = {
-  contextTypes: {
-    isomorphicContext: react.PropTypes.instanceOf(isomorphicContext)
+  contextTypes     : spec,
+  childContextTypes: spec,
+
+  getChildContext: function () {
+    return {
+      isomorphicContext: this.props.isomorphicContext || this.context.isomorphicContext,
+      locales: this.props.locales || this.context.locales
+    };
   }
+
 /*
   getDefaultProps: function() {
     // todo: register component with react!
