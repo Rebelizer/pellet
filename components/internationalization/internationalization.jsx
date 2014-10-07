@@ -17,6 +17,12 @@ var spec = {
 module.exports = pellet.createClass({
   getInitialState: function() {
 
+    var state = {
+      hasErrors: false,
+      isMissing: true,
+      translation: ''
+    };
+
     if(this.props.locales) {
       if(pellet.locales[this.props.locales]) {
         if(this.props.key && pellet.locales[this.props.locales][this.props.key]) {
