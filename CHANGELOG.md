@@ -1,3 +1,14 @@
+### 0.0.9 (2014-10-07)
+
+
+#### Features
+
+* as a dev I want pellet to create a project if "pellet init" ([0e398944](https://github.com/Rebelizer/pellet/commit/0e398944fff20663eec43711468064b166ae9a45))
+* as a dev I need the translation file loaded into pellets runtime ([644a2554](https://github.com/Rebelizer/pellet/commit/644a2554a3ad22e15e8a38b43dee4ab41e543101))
+* as a dev I need to embed translation file into my manifest file ([70a14183](https://github.com/Rebelizer/pellet/commit/70a1418380c1e144768c3e44093ada88a037f38d))
+* as a dev I would like a demo site to show off pellet ([13d7fb49](https://github.com/Rebelizer/pellet/commit/13d7fb49f53ad058d471c3f230b2bbcbac40996b))
+
+
 ### 0.0.8 (2014-10-05)
 
 
