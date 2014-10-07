@@ -43,14 +43,17 @@
     "commander": "^2.3.0",
     "css-loader": "^0.8.0",
     "ejs": "^1.0.0",
+    "express": "^4.9.5",
     "file-loader": "^0.7.2",
     "fs-extra": "^0.12.0",
     "glob": "^4.0.5",
     "inquirer": "^0.7.1",
+    "intl": "^0.1.4",
     "json-loader": "^0.5.1",
     "jsx-loader": "^0.11.0",
     "kefir": "^0.2.6",
     "merge": "^1.2.0",
+    "messageformat": "^0.2.1",
     "nconf": "^0.6.9",
     "path-to-regexp": "^1.0.1",
     "react": "^0.11.1",
@@ -91,6 +94,7 @@
     "run-sequence": "^1.0.1",
     "serve-favicon": "^2.1.4",
     "spdy": "^1.28.1",
+    "styledown": "^1.0.1",
     "through2": "^0.6.2"
   }
 }

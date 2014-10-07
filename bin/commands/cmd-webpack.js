@@ -43,7 +43,7 @@ module.exports = function(program, addToReadyQue) {
         // make sure the paths are absolute and resolve from cwd
         options.output = path.join(path.dirname(options.output), 'dist');
         options.outputBrowser = path.resolve(options.output, options.outputBrowser);
-        options.outputNode = path.resolve(options.output, options.outputNode);
+        options.outputServer = path.resolve(options.output, options.outputServer);
 
         if(options.mode) {
           if (options.mode.toLowerCase().trim().indexOf('prod') === 0) {
@@ -81,7 +81,7 @@ module.exports = function(program, addToReadyQue) {
               ourManifest._util = util;
               ourManifest._path = path;
               ourManifest._outputBrowser = utils.relativeToOutputFile(options.script, options.outputBrowser);
-              ourManifest._outputNode = utils.relativeToOutputFile(options.script, options.outputNode);
+              ourManifest._outputServer = utils.relativeToOutputFile(options.script, options.outputServer);
 
               fs.writeFileSync(options.script, ejs.render(fs.readFileSync(options.templateFile).toString(), ourManifest), {
                 encoding:'utf8',

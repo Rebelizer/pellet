@@ -2,11 +2,51 @@ var fs = require('fs-extra')
   , path = require('path')
   , async = require('async')
   , webpack = require('webpack')
+  , messageFormat = require('messageformat')
   , glob = require('glob');
 
-var WEBPACK_FIELDS = ['component', 'assets', 'lib', 'dependencies'];
+var WEBPACK_FIELDS = ['component', 'assets', 'server-dependencies', 'client-dependencies'];
 
 // todo: create a winston logger for pellet (budjs) and use it not console.log (let use ignore the logging if include is someone else project)
+
+/**
+ * helper function to merge unique fields
+ *
+ * @param self
+ * @param component
+ * @param field
+ * @param targetField
+ */
+function mergeUniqueComponentFields(self, component, field, targetField) {
+  if(targetField) {
+    targetField = self[targetField];
+  } else {
+    targetField = self;
+  }
+
+  if(component[field]) {
+    if(!targetField[field]) {
+      if(typeof component[field] == 'string') {
+        targetField[field] = [component[field]];
+      } else if(component[field] instanceof Array) {
+        targetField[field] = component[field];
+      }
+    } else {
+      if(typeof component[field] == 'string') {
+        if(targetField[field].indexOf(component[field]) == -1) {
+          targetField[field].push(component[field]);
+        }
+      } else if(component[field] instanceof Array) {
+        for(j in component[field]) {
+          if(targetField[field].indexOf(component[field][j]) == -1) {
+            targetField[field].push(component[field][j]);
+          }
+        }
+      }
+    }
+  }
+
+}
 
 /**
  *
@@ -73,6 +113,7 @@ function resolvePath(manifestFilePath, file, next) {
 function manifestParser() {
   this.manifest = {};
   this.webpackEP = {};
+  this.translations = [];
 }
 
 /**
@@ -122,11 +163,11 @@ manifestParser.prototype.save = function(fullPath, options, next) {
       output.push(this.manifest[sortedUid[i]]);
     }
 
-    fs.writeFile(fullPath, JSON.stringify(output, null, 2), {encoding:'utf8', flag:'w'}, next);
+    fs.outputFile(fullPath, JSON.stringify(output, null, 2), {encoding:'utf8', flag:'w'}, next);
   } else if(sortedUid.length == 1) {
-    fs.writeFile(fullPath, JSON.stringify(this.manifest[sortedUid[0]], null, 2), {encoding:'utf8', flag:'w'}, next);
+    fs.outputFile(fullPath, JSON.stringify(this.manifest[sortedUid[0]], null, 2), {encoding:'utf8', flag:'w'}, next);
   } else {
-    fs.writeFile(fullPath, JSON.stringify({}), {encoding:'utf8', flag:'w'}, next);
+    fs.outputFile(fullPath, JSON.stringify({}), {encoding:'utf8', flag:'w'}, next);
   }
 };
 
@@ -156,8 +197,6 @@ manifestParser.prototype.merge = function(file, additionalItems, options, next) 
   // skip running the resolveComponentPaths.
   for(var i in additionalItems) {
     component = additionalItems[i];
-
-    // todo: validated using hapijs/joi
 
     if(!component.name) {
       console.error('Cannot merge', file ,'manifest because missing component name');
@@ -195,28 +234,10 @@ manifestParser.prototype.merge = function(file, additionalItems, options, next) 
       for(i in WEBPACK_FIELDS) {
         field = WEBPACK_FIELDS[i];
 
-        if(component[field]) {
-          if(!self.webpackEP[field]) {
-            if(typeof component[field] == 'string') {
-              self.webpackEP[field] = [component[field]];
-            } else if(component[field] instanceof Array) {
-              self.webpackEP[field] = component[field];
-            }
-          } else {
-            if(typeof component[field] == 'string') {
-              if(self.webpackEP[field].indexOf(component[field]) == -1) {
-                self.webpackEP[field].push(component[field]);
-              }
-            } else if(component[field] instanceof Array) {
-              for(j in component[field]) {
-                if(self.webpackEP[field].indexOf(component[field][j]) == -1) {
-                  self.webpackEP[field].push(component[field][j]);
-                }
-              }
-            }
-          }
-        }
+        mergeUniqueComponentFields(self, component, field, 'webpackEP');
       }
+
+      mergeUniqueComponentFields(self, component, 'translations');
 
       // add the component to our manifest and cleanup _id
       // we added in the validate step above
@@ -255,6 +276,8 @@ manifestParser.prototype.resolveComponentPaths = function(manifestFilePath, comp
   for(var i in WEBPACK_FIELDS) {
     resolveComponentField(WEBPACK_FIELDS[i]);
   }
+
+  resolveComponentField('translations');
 
   async.parallel(steps, function(err) {
     next(err, component);
@@ -328,6 +351,8 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         next(null);
       });
     }, function (err) {
+      var ix;
+
       if (err) {
         console.error('Cannot load manifests file because:', err.message);
         return next(err);
@@ -336,28 +361,91 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       // dump the webpack entry points.
       console.info('Webpack entry points:');
       console.info(JSON.stringify(ourManifest.webpackEP, null, 2)
-            .replace(/\s+[{},\]]+/g, "")
-            .replace(/[{\[":,]/g, ""));
+        .replace(/\s+[{},\]]+/g, "")
+        .replace(/[{\[":,]/g, ""));
 
-      // embed the manifest details to make look up easy
-      if(options.embedManifestIndex) {
-        var embedFilePath = path.resolve(__dirname, options.embedManifestIndex);
+      /*
+       * build a component lookup file that can be added to our webpack, so
+       * that the developer does not have to require a component, but referance
+       * it via pellet.components.###.
+       */
 
-        var subNode, manifestIndex = ourManifest.manifest;
-        var indexScript = 'var index = {};';
-        for(var ix in manifestIndex) {
-          if((subNode = manifestIndex[ix])) {
-            if(subNode.component) {
-              indexScript += 'index["' + ix + '"] = require("' + subNode.component + '");';
-            }
+      var subNode, manifestIndex = ourManifest.manifest;
+      var indexScript = 'var index = {};';
+      for(ix in manifestIndex) {
+        if((subNode = manifestIndex[ix])) {
+          if(subNode.component) {
+            indexScript += 'index["' + ix + '"] = require("' + subNode.component + '");';
           }
         }
+      }
 
-        indexScript += 'require("pellet").loadManifestComponents(index);';
+      indexScript += 'require("pellet").loadManifestComponents(index);';
+
+      if(options.embedManifestIndex) {
+        var embedFilePath = path.resolve(__dirname, options.embedManifestIndex);
 
         fs.outputFileSync(embedFilePath, indexScript);
         ourManifest.webpackEP.component.push(embedFilePath);
       }
+
+      /*
+       * Now build the translation
+       */
+      var msgFormatBuilder
+        , translation
+        , translationFiles = ourManifest.translations
+        , j, k;
+
+      var translationDictionary = {};
+
+      for(ix in translationFiles) {
+        try {
+          // load the translation file and merge each key
+          translation = fs.readJsonFileSync(translationFiles[ix]);
+          for(k in translation) {
+            for(j in translation[k]) {
+              // insure locale exist
+              if(!translationDictionary[j]) {
+                translationDictionary[j] = {};
+              }
+
+              if(translationDictionary[j][k]) {
+                console.warn('warning translation', k, j, 'already exists');
+              }
+
+              translationDictionary[j][k] = translation[k][j];
+            }
+          }
+        } catch(ex) {
+          console.error('Cannot read translation', translationFiles[ix], 'because:', ex.message);
+          next(ex);
+          return;
+        }
+      }
+
+      // build the transactions map file
+      if(options.translationMapFile) {
+        var translationMapFile = path.resolve(__dirname, options.translationMapFile);
+        fs.writeJSONFileSync(translationMapFile, translationDictionary);
+      }
+
+      var translationStats = {};
+
+      for(j in translationDictionary) {
+        msgFormatBuilder = new messageFormat(j.split('-')[0]);
+
+        translationStats[j] = Object.keys(translationDictionary).length;
+
+        translationDictionary[j] = '(function() {var i18n='+msgFormatBuilder.functions()+';'+
+          'i18n["fn"]='+msgFormatBuilder.precompileObject(translationDictionary[j])+';'+
+          'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n["fn"]);}})()';
+      }
+
+      console.info('Translations Breakdown:');
+      console.info(JSON.stringify(translationStats, null, 2)
+        .replace(/\s+[{},\]]+/g, "")
+        .replace(/[{\[":,]/g, ""));
 
       // merge in pellet into the components so its loaded and can bootstape environment
       var pelletEntryPointPath = path.resolve(__dirname, './pellet.js');
@@ -433,7 +521,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       };
 
       node.output = {
-        path: path.resolve(process.cwd(), options.outputNode || '/tmp/dist/node'),
+        path: path.resolve(process.cwd(), options.outputServer || '/tmp/dist/node'),
         filename: options.filename,
         chunkFilename: options.chunkFilename,
         hashDigestLength: 8,
@@ -511,9 +599,11 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       //new webpack.NoErrorsPlugin()
 
       next(null, {
+        translationDictionary: translationDictionary,
+        indexScript: indexScript,
         baseConfig: config,
         browserConfig: browser,
-        nodeConfig: node
+        serverConfig: node
       });
     });
   });

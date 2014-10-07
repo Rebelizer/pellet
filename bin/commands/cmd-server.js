@@ -187,8 +187,8 @@ module.exports = function(program, addToReadyQue) {
             }
 
             // get base node dir by using _MANIFEST.json and its relative path to node version
-            var baseNodeDir = path.resolve(options.output, componentModule.server.relativePath)
-              , componentModule = path.join(baseNodeDir, componentModule.server.component);
+            var baseServerDir = path.resolve(options.output, componentModule.server.relativePath)
+              , componentModule = path.join(baseServerDir, componentModule.server.component);
           }
 
           if(!fs.existsSync(componentModule)) {
@@ -329,7 +329,7 @@ module.exports = function(program, addToReadyQue) {
         // make sure the paths are absolute
         options.output = path.resolve(LAUNCH_CWD, (resolveConfigPaths(nconf.get('pellet:output')) || 'build'));
         options.outputBrowser = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputBrowser'), true) || 'browser');
-        options.outputNode = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputServer'), true) || 'server');
+        options.outputServer = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputServer'), true) || 'server');
         options.mountPoint = nconf.get('server:webpackMountPoint');
 
         var componentModule = path.join(options.output, '_MANIFEST.json');
@@ -350,12 +350,35 @@ module.exports = function(program, addToReadyQue) {
             // embed the manifest index into the webpack so pellet can find all the components
             options.embedManifestIndex = path.join(options.output, '_EMBED_INDEX.js');
 
+            // build the translation map
+            options.translationMapFile = path.join(options.output, '_TRANSLATIONS.json');
+
+            // include our core manifest so our webpack will include pellet internal mixin, components, etc.
             manifestGlob.push(path.resolve(__dirname, '../../components/core.manifest.json'));
+
+            // todo: if running in the debug load more manifest stuff (i.e. translator tool, preview tool, etc.)
 
             ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
               if (err) {
                 console.error('Cannot build Webpack config because:', err.message);
                 process.exit(1);
+              }
+
+              if (config.translationDictionary) {
+                options.translationDetails = {
+                  server:null,
+                  browser: []
+                };
+
+                var serverOutput = [];
+                for(var i in config.translationDictionary) {
+                  options.translationDetails.browser.push(i+'.js');
+                  fs.outputFileSync(path.join(options.outputBrowser, i+'.js'), config.translationDictionary[i]);
+                  serverOutput.push(config.translationDictionary[i]);
+                }
+
+                options.translationDetails.server = 'all-translations.js';
+                fs.outputFileSync(path.join(options.outputServer, options.translationDetails.server), serverOutput.join('\n'));
               }
 
               // cache to help clean up build files
@@ -375,9 +398,10 @@ module.exports = function(program, addToReadyQue) {
                     return;
                   }
 
+                  // todo: I do not think we need this line because componentModule is allready defined above!
                   // get base node dir by using _MANIFEST.json and its relative path to node version
-                  var baseNodeDir = path.resolve(options.output, buildManifestMap.server.relativePath)
-                    , componentModule = path.join(baseNodeDir, buildManifestMap.server.component);
+                  var baseServerDir = path.resolve(options.output, buildManifestMap.server.relativePath)
+                    , componentModule = path.join(baseServerDir, buildManifestMap.server.component);
 
                   // in prod mode clean up old manifest files
                   // from the previous build
@@ -406,14 +430,16 @@ module.exports = function(program, addToReadyQue) {
                 }));
 
               config.browserConfig.bail = false;
-              config.nodeConfig.bail = false;
+              config.serverConfig.bail = false;
 
+              // todo: move this into manifest (we want to use our version of react! and globalize
+              // because its a core part of our system!
               config.browserConfig.externals = {
                 React: 'React',
                 react: 'React'
               };
 
-              config.nodeConfig.externals = {
+              config.serverConfig.externals = {
                 React: require.resolve('react'),
                 react: require.resolve('react')
               };
@@ -421,10 +447,10 @@ module.exports = function(program, addToReadyQue) {
               if(options.watch) {
                 // build both the server and browser webpack files
                 webpack(config.browserConfig).watch(100, doneFn(0));
-                webpack(config.nodeConfig).watch(100, doneFn(1));
+                webpack(config.serverConfig).watch(100, doneFn(1));
               } else {
                 webpack(config.browserConfig).run(doneFn(0));
-                webpack(config.nodeConfig).run(doneFn(1));
+                webpack(config.serverConfig).run(doneFn(1));
               }
             });
           } else if(!options['cluster:count']) {

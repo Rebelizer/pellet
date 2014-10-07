@@ -209,15 +209,20 @@ var exports = module.exports = {
             component: browserStats.assetsByChunkName['component']
           },
           server: {
-            //outputPath: options.outputNode,
-            relativePath: exports.relativeToOutputFile(profileFilePath, options.outputNode),
+            //outputPath: options.outputServer,
+            relativePath: exports.relativeToOutputFile(profileFilePath, options.outputServer),
             hash: nodeStats.hash,
             assets: nodeStats.assetsByChunkName['assets'],
             component: nodeStats.assetsByChunkName['component']
           }
         };
 
-        // remove the source-map files
+        if(options.translationDetails) {
+          buildManifestMap.browser.translations = options.translationDetails.browser;
+          buildManifestMap.server.translations = options.translationDetails.server;
+        }
+
+        // remove the source-map files (because webpack adds source maps in production mode and we don't need to return this)
         if (options.mode === 'production') {
           buildManifestMap.browser.assets = buildManifestMap.browser.assets && buildManifestMap.browser.assets[0];
           buildManifestMap.browser.component = buildManifestMap.browser.component && buildManifestMap.browser.component[0];
@@ -228,7 +233,7 @@ var exports = module.exports = {
           next((lastError ? err : null), buildManifestMap, browserStats, nodeStats);
         }
       } catch (ex) {
-        console.error('Error building manifest profile and map because:', ex.message);
+        console.error('Error building manifest profile and map because:', ex.message, ex.stack);
         if(next) {
           next(ex);
         }
