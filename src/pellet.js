@@ -2,7 +2,7 @@ var react = require('react')
   , kefir = require('kefir')
   , isomorphicRender = require('./isomorphic-render')
   , routeTable = require('./route-table')
-  , isomorphicMixin = require('./isomorphic-mixin.js');
+  , pelletMixin = require('./pellet-mixin.js');
 
 /**
  * @class pellet
@@ -27,8 +27,8 @@ pellet.prototype.createClass = function(spec) {
     spec.mixins = [];
   }
 
-  if(!(isomorphicMixin in spec.mixins)) {
-    spec.mixins.push(isomorphicMixin);
+  if(!(pelletMixin in spec.mixins)) {
+    spec.mixins.push(pelletMixin);
   }
 
   if(spec.setupInitialRender) {
