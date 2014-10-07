@@ -13,7 +13,7 @@ function pellet() {
   this.initFnQue = [];
   this.emitters = {};
   this.components = {};
-  this.locale = {};
+  this.locales = {};
 
   this.routes = new routeTable();
 }
@@ -44,7 +44,7 @@ pellet.prototype.createClass = function(spec) {
 }
 
 pellet.prototype.loadTranslation = function(locale, fn) {
-  this.locale[locale] = fn;
+  this.locales[locale] = fn;
 }
 
 pellet.prototype.loadManifestComponents = function(manifest) {
@@ -215,7 +215,7 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
 
         var assetPath = self.config.jsMountPoint + self.config.assetFileName;
         var appPath = self.config.jsMountPoint + self.config.componentFileName;
-        var locale = self.config.jsMountPoint + (self.config.locale || 'en') + '.js';
+        var locales = self.config.jsMountPoint + (self.config.locales || 'en') + '.js';
 
         var ourBodyScripts = '<script src="//cdnjs.cloudflare.com/ajax/libs/history.js/1.8/native.history.min.js"></script>'+
           '<script src="//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react-with-addons.js"></script>'+

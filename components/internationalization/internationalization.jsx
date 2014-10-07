@@ -4,31 +4,35 @@ var react = require('react')
   , cx = react.addons.classSet
   , pellet = require('pellet');
 
+var spec = {
+  locales: React.PropTypes.oneOfType([
+      React.PropTypes.string,
+      React.PropTypes.array
+  ]),
+
+  formats : React.PropTypes.object,
+  messages: React.PropTypes.object
+};
+
 module.exports = pellet.createClass({
   getInitialState: function() {
 
-    var state = {
-      hasErrors: false,
-      isMissing: true,
-      translation: ''
-    };
-
-    if(this.props.locale) {
-      if(pellet.locale[this.props.locale]) {
-        if(this.props.key && pellet.locale[this.props.locale][this.props.key]) {
+    if(this.props.locales) {
+      if(pellet.locales[this.props.locales]) {
+        if(this.props.key && pellet.locales[this.props.locales][this.props.key]) {
           state.isMissing = false;
           try {
-            state.translation = pellet.locale[this.props.locale][this.props.key](this.props);
+            state.translation = pellet.locales[this.props.locales][this.props.key](this.props);
           } catch(ex) {
             console.error('Cannot get translation because:', ex.message);
-            state.translation = '[ERROR:' + this.props.locale + ':' + this.props.key + ']';
+            state.translation = '[ERROR:' + this.props.locales + ':' + this.props.key + ']';
             state.hasErrors = true;
           }
         } else if(this.props.value) {
           try {
             var val = this.props.value.toLowerCase().replace(/\W/g, '');
-            if(pellet.locale[this.props.locale][val]) {
-              state.translation = pellet.locale[this.props.locale][val](this.props);
+            if(pellet.locales[this.props.locales][val]) {
+              state.translation = pellet.locales[this.props.locales][val](this.props);
             } else {
               state.translation = this.props.value;
             }
@@ -36,7 +40,7 @@ module.exports = pellet.createClass({
             state.isMissing = false;
           } catch(ex) {
             console.error('Cannot get translation because:', ex.message);
-            state.translation = '[ERROR:' + this.props.locale + ':' + this.props.value + ']';
+            state.translation = '[ERROR:' + this.props.locales + ':' + this.props.value + ']';
             state.hasErrors = true;
           }
         } else {
