@@ -7,7 +7,7 @@ var path = require('path')
   , ejs = require('ejs');
 
 var CWD = process.cwd();
-var CREATE_TYPES = ['Component', 'Project', 'Page', 'Layout'];
+var CREATE_TYPES = ['Component', 'Page', 'Layout', 'Project'];
 
 /**
  * Helper function to add template file to generate que
@@ -32,13 +32,16 @@ module.exports = function(program, addToReadyQue) {
 
   program
     .command('create [type] [name]')
-    //.alias('c')
+    .alias('init')
     .description('Create a component or project')
     .option('--output <path>', 'output directory', CWD)
     .option('--templateDir <path>', 'path to the template files', path.join(__dirname, '..', 'templates'))
     .action(function (type, name, options) {
-
       var _type;
+
+      if(program.rawArgs[2] == 'init') {
+        type = 'project';
+      }
 
       // make the type optional so if only one args and its not one of CREATE_TYPES use it as the name
       if(type && (_type = type.charAt(0).toUpperCase()+type.slice(1).toLowerCase()) && CREATE_TYPES.indexOf(_type) != -1) {
