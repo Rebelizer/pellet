@@ -219,7 +219,7 @@ var exports = module.exports = {
 
         if(options.translationDetails) {
           buildManifestMap.browser.translations = options.translationDetails.browser;
-          buildManifestMap.server.translations = options.translationDetails.server;
+          buildManifestMap.server.translation = options.translationDetails.server;
         }
 
         // remove the source-map files (because webpack adds source maps in production mode and we don't need to return this)

@@ -13,6 +13,7 @@ function pellet() {
   this.initFnQue = [];
   this.emitters = {};
   this.components = {};
+  this.locale = {};
 
   this.routes = new routeTable();
 }
@@ -40,6 +41,10 @@ pellet.prototype.createClass = function(spec) {
   }
 
   return react.createClass(spec);;
+}
+
+pellet.prototype.loadTranslation = function(locale, fn) {
+  this.locale[locale] = fn;
 }
 
 pellet.prototype.loadManifestComponents = function(manifest) {
@@ -210,10 +215,12 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
 
         var assetPath = self.config.jsMountPoint + self.config.assetFileName;
         var appPath = self.config.jsMountPoint + self.config.componentFileName;
+        var locale = self.config.jsMountPoint + (self.config.locale || 'en') + '.js';
 
         var ourBodyScripts = '<script src="//cdnjs.cloudflare.com/ajax/libs/history.js/1.8/native.history.min.js"></script>'+
           '<script src="//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react-with-addons.js"></script>'+
-          '<script src="' + appPath + '"></script>';
+          '<script src="' + appPath + '"></script>'+
+          '<script src="' + locale + '"></script>';
 
         if(ctx) {
           ourBodyScripts += '<script>window.__pellet__ctx = "' + ctx.toJSON().replace(/"/g,'\\"') + '";</script>';

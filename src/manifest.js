@@ -285,6 +285,11 @@ manifestParser.prototype.resolveComponentPaths = function(manifestFilePath, comp
 };
 
 /**
+ * build a config object that is helpfule to pass to webpack.
+ *
+ * This step will also build a component index (map file) and translations
+ * optionaly you can skip saving this data and do it your self if you want.
+ * i.e. if you have a need to handle translation or handle the lookup.
  *
  * @param manifestGlob
  * @param options
@@ -402,7 +407,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       for(ix in translationFiles) {
         try {
           // load the translation file and merge each key
-          translation = fs.readJsonFileSync(translationFiles[ix]);
+          translation = JSON.parse(fs.readFileSync(translationFiles[ix]).toString().replace(/\n/g,''));
           for(k in translation) {
             for(j in translation[k]) {
               // insure locale exist
@@ -424,7 +429,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         }
       }
 
-      // build the transactions map file
+      // save the transactions map file
       if(options.translationMapFile) {
         var translationMapFile = path.resolve(__dirname, options.translationMapFile);
         fs.writeJSONFileSync(translationMapFile, translationDictionary);
@@ -439,7 +444,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
         translationDictionary[j] = '(function() {var i18n='+msgFormatBuilder.functions()+';'+
           'i18n["fn"]='+msgFormatBuilder.precompileObject(translationDictionary[j])+';'+
-          'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n["fn"]);}})()';
+          'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n["fn"]);}})();\n';
       }
 
       console.info('Translations Breakdown:');

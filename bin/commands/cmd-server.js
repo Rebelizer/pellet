@@ -43,7 +43,6 @@ module.exports = function(program, addToReadyQue) {
     .option('--es6', 'run with es6 support', false)
     .option('--spdy', 'path to directory with spdy cert', false)
     .action(function (manifestGlob, options) {
-
       if(!manifestGlob) {
         manifestGlob = [program.pelletConfig && program.pelletConfig.manifestFiles &&
           path.resolve(PELLET_PROJECT_PATH, program.pelletConfig.manifestFiles)];
@@ -185,25 +184,38 @@ module.exports = function(program, addToReadyQue) {
               console.error('Cannot use manifest because it was build in', componentModule.mode, 'mode and you are running in', options.mode);
               process.exit(1);
             }
-
-            // get base node dir by using _MANIFEST.json and its relative path to node version
-            var baseServerDir = path.resolve(options.output, componentModule.server.relativePath)
-              , componentModule = path.join(baseServerDir, componentModule.server.component);
           }
 
-          if(!fs.existsSync(componentModule)) {
+          // get base node dir by using _MANIFEST.json and its relative path to node version
+          var baseServerDir = path.resolve(options.output, componentModule.server.relativePath)
+            , componentFile = path.join(baseServerDir, componentModule.server.component);
+
+          if(!fs.existsSync(componentFile)) {
             console.error('Cannot find build output. Please build and insure', componentModule, 'exists.');
             process.exit(1);
           }
 
           try {
-            console.log('Loading', componentModule, 'webpack into pellet server.');
+            console.log('Loading', componentFile, 'webpack into pellet server.');
             require('source-map-support').install({handleUncaughtExceptions: false});
-            pellet = require(componentModule);
+            pellet = require(componentFile);
           } catch(ex) {
-            console.error('Cannot load', componentModule, 'because:', ex.message);
+            console.error('Cannot load', componentFile, 'because:', ex.message);
             console.error(ex.stack);
             process.exit(1);
+          }
+
+          if(componentModule.server.translation) {
+            var translationFile = path.join(baseServerDir, componentModule.server.translation);
+
+            try {
+              console.log('Loading', translationFile, 'translation into pellet server.');
+              require(translationFile);
+            } catch(ex) {
+              console.error('Cannot load', translationFile, 'because:', ex.message);
+              console.error(ex.stack);
+              process.exit(1);
+            }
           }
 
           // using Koa for ES6 mode else express
@@ -398,11 +410,6 @@ module.exports = function(program, addToReadyQue) {
                     return;
                   }
 
-                  // todo: I do not think we need this line because componentModule is allready defined above!
-                  // get base node dir by using _MANIFEST.json and its relative path to node version
-                  var baseServerDir = path.resolve(options.output, buildManifestMap.server.relativePath)
-                    , componentModule = path.join(baseServerDir, buildManifestMap.server.component);
-
                   // in prod mode clean up old manifest files
                   // from the previous build
                   if (options.mode === 'production') {
@@ -419,7 +426,7 @@ module.exports = function(program, addToReadyQue) {
                   }
 
                   if (!lastManifestDetails && !options['cluster:count']) {
-                    startServer(componentModule);
+                    startServer(buildManifestMap);
                   }
 
                   if (lastManifestDetails && lastManifestDetails.browser.hash != buildManifestMap.browser.hash && options['cluster:count'] > 0) {
@@ -436,12 +443,14 @@ module.exports = function(program, addToReadyQue) {
               // because its a core part of our system!
               config.browserConfig.externals = {
                 React: 'React',
-                react: 'React'
+                react: 'React',
+                intl: 'Intl'
               };
 
               config.serverConfig.externals = {
-                React: require.resolve('react'),
-                react: require.resolve('react')
+                React: require.resolve('react/addons'),
+                react: require.resolve('react/addons'),
+                intl: require.resolve('intl')
               };
 
               if(options.watch) {
