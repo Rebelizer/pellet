@@ -1,4 +1,5 @@
 var react = require('react')
+  , utils = require('./utils')
   , isomorphicContext = require('./isomorphic-context.js');
 
 // options.context options.mode=MODE_HTML, options.dom =
@@ -38,7 +39,7 @@ var isomorphicRender = module.exports = {
     }
 
     function renderReactComponent(component, ctx) {
-      var markup;
+      var result;
 
       try {
         if(options.mode == isomorphicRender.MODE_DOM && process.env.BROWSER_ENV) {
@@ -49,24 +50,26 @@ var isomorphicRender = module.exports = {
             }
           }
 
-          markup = react.renderComponent(component, options.targetEl);
+          result = react.renderComponent(component, options.targetEl);
 
           // on the browser update the dom meta session and script etc.
           if(ctx) {
             //document.title = ctx.meta.title;
           }
         } else if(options.mode == isomorphicRender.MODE_STRING) {
-          markup = react.renderComponentToStaticMarkup(component);
+          result = react.renderComponentToStaticMarkup(component);
         } else if(options.mode == isomorphicRender.MODE_HTML) {
-          markup = react.renderComponentToString(component);
+          result = react.renderComponentToString(component);
         }
       } catch(ex) {
         next(ex);
         return;
       }
 
-      next(null, markup, ctx);
+      next(null, result, ctx);
     }
+
+    var componentWithContext;
 
     // get serialize state if component supports the setupInitialRender
     if (component.setupInitialRender) {
@@ -83,9 +86,9 @@ var isomorphicRender = module.exports = {
           }
 
           try {
-            var root = react.withContext({
-              isomorphicContext: ctx
-              // todo: add the i18n stuff here!
+            componentWithContext = react.withContext({
+              isomorphicContext: ctx,
+              locales: options.locales || 'en'
             }, function () {
               return component(ctx.props);
             });
@@ -94,15 +97,36 @@ var isomorphicRender = module.exports = {
             return;
           }
 
-          renderReactComponent(root, ctx);
+          renderReactComponent(componentWithContext, ctx);
         });
       } catch(ex) {
         next(ex);
       }
     } else {
-      // todo: wrapping context with i18n support
-      //todo: review the logic for the arguments
-      renderReactComponent(component((options.context && options.context.props) || options.props));
+
+      try {
+        componentWithContext = react.withContext({
+          locales: options.locales || 'en'
+        }, function () {
+          var props;
+
+          if(options.context && options.props && options.context.props) {
+            props = {};
+            utils.objectUnion([options.context.props, options.props], props);
+          } else if(options.props) {
+            props = options.props;
+          } else if(options.context && options.context.props) {
+            props = options.context.props;
+          }
+
+          return component(props);
+        });
+      } catch(ex) {
+        next(ex);
+        return;
+      }
+
+      renderReactComponent(componentWithContext);
     }
   }
 };
