@@ -9,7 +9,6 @@ var program = require('commander')
   , fs = require('fs-extra')
   , nconf = require('nconf')
   , inquirer = require('inquirer')
-  , ejs = require('ejs')
   , utils = require('./utils')
   , version = require('../package.json').version
   , i;

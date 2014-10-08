@@ -519,6 +519,18 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         )
       ];
 
+      if(ourManifest.webpackEP['client-dependencies'] && browser.entry.component) {
+        browser.entry = Object.create(browser.entry);
+        browser.entry.component = ourManifest.webpackEP['client-dependencies'].concat(browser.entry.component);
+        delete ourManifest.webpackEP['client-dependencies'];
+      }
+
+      if(ourManifest.webpackEP['server-dependencies'] && node.entry.component) {
+        node.entry = Object.create(node.entry);
+        node.entry.component = ourManifest.webpackEP['server-dependencies'].concat(node.entry.component);
+        delete ourManifest.webpackEP['server-dependencies'];
+      }
+
       node.target = 'node';
       node.node = {
         __dirname: true,
