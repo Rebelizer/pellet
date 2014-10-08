@@ -116,8 +116,6 @@ function getPathFromDoclet(doclet) {
 }
 
 function generate(title, docs, filename, resolveLinks) {
-  resolveLinks = resolveLinks === false ? false : true;
-
   var docData = {
     filename: filename,
     title: title,
@@ -127,7 +125,7 @@ function generate(title, docs, filename, resolveLinks) {
   var outpath = path.join(outdir, filename),
     html = view.render('container.tmpl', docData);
 
-  if (resolveLinks) {
+  if (resolveLinks !== false) {
     html = helper.resolveLinks(html); // turn {@link foo} into <a href="foodoc.html">foo</a>
   }
 

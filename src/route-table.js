@@ -82,7 +82,7 @@ router.prototype.add = function(pattern, fn, options) {
   });
 
   return key;
-}
+};
 
 router.prototype.parse = function(fullpath) {
   var i, path, result, route, query;
@@ -119,6 +119,6 @@ router.prototype.parse = function(fullpath) {
   }
 
   return false;
-}
+};
 
 module.exports = router;

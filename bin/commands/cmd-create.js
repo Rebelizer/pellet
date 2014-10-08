@@ -227,30 +227,30 @@ module.exports = function(program, addToReadyQue) {
             fs.copy(path.resolve(__dirname, '..', 'config'), configDir, function(err) {
               // hack to repalce the common.json PELLET_BIN_DIR to use PELLET_PROJECT_PATH
               var updateFile = path.resolve(__dirname, '..', 'config', 'common.json');
-              fs.writeFileSync(updateFile, fs.readFileSync(updateFile).toString().replace(/#PELLET_BIN_DIR#/gm, '#PELLET_PROJECT_PATH#'))
+              fs.writeFileSync(updateFile, fs.readFileSync(updateFile).toString().replace(/#PELLET_BIN_DIR#/gm, '#PELLET_PROJECT_PATH#'));
               next(null);
             });
-          }
+          };
 
           var publicDir = path.join(baseOutputDir, 'public');
           outputFiles[publicDir] = function(next) {
             fs.copy(path.resolve(__dirname, '..', 'public'), publicDir, next);
-          }
+          };
 
           var resetFile = path.join(baseOutputDir, 'assets', 'reset.css');
           outputFiles[resetFile] = function(next) {
             fs.copy(path.join(options.templateDir, 'project-assets-reset.css'), resetFile, next);
-          }
+          };
 
           var skeletonFile = path.join(baseOutputDir, 'src', 'page-skeleton.ejs');
           outputFiles[skeletonFile] = function(next) {
             fs.copy(path.join(options.templateDir, 'project-page-skeleton.ejs'), skeletonFile, next);
-          }
+          };
 
           var componentPath = path.join(baseOutputDir, 'frontend');
           outputFiles[componentPath] = function(next) {
             fs.ensureDir(componentPath, next);
-          }
+          };
 
           renderFile(outputFiles, path.join(baseOutputDir, '.pellet'), path.join(options.templateDir, 'pellet.ejs'), answer);
 

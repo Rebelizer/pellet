@@ -43,14 +43,14 @@ pellet.prototype.createClass = function(spec) {
   }
 
   return react.createClass(spec);;
-}
+};
 
 pellet.prototype.loadTranslation = function(locale, fn) {
   this.locales[locale] = fn;
-}
+};
 
 pellet.prototype.loadManifestComponents = function(manifest) {
-  var last, id, key, keys
+  var last, id, key, keys;
 
   if(!manifest || typeof(manifest) !== 'object') {
     return;
@@ -75,7 +75,7 @@ pellet.prototype.loadManifestComponents = function(manifest) {
       this.components[key] = manifest[key];
     }
   }
-}
+};
 
 /**
  *
@@ -94,7 +94,7 @@ pellet.prototype.getEmitter = function(key, namespace) {
   });
 
   return stream;
-}
+};
 
 /**
  * register a function to be called once pellet is ready
@@ -211,7 +211,7 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
 
         // todo: this about letting someone pass in a ejs template and we use that to render (so we can have jade etc to build the wrapper)
         if(!routeContext) {
-          console.error('DIE because we have to have the routeContext')
+          console.error('DIE because we have to have the routeContext');
           throw new Error('xxxxx');
         }
 

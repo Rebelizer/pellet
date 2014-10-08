@@ -20,7 +20,7 @@ plugins.help(gulp);
 gulp.task('clean', 'Clean all the build files', function(next) {
   gulp.src(['./doghouse/public/docs/**/*', './doghouse/build/**/*'
   ], {read: false})
-    .pipe(require('gulp-print')())
+    .pipe(require('gulp-print')());
     //.pipe(plugins.clean())
 });
 
@@ -134,7 +134,7 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
     .option('-p, --patch', 'bump the patch version')
     .option('--prerelease', 'bump the patch version')
     .option('--start-tag <tag>', 'tag used as a starting point')
-    .option('--end-tag <tag>', 'tag used as a ending point')
+    .option('--end-tag <tag>', 'tag used as a ending point');
 
   program.parse(process.argv);
 
