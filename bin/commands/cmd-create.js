@@ -94,9 +94,9 @@ module.exports = function(program, addToReadyQue) {
 
           var baseTemplateNames = [
             ['comp-react', 'assets', 'comp'],
-            null,
             ['page-react', 'assets', 'page'],
-            ['layout-react', 'assets', 'comp']
+            ['layout-react', 'assets', 'comp'],
+            null
           ];
 
           baseTemplateNames = baseTemplateNames[CREATE_TYPES.indexOf(answer.type)];
