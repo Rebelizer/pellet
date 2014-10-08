@@ -21,6 +21,10 @@ module.exports = {
       locales: this.props.locales || this.context.locales
     };
   }
+};
+
+
+
 
 /*
   getDefaultProps: function() {
@@ -43,9 +47,6 @@ module.exports = {
     return this.context
   }
 */
-};
-
-
 //*********************
 /*
 var testA = react.createClass({

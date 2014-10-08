@@ -3,9 +3,10 @@ var utils = require('./utils');
 /**
  *
  */
-function isomorphicContext(initData) {
-  this.props = {};
+function isomorphicContext(initData, middlewareProvider) {
+  this.provider = middlewareProvider;
   this.serialize = {};
+  this.props = {};
 
   if(initData) {
     if(typeof(initData) === 'string') {

@@ -51,11 +51,6 @@ var isomorphicRender = module.exports = {
           }
 
           result = react.renderComponent(component, options.targetEl);
-
-          // on the browser update the dom meta session and script etc.
-          if(ctx) {
-            //document.title = ctx.meta.title;
-          }
         } else if(options.mode == isomorphicRender.MODE_STRING) {
           result = react.renderComponentToStaticMarkup(component);
         } else if(options.mode == isomorphicRender.MODE_HTML) {
@@ -73,7 +68,7 @@ var isomorphicRender = module.exports = {
 
     // get serialize state if component supports the setupInitialRender
     if (component.setupInitialRender) {
-      var ctx = new isomorphicContext(options.context);
+      var ctx = new isomorphicContext(options.context, options.provider);
 
       if(options.props) {
         ctx.setProps(options.props);
@@ -88,7 +83,7 @@ var isomorphicRender = module.exports = {
           try {
             componentWithContext = react.withContext({
               isomorphicContext: ctx,
-              locales: options.locales || 'en'
+              locales: options.locals
             }, function () {
               return component(ctx.props);
             });
@@ -106,7 +101,7 @@ var isomorphicRender = module.exports = {
 
       try {
         componentWithContext = react.withContext({
-          locales: options.locales || 'en'
+          locales: options.locals
         }, function () {
           var props;
 

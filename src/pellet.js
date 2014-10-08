@@ -1,6 +1,7 @@
 var react = require('react')
   , kefir = require('kefir')
   , isomorphicRender = require('./isomorphic-render')
+  , isomorphicMiddlewareProvider = require('./isomorphic-middleware-provider')
   , routeTable = require('./route-table')
   , pelletMixin = require('./pellet-mixin.js');
 
@@ -42,7 +43,34 @@ pellet.prototype.createClass = function(spec) {
     delete spec.setupInitialRender;
   }
 
-  return react.createClass(spec);;
+  if(typeof spec.routes !== 'undefined') {
+    var i, allRoutes;
+
+    if(typeof spec.routes === 'string') {
+      allRoutes = [spec.routes];
+    } else if(spec.routes instanceof Array) {
+      allRoutes = spec.routes;
+    }
+
+    delete spec.routes;
+  }
+
+  var reactClass = react.createClass(spec);
+  if(allRoutes) {
+    for(i in allRoutes) {
+      this.addComponentRoute(allRoutes[i], reactClass);
+    }
+  }
+
+  return reactClass;
+};
+
+pellet.prototype.setSkeletonPage = function(templatingFn) {
+  this.skeletonPageRender = templatingFn;
+};
+
+pellet.prototype.setLocalSuggestionLookup = function(lookupFn) {
+  this.suggestLocals = lookupFn;
 };
 
 pellet.prototype.loadTranslation = function(locale, fn) {
@@ -165,6 +193,21 @@ pellet.prototype.startInit = function(config) {
 
 /**
  *
+ * @param renderOptions
+ * @param component
+ * @param options
+ * @returns {locals|*|js.locals|module.locals|app.locals|string}
+ */
+pellet.prototype.suggestLocals = function(renderOptions, component, options) {
+  // todo: if server read (Accept-Language) and push it onto array after en
+  // todo: if broswer we can use navigator.language etc.
+  // final this can be overwrite by a cookie or by url/host
+
+  return module.exports.config.locals || 'en';
+}
+
+/**
+ *
  * @param route
  * @param component
  * @param options
@@ -173,46 +216,54 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
   var self = this;
 
   this.routes.add(route, function() {
-    routeContext = this;
-
-    // todo: not sure this is safe... if options is updated will all future request get modified?
-    if(!options) {
-      options = {};
-    }
+    var routeContext = this
+      , renderOptions = {props:{}};
 
     if(process.env.SERVER_ENV) {
-      // just for bots do not return react-id version
-      if (!options.mode && routeContext.request) {
-        if (/googlebot|gurujibot|twitterbot|yandexbot|slurp|msnbot|bingbot|rogerbot|facebookexternalhit/i.test(routeContext.request.headers['user-agent'] || '')) {
-          options.mode = isomorphicRender.MODE_STRING;
-        }
+      if(options && typeof options.mode) {
+        renderOptions.mode = options.mode;
+      } else {
+        //just for bots do not return react-id version (the routeContext.request comes from pellet middleware passing in the express request
+        //if (!options.mode && routeContext.request) {
+        //  if (/googlebot|gurujibot|twitterbot|yandexbot|slurp|msnbot|bingbot|rogerbot|facebookexternalhit/i.test(routeContext.request.headers['user-agent'] || '')) {
+        //    options.mode = isomorphicRender.MODE_STRING;
+        //  }
+        //}
       }
-    } else {
-      if(window.__pellet__ctx) {
-        options.context = window.__pellet__ctx;
-      }
-    }
 
-    if(!options.props) {
-      options.props = {};
+      // create a isomorphic req/res provider for the isomorphic render
+      renderOptions.provider = new isomorphicMiddlewareProvider(
+        routeContext.res,
+        routeContext.res,
+        routeContext.next);
+
+    } else {
+      // create a isomorphic req/res provider for the isomorphic render
+      renderOptions.provider = new isomorphicMiddlewareProvider();
+
+      if(window.__pellet__ctx) {
+        // todo: I should make a copy of this!
+        renderOptions.context = window.__pellet__ctx;
+      }
     }
 
     // merge in the routes argument into the props
-    options.props.originalUrl = routeContext.originalUrl;
-    options.props.params = routeContext.params;
-    options.props.query = routeContext.query;
-    options.props.url = routeContext.url;
+    renderOptions.props.originalUrl = routeContext.originalUrl;
+    renderOptions.props.params = routeContext.params;
+    renderOptions.props.query = routeContext.query;
+    renderOptions.props.url = routeContext.url;
+
+    // use pellets default local loookup function. This can replaced if you want
+    renderOptions.locals = self.suggestLocals(renderOptions, component, options);
 
     // now render the isomorphic component
-    isomorphicRender.renderComponent(component, function(err, html, ctx) {
-
+    isomorphicRender.renderComponent(component, renderOptions, function(err, html, ctx) {
       if(process.env.SERVER_ENV) {
         var markup;
 
-        // todo: this about letting someone pass in a ejs template and we use that to render (so we can have jade etc to build the wrapper)
         if(!routeContext) {
           console.error('DIE because we have to have the routeContext');
-          throw new Error('xxxxx');
+          throw new Error('NULL routeContext!');
         }
 
         if(self.skeletonPageRender) {
@@ -220,14 +271,19 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
         } else {
           routeContext.respose.end(html);
         }
+      } else {
+        if(renderOptions.provider.title) {
+          window.document.title = renderOptions.provider.title;
+        }
       }
     });
   }, options);
 };
 
-// SERVER ENVIRONMENT
-// export a middleware wrapper to help with routes.
 if(process.env.SERVER_ENV) {
+  // SERVER ENVIRONMENT
+  // export a middleware wrapper to help with routes.
+
   pellet.prototype.middleware = function (req, res, next) {
 
     var match = __pellet__ref.routes.parse(req.path);
@@ -240,27 +296,16 @@ if(process.env.SERVER_ENV) {
     match.next = next;
 
     match.fn.call(match);
-
-    /*
-     var stream = globlePellet.getEmitter('route:change');
-     stream.emit({
-     path: req.path,
-     query: req.query,
-     req: req,
-     res: res,
-     next: next
-     });
-     */
   };
 
   module.exports = global.__pellet__ref = new pellet();
 }
-
-// BROWSER ENVIRONMENT
-// bootstrap the browser envirment but triggering the route
-// the page was loaded and replay the events on the server
-// render.
 else if(process.env.BROWSER_ENV) {
+  // BROWSER ENVIRONMENT
+  // bootstrap the browser environment but triggering the route
+  // the page was loaded and replay the events on the server
+  // render.
+
   module.exports = window.__pellet__ref = new pellet();
 
   window.onload = function() {

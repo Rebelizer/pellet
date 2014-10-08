@@ -6,11 +6,11 @@ pellet.registerInitFn(function(next) {
 
   if(pellet.config.skeletonPage) {
     var fn = ejs.compile(fs.readFileSync(pellet.config.skeletonPage).toString());
-    pellet.skeletonPageRender = function(html, ctx) {
+    pellet.setSkeletonPage(function(html, ctx) {
       return fn({config:pellet.config, ctx:ctx, html:html});
-    }
+    });
   } else {
-    pellet.skeletonPageRender = defaultRender;
+    pellet.setSkeletonPage(defaultRender);
   }
 
   next();

@@ -5,6 +5,7 @@ pellet = require "pellet"
 comp = pellet.components
 
 module.exports = indexPage = pellet.createClass
+  routes: "/index"
 
   render: ->
 
@@ -15,4 +16,4 @@ module.exports = indexPage = pellet.createClass
       </div>
     </comp.layout>
 
-pellet.addComponentRoute "/index", indexPage
+#pellet.addComponentRoute "/index", indexPage

@@ -3,6 +3,7 @@
 
   "applicationConfig": {
     "__publicCommonConfig": {
+      "locals": "en"
     },
     "assetFileName": "assets.js",
     "componentFileName": "component.js",
