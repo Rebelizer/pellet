@@ -15,6 +15,8 @@ function pellet() {
   this.components = {};
   this.locales = {};
 
+  this.skeletonPageRender = false;
+
   this.routes = new routeTable();
 }
 
@@ -156,7 +158,7 @@ pellet.prototype.startInit = function(config) {
   }
 
   // now call all init fn and wait until all done
-  for(var i in this.initFnQue) {
+  for(i in this.initFnQue) {
     this.initFnQue[i](done);
   }
 };
@@ -213,59 +215,11 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
           throw new Error('xxxxx');
         }
 
-        var assetPath = self.config.jsMountPoint + self.config.assetFileName;
-        var appPath = self.config.jsMountPoint + self.config.componentFileName;
-        var locale = self.config.jsMountPoint + (self.config.locale || 'en') + '.js';
-
-        var ourBodyScripts = '<script src="//cdnjs.cloudflare.com/ajax/libs/history.js/1.8/native.history.min.js"></script>'+
-          '<script src="//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react-with-addons.js"></script>'+
-          '<script src="' + appPath + '"></script>'+
-          '<script src="' + locale + '"></script>';
-
-        if(ctx) {
-          ourBodyScripts += '<script>window.__pellet__ctx = "' + ctx.toJSON().replace(/"/g,'\\"') + '";</script>';
+        if(self.skeletonPageRender) {
+          routeContext.respose.end(self.skeletonPageRender(html, ctx));
+        } else {
+          routeContext.respose.end(html);
         }
-
-        ourBodyScripts += '<script>window.__pellet__config = ' + JSON.stringify(self.config) + ';</script>';
-
-        ourBodyScripts += '<!-- Google Analytics: change ' + self.config.googleTrackID + ' to be your site\'s ID. -->\n'+
-        '<script>\n'+
-          '(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=\n'+
-          'function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;\n'+
-          'e=o.createElement(i);r=o.getElementsByTagName(i)[0];\n'+
-          'e.src=\'//www.google-analytics.com/analytics.js\';\n'+
-          'r.parentNode.insertBefore(e,r)}(window,document,\'script\',\'ga\'));\n'+
-          'ga(\'create\',\'' + self.config.googleTrackID + '\');ga(\'send\',\'pageview\');\n'+
-        '</script>';
-
-        if(ctx) {
-          //message.res.status((message.meta && message.meta.status) || 200);
-        }
-
-        routeContext.respose.end('<!DOCTYPE html>\n'+
-          '<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->\n'+
-          '<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->\n'+
-          '<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->\n'+
-          '<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->\n'+
-          '<head>'+
-            '<meta charset="utf-8">'+
-            '<meta http-equiv="X-UA-Compatible" content="IE=edge">'+
-            //((message.meta && message.meta.title) ? '  <title>' + message.meta.title + '</title>' : '') +
-            '<meta name="description" content="">'+
-            '<meta name="viewport" content="width=device-width, initial-scale=1">'+
-            '<script src="' + self.config.polyfillPath + '"></script>'+
-            '<script src="' + assetPath + '"></script>'+
-          '</head>'+
-          '<body>'+
-            '<!--[if lt IE 7]>\n'+
-            '<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>\n'+
-            '<![endif]-->\n'+
-            '<div id="__PELLET__">'+
-              html +
-            '</div>'+
-            ourBodyScripts+
-          '</body>'+
-          '</html>');
       }
     });
   }, options);

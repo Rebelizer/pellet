@@ -9,7 +9,6 @@ var path = require('path')
   , nconf = require('nconf')
   , cluster = require('cluster-master')
   , polyfill = require('polyfills')
-  , ejs = require('ejs')
   , react = require('react')
   , manifest = require('../../src/manifest')
   , utils = require('../utils');
@@ -66,7 +65,7 @@ module.exports = function(program, addToReadyQue) {
         }
 
         // merge in the mount point to pellet can render the correct js directory
-        nconf.set('publicAppConfig:jsMountPoint', nconf.get('server:webpackMountPoint'));
+        nconf.set('applicationConfig:jsMountPoint', nconf.get('server:webpackMountPoint'));
 
         // setup the apps default logger and overwrite the javascript console to use our logger
         var pelletLogger = winston.loggers.add('pellet', nconf.get('winston:containers:console'));
@@ -298,6 +297,9 @@ module.exports = function(program, addToReadyQue) {
             app.use(pellet.middleware);
           }
 
+          var appConfig = nconf.get('applicationConfig');
+          appConfig.skeletonPage = resolveConfigPaths(appConfig.skeletonPage);
+
           if (nconf.get('spdy')) {
             var spdyPath = resolveConfigPaths(nconf.get('spdy'));
             var opt = {
@@ -308,7 +310,7 @@ module.exports = function(program, addToReadyQue) {
               autoSpdy31: false
             };
 
-            pellet.startInit(nconf.get('publicAppConfig'));
+            pellet.startInit(appConfig);
             pellet.onReady(function (err) {
               if (err) {
                 console.error('Error in initializing Pellet:', err.message);
@@ -322,7 +324,7 @@ module.exports = function(program, addToReadyQue) {
               });
             });
           } else {
-            pellet.startInit(nconf.get('publicAppConfig'));
+            pellet.startInit(appConfig);
             pellet.onReady(function (err) {
               if (err) {
                 console.error('Error in initializing Pellet:', err.message);
@@ -376,7 +378,7 @@ module.exports = function(program, addToReadyQue) {
                 process.exit(1);
               }
 
-              if (config.translationDictionary) {
+              if (config.translationDictionary && config.translationDictionary.length > 0) {
                 options.translationDetails = {
                   server:null,
                   browser: []

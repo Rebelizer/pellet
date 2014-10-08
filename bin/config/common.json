@@ -1,11 +1,14 @@
 {
   "securityFilter": "\\s(user|pass|aws_)\\w*\\s+.+$",
 
-  "publicAppConfig": {
+  "applicationConfig": {
+    "__publicCommonConfig": {
+    },
     "assetFileName": "assets.js",
     "componentFileName": "component.js",
     "polyfillPath": "/js/polyfills.js",
     "polyfillPathIO": "//polyfill.io",
+    "skeletonPage": "#PELLET_PROJECT_PATH#/src/page-skeleton.ejs",
     "googleTrackID": "UA-XXXXX-X"
   },
 

@@ -242,6 +242,11 @@ module.exports = function(program, addToReadyQue) {
             fs.copy(path.join(options.templateDir, 'project-assets-reset.css'), resetFile, next);
           }
 
+          var skeletonFile = path.join(baseOutputDir, 'src', 'page-skeleton.ejs');
+          outputFiles[skeletonFile] = function(next) {
+            fs.copy(path.join(options.templateDir, 'project-page-skeleton.ejs'), skeletonFile, next);
+          }
+
           var componentPath = path.join(baseOutputDir, 'frontend');
           outputFiles[componentPath] = function(next) {
             fs.ensureDir(componentPath, next);

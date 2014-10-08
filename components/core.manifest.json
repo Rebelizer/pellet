@@ -5,6 +5,9 @@
     "component": "./internationalization/internationalization.jsx",
     "assets": [
       "./internationalization/internationalization.styl"
+    ],
+    "server-dependencies": [
+      "./page-render.js"
     ]
   }
 ]
