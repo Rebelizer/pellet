@@ -4,11 +4,6 @@ React = require "react"
 pellet = require "pellet"
 
 module.exports = <%- name %>Layout = pellet.createClass
-  setupInitialRender: (ctx, next) ->
-    ctx.setProps myData: "loaded from an API"
-    ctx.setProps userName: "Pellet"
-    next()
-
   render: ->
 
     <div className="<%- name %>-layout">
