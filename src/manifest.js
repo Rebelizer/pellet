@@ -440,11 +440,11 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       for(j in translationDictionary) {
         msgFormatBuilder = new messageFormat(j.split('-')[0]);
 
-        translationStats[j] = Object.keys(translationDictionary).length;
+        translationStats[j] = Object.keys(translationDictionary[j]).length;
 
         translationDictionary[j] = '(function() {var i18n='+msgFormatBuilder.functions()+';'+
-          'i18n["fn"]='+msgFormatBuilder.precompileObject(translationDictionary[j])+';'+
-          'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n["fn"]);}})();\n';
+          'i18n._='+msgFormatBuilder.precompileObject(translationDictionary[j])+';'+
+          'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n._);}})();\n';
       }
 
       console.info('Translations Breakdown:');
@@ -452,7 +452,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         .replace(/\s+[{},\]]+/g, "")
         .replace(/[{\[":,]/g, ""));
 
-      // merge in pellet into the components so its loaded and can bootstape environment
+      // merge in pellet into the components so its loaded and can bootstrap environment
       var pelletEntryPointPath = path.resolve(__dirname, './pellet.js');
       ourManifest.webpackEP.component.push(pelletEntryPointPath);
 
