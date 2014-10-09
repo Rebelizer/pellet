@@ -1,3 +1,23 @@
+### 0.0.10 (2014-10-08)
+
+
+#### Bug Fixes
+
+* get the internatiionalization scope working ([c759ab64](https://github.com/Rebelizer/pellet/commit/c759ab64115376ecb0e47908c31a6e3708ea7ed5))
+* the translation stats and clean up the scripts ([13cb1826](https://github.com/Rebelizer/pellet/commit/13cb18264ca6da04659d3bf45ca072b55efb2861))
+* client side render to include the context and locales ([e3f75b85](https://github.com/Rebelizer/pellet/commit/e3f75b85cec1801a6a838ecdb68233955de879ad))
+* page template not working ([1b9e5656](https://github.com/Rebelizer/pellet/commit/1b9e5656b511d5a499e3b9809c58b8f794114d11))
+* ref the wrong locale ([fdd1912e](https://github.com/Rebelizer/pellet/commit/fdd1912e813dc8c04600e02d1485283c20bfe292))
+
+
+#### Features
+
+* as a dev I want to get better error when rendering react components ([28cf448f](https://github.com/Rebelizer/pellet/commit/28cf448ffa58428670059d771395d562ebcf22e7))
+* as a dev I want to define iso routes inline and have full req/res support ([e2d3ff64](https://github.com/Rebelizer/pellet/commit/e2d3ff64aae161f74fe3ea9040790a1e4d939e00))
+* as a dev I want a way to customize the skeleton html template ([f7385e92](https://github.com/Rebelizer/pellet/commit/f7385e927e4ff11c805b065ad0ba3d83cbf6332a))
+* as a dev I want control over if a file is included in just the server or client  ([46bf13bd](https://github.com/Rebelizer/pellet/commit/46bf13bd88fba7fbfe7721f457d78fceecc8dc08))
+
+
 ### 0.0.9 (2014-10-07)
 
 
