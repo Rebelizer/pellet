@@ -219,64 +219,82 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
     var routeContext = this
       , renderOptions = {props:{}};
 
-    if(process.env.SERVER_ENV) {
-      if(options && typeof options.mode) {
-        renderOptions.mode = options.mode;
+    try {
+      if(process.env.SERVER_ENV) {
+        if(options && typeof options.mode) {
+          renderOptions.mode = options.mode;
+        } else {
+          //just for bots do not return react-id version (the routeContext.request comes from pellet middleware passing in the express request
+          //if (!options.mode && routeContext.request) {
+          //  if (/googlebot|gurujibot|twitterbot|yandexbot|slurp|msnbot|bingbot|rogerbot|facebookexternalhit/i.test(routeContext.request.headers['user-agent'] || '')) {
+          //    options.mode = isomorphicRender.MODE_STRING;
+          //  }
+          //}
+        }
+
+        // create a isomorphic req/res provider for the isomorphic render
+        renderOptions.provider = new isomorphicMiddlewareProvider(
+          routeContext.res,
+          routeContext.res,
+          routeContext.next);
+
       } else {
-        //just for bots do not return react-id version (the routeContext.request comes from pellet middleware passing in the express request
-        //if (!options.mode && routeContext.request) {
-        //  if (/googlebot|gurujibot|twitterbot|yandexbot|slurp|msnbot|bingbot|rogerbot|facebookexternalhit/i.test(routeContext.request.headers['user-agent'] || '')) {
-        //    options.mode = isomorphicRender.MODE_STRING;
-        //  }
-        //}
+        // create a isomorphic req/res provider for the isomorphic render
+        renderOptions.provider = new isomorphicMiddlewareProvider();
+
+        if(window.__pellet__ctx) {
+          // todo: I should make a copy of this!
+          renderOptions.context = window.__pellet__ctx;
+        }
       }
 
-      // create a isomorphic req/res provider for the isomorphic render
-      renderOptions.provider = new isomorphicMiddlewareProvider(
-        routeContext.res,
-        routeContext.res,
-        routeContext.next);
+      // merge in the routes argument into the props
+      renderOptions.props.originalUrl = routeContext.originalUrl;
+      renderOptions.props.params = routeContext.params;
+      renderOptions.props.query = routeContext.query;
+      renderOptions.props.url = routeContext.url;
 
-    } else {
-      // create a isomorphic req/res provider for the isomorphic render
-      renderOptions.provider = new isomorphicMiddlewareProvider();
+      // use pellets default local loookup function. This can replaced if you want
+      renderOptions.locals = self.suggestLocals(renderOptions, component, options);
 
-      if(window.__pellet__ctx) {
-        // todo: I should make a copy of this!
-        renderOptions.context = window.__pellet__ctx;
+      // now render the isomorphic component
+      isomorphicRender.renderComponent(component, renderOptions, function(err, html, ctx) {
+        if(process.env.SERVER_ENV) {
+          var markup;
+
+          if(err) {
+            console.error('Error rendering component because:', err.message);
+            routeContext.next(err);
+            return;
+          }
+
+          if(!routeContext) {
+            console.error('DIE because we have to have the routeContext');
+            routeContext.next(new Error('NULL routeContext!'));
+            return;
+          }
+
+          if(self.skeletonPageRender) {
+            routeContext.respose.end(self.skeletonPageRender(html, ctx));
+          } else {
+            routeContext.respose.end(html);
+          }
+        } else {
+          if(err) {
+            console.error('Error trying to render because:', ex.message);
+          }
+
+          if(renderOptions.provider.title) {
+            window.document.title = renderOptions.provider.title;
+          }
+        }
+      });
+    } catch(ex) {
+      console.error('Error trying to render because:', ex.message);
+      if(process.env.SERVER_ENV) {
+        routeContext.next(ex);
       }
     }
-
-    // merge in the routes argument into the props
-    renderOptions.props.originalUrl = routeContext.originalUrl;
-    renderOptions.props.params = routeContext.params;
-    renderOptions.props.query = routeContext.query;
-    renderOptions.props.url = routeContext.url;
-
-    // use pellets default local loookup function. This can replaced if you want
-    renderOptions.locals = self.suggestLocals(renderOptions, component, options);
-
-    // now render the isomorphic component
-    isomorphicRender.renderComponent(component, renderOptions, function(err, html, ctx) {
-      if(process.env.SERVER_ENV) {
-        var markup;
-
-        if(!routeContext) {
-          console.error('DIE because we have to have the routeContext');
-          throw new Error('NULL routeContext!');
-        }
-
-        if(self.skeletonPageRender) {
-          routeContext.respose.end(self.skeletonPageRender(html, ctx));
-        } else {
-          routeContext.respose.end(html);
-        }
-      } else {
-        if(renderOptions.provider.title) {
-          window.document.title = renderOptions.provider.title;
-        }
-      }
-    });
   }, options);
 };
 
