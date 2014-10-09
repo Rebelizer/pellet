@@ -5,15 +5,14 @@ pellet = require "pellet"
 comp = pellet.components
 
 module.exports = indexPage = pellet.createClass
-  routes: "/index"
+  routes: "/index/:demi"
 
   render: ->
-
-    <comp.layout>
+    this.transferPropsTo(<comp.layout>
       <div className="index-page">
-        <h1>Hello</h1>
-        <comp.intl/>
+        <h1>Hello {this.props.params.demi} xxx</h1>
+        <pellet.components.intl/>
       </div>
-    </comp.layout>
+    </comp.layout>)
 
 #pellet.addComponentRoute "/index", indexPage

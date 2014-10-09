@@ -21,22 +21,26 @@ module.exports = pellet.createClass({
       translation: ''
     };
 
-    if(this.props.locales) {
-      if(pellet.locales[this.props.locales]) {
-        if(this.props.key && pellet.locales[this.props.locales][this.props.key]) {
+    var locales = this.props.locales || this.context.locales;
+
+    // todo: make a function that will walk over all the locales and try to match them i.e. us-en, us-br, us
+
+    if(locales) {
+      if(pellet.locales[locales]) {
+        if(this.props.key && pellet.locales[locales][this.props.key]) {
           state.isMissing = false;
           try {
-            state.translation = pellet.locales[this.props.locales][this.props.key](this.props);
+            state.translation = pellet.locales[locales][this.props.key](this.props);
           } catch(ex) {
             console.error('Cannot get translation because:', ex.message);
-            state.translation = '[ERROR:' + this.props.locales + ':' + this.props.key + ']';
+            state.translation = '[ERROR:' + locales + ':' + this.props.key + ']';
             state.hasErrors = true;
           }
         } else if(this.props.value) {
           try {
             var val = this.props.value.toLowerCase().replace(/\W/g, '');
-            if(pellet.locales[this.props.locales][val]) {
-              state.translation = pellet.locales[this.props.locales][val](this.props);
+            if(pellet.locales[locales][val]) {
+              state.translation = pellet.locales[locales][val](this.props);
             } else {
               state.translation = this.props.value;
             }
@@ -44,7 +48,7 @@ module.exports = pellet.createClass({
             state.isMissing = false;
           } catch(ex) {
             console.error('Cannot get translation because:', ex.message);
-            state.translation = '[ERROR:' + this.props.locales + ':' + this.props.value + ']';
+            state.translation = '[ERROR:' + locales + ':' + this.props.value + ']';
             state.hasErrors = true;
           }
         } else {

@@ -444,7 +444,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
         translationDictionary[j] = '(function() {var i18n='+msgFormatBuilder.functions()+';'+
           'i18n._='+msgFormatBuilder.precompileObject(translationDictionary[j])+';'+
-          'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n._);}})();\n';
+          'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n);}})();\n';
       }
 
       console.info('Translations Breakdown:');

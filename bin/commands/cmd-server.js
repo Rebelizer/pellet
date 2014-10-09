@@ -378,7 +378,7 @@ module.exports = function(program, addToReadyQue) {
                 process.exit(1);
               }
 
-              if (config.translationDictionary && config.translationDictionary.length > 0) {
+              if (config.translationDictionary && Object.keys(config.translationDictionary).length > 0) {
                 options.translationDetails = {
                   server:null,
                   browser: []

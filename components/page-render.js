@@ -19,12 +19,12 @@ pellet.registerInitFn(function(next) {
 function defaultRender(html, ctx) {
   var assetPath = pellet.config.jsMountPoint + pellet.config.assetFileName;
   var appPath = pellet.config.jsMountPoint + pellet.config.componentFileName;
-  var locale = pellet.config.jsMountPoint + (pellet.config.locale || 'en') + '.js';
+  var locales = pellet.config.jsMountPoint + (pellet.config.locales || 'en') + '.js';
 
   var ourBodyScripts = '<script src="//cdnjs.cloudflare.com/ajax/libs/history.js/1.8/native.history.min.js"></script>'+
     '<script src="//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react-with-addons.js"></script>'+
     '<script src="' + appPath + '"></script>'+
-    '<script src="' + locale + '"></script>';
+    '<script src="' + locales + '"></script>';
 
   if(ctx) {
     ourBodyScripts += '<script>window.__pellet__ctx = "' + ctx.toJSON().replace(/"/g,'\\"') + '";</script>';

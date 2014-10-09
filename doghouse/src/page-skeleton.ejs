@@ -29,7 +29,7 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react-with-addons.js"></script>
 
         <script src="<%- config.jsMountPoint + config.componentFileName %>"></script>
-        <script src="<%- config.jsMountPoint + (config.locale || 'en') + '.js' %>"></script>
+        <script src="<%- config.jsMountPoint + (config.locales || 'en') + '.js' %>"></script>
 
         <% if(ctx) {%>
         <script>window.__pellet__ctx = "<%- ctx.toJSON().replace(/"/g,'\\"') %>";</script>

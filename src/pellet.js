@@ -69,8 +69,8 @@ pellet.prototype.setSkeletonPage = function(templatingFn) {
   this.skeletonPageRender = templatingFn;
 };
 
-pellet.prototype.setLocalSuggestionLookup = function(lookupFn) {
-  this.suggestLocals = lookupFn;
+pellet.prototype.setLocaleLookupFn = function(lookupFn) {
+  this.suggestLocales = lookupFn;
 };
 
 pellet.prototype.loadTranslation = function(locale, fn) {
@@ -198,12 +198,12 @@ pellet.prototype.startInit = function(config) {
  * @param options
  * @returns {locals|*|js.locals|module.locals|app.locals|string}
  */
-pellet.prototype.suggestLocals = function(renderOptions, component, options) {
+pellet.prototype.suggestLocales = function(renderOptions, component, options) {
   // todo: if server read (Accept-Language) and push it onto array after en
   // todo: if broswer we can use navigator.language etc.
   // final this can be overwrite by a cookie or by url/host
 
-  return module.exports.config.locals || 'en';
+  return module.exports.config.locales || 'en';
 }
 
 /**
@@ -255,7 +255,7 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
       renderOptions.props.url = routeContext.url;
 
       // use pellets default local loookup function. This can replaced if you want
-      renderOptions.locals = self.suggestLocals(renderOptions, component, options);
+      renderOptions.locales = self.suggestLocales(renderOptions, component, options);
 
       // now render the isomorphic component
       isomorphicRender.renderComponent(component, renderOptions, function(err, html, ctx) {
@@ -304,7 +304,7 @@ if(process.env.SERVER_ENV) {
 
   pellet.prototype.middleware = function (req, res, next) {
 
-    var match = __pellet__ref.routes.parse(req.path);
+    var match = module.exports.routes.parse(req.path);
     if (!match) {
       return next();
     }

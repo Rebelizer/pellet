@@ -83,7 +83,7 @@ var isomorphicRender = module.exports = {
           try {
             componentWithContext = react.withContext({
               isomorphicContext: ctx,
-              locales: options.locals
+              locales: options.locales
             }, function () {
               return component(ctx.props);
             });
@@ -101,7 +101,7 @@ var isomorphicRender = module.exports = {
 
       try {
         componentWithContext = react.withContext({
-          locales: options.locals
+          locales: options.locales
         }, function () {
           var props;
 

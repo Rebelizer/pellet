@@ -4,17 +4,11 @@ React = require "react"
 pellet = require "pellet"
 
 module.exports = layoutLayout = pellet.createClass
-  setupInitialRender: (ctx, next) ->
-    ctx.setProps myData: "loaded from an API"
-    ctx.setProps userName: "Pellet"
-    next()
-
   render: ->
-
     <div className="layout-layout">
-      <header>header</header>
+      <header>header {this.props.params.demi}</header>
       {this.props.children}
-      <footer>footer</footer>
+      <footer>footer <pellet.components.intl value="t2"/></footer>
     </div>
 
 ###
