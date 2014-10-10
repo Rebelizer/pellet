@@ -135,7 +135,7 @@ if(!nconf.get('silent')) {
   console.log('|  _ \\ / _ \\ | |/ _ \\ __|    .=\',    ;:;;:,');
   console.log('| |_) |  __/ | |  __/ |_    /_\', \"=. \';:;:;');
   console.log('|  __/ \\___|_|_|\\___|\\__|   @=:__,  \\\\,;:;:\'');
-  console.log('|_|   \x1b[33mReactJS favor buddy\x1B[32m     _(\\\\.=  ;:;;\'');
+  console.log('|_|\x1b[33mReactJS favorite buddy\x1B[32m     _(\\\\.=  ;:;;\'');
   console.log('                             \x1B[32m`\"_(  _/=\"`\x1B[0m');
   console.log('\x1B[0m');
   console.log('Version:', version);
