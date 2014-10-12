@@ -1,6 +1,7 @@
 var fs = require('fs-extra')
   , path = require('path')
   , async = require('async')
+  , util = require('util')
   , webpack = require('webpack')
   , messageFormat = require('messageformat')
   , glob = require('glob');
@@ -45,7 +46,80 @@ function mergeUniqueComponentFields(self, component, field, targetField) {
       }
     }
   }
+}
 
+/**
+ * helper function to merge webpack config
+ * @param overrides
+ * @param config
+ */
+function mergeWebpackConfig(overrides, config, isCommonConfig) {
+  var asArray;
+
+  if(!isCommonConfig) {
+    config.resolve = Object.create(config.resolve);
+    config.module = Object.create(config.module);
+    config.resolve.alias = util._extend({}, config.resolve.alias);
+  }
+
+  if(overrides.alias) {
+    for(i in overrides.alias) {
+      config.resolve.alias[i] = overrides.alias[i];
+    }
+  }
+
+  if(overrides.extensions) {
+    if(overrides.extensions instanceof Array) {
+      asArray = overrides.extensions;
+    } else {
+      asArray = [overrides.extensions];
+    }
+
+    config.resolve.extensions = config.resolve.extensions.concat(asArray);
+  }
+
+  if(overrides.externals) {
+    if(overrides.externals instanceof Array) {
+      asArray = overrides.externals;
+    } else {
+      asArray = [overrides.externals];
+    }
+
+    if(!config.externals) {
+      config.externals = asArray;
+    } else {
+      config.externals = config.externals.concat(asArray);
+    }
+  }
+
+  if(overrides.noParse) {
+    if(overrides.noParse instanceof Array) {
+      asArray = overrides.noParse;
+    } else {
+      asArray = [overrides.noParse];
+    }
+
+    if(!config.module.noParse) {
+      config.module.noParse = [];
+    }
+
+    config.module.noParse = config.module.noParse.concat(asArray.map(function(exp) {
+      return new RegExp(exp);
+    }));
+  }
+
+  if(overrides.loaders) {
+    if(overrides.loaders instanceof Array) {
+      asArray = overrides.loaders;
+    } else {
+      asArray = [overrides.loaders];
+    }
+
+    config.module.loaders = config.module.loaders.concat(asArray.map(function(item) {
+      item.test = new RegExp(item.test);
+      return item;
+    }));
+  }
 }
 
 /**
@@ -462,6 +536,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         profile: true,
         devtool: '#inline-source-map',
         entry: ourManifest.webpackEP,
+        externals: [],
         recordsPath: path.join(path.resolve(process.cwd(), options.output || '/tmp/dist'), '_MAP.json'),
         resolve: {
           extensions: ['', '.js', '.coffee', '.jsx', '.cjsx'],
@@ -475,26 +550,34 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         },
         module: {
           unknownContextCritical: false,
-          noParse: /\.min\.js/,
           loaders: [
-            // todo: think about moving this into the config (so anyone can update it!)
             { test: /\.json/, loader: 'json' },
             { test: /\.jsx/, loader: 'jsx' },
             { test: /\.cjsx/, loader: 'coffee!cjsx' },
             { test: /\.styl$/, loader: 'style!css!autoprefixer!stylus' },
-            { test: /\.less$/, loader: 'style!css!autoprefixer!less' },
             { test: /\.css$/, loader: 'style!css!autoprefixer' },
-            { test: /\.coffee/, loader: 'coffee' },
-
-            { test: /\.svg$/, loader: "url-loader?limit=100000&mimetype=image/svg+xml" },
-            { test: /\.png$/, loader: 'file-loader' },
-            { test: /\.jpg$/, loader: 'file-loader' }
+            { test: /\.coffee/, loader: 'coffee' }
           ]
         }
       };
 
+      // merge in our config overrides for both environments
+      if(options.overrides) {
+        mergeWebpackConfig(options.overrides, config, true);
+      }
+
       var browser = Object.create(config);
       var node = Object.create(config);
+
+      // merge in our config overrides for browser environment
+      if(options.overrides && options.overrides.browser) {
+        mergeWebpackConfig(options.overrides.browser, browser);
+      }
+
+      // merge in our config overrides for server environment
+      if(options.overrides && options.overrides.server) {
+        mergeWebpackConfig(options.overrides.server, node);
+      }
 
       browser.target = 'web';
       browser.output = {
@@ -504,6 +587,12 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         chunkFilename: options.chunkFilename,
         hashDigestLength: 8
       };
+
+      browser.externals = browser.externals.concat([{
+        React: 'React',
+        react: 'React',
+        intl: 'Intl'
+      }]);
 
       browser.plugins = [
         new webpack.optimize.DedupePlugin(),
@@ -544,6 +633,13 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         hashDigestLength: 8,
         libraryTarget:'commonjs2'
       };
+
+      node.externals = node.externals.concat([{
+        React: require.resolve('react/addons'),
+        react: require.resolve('react/addons'),
+        intl: require.resolve('intl'),
+        ejs: require.resolve('ejs')
+      }]);
 
       node.plugins = [
         new webpack.optimize.DedupePlugin(),

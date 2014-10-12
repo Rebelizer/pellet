@@ -372,6 +372,9 @@ module.exports = function(program, addToReadyQue) {
 
             // todo: if running in the debug load more manifest stuff (i.e. translator tool, preview tool, etc.)
 
+            // pass in additional webpack config like loaders, alias
+            options.overrides = nconf.get('webpackConfig');
+
             ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
               if (err) {
                 console.error('Cannot build Webpack config because:', err.message);
@@ -440,20 +443,6 @@ module.exports = function(program, addToReadyQue) {
 
               config.browserConfig.bail = false;
               config.serverConfig.bail = false;
-
-              // todo: move this into manifest (we want to use our version of react! and globalize
-              // because its a core part of our system!
-              config.browserConfig.externals = {
-                React: 'React',
-                react: 'React',
-                intl: 'Intl'
-              };
-
-              config.serverConfig.externals = {
-                React: require.resolve('react/addons'),
-                react: require.resolve('react/addons'),
-                intl: require.resolve('intl')
-              };
 
               if(options.watch) {
                 // build both the server and browser webpack files

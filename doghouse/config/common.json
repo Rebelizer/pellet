@@ -30,6 +30,22 @@
     "polyfillRebuild": false
   },
 
+  "webpackConfig": {
+    "alias": null,
+    "externals": null,
+    "extensions": null,
+    "noParse": ["\\.min\\.js$"],
+    "server": null,
+    "browser": {
+      "loaders": [
+        {"test": "\\.less$", "loader": "style!css!autoprefixer!less"},
+        {"test": "\\.svg$", "loader": "url-loader?limit=100000&mimetype=image/svg+xml"},
+        {"test": "\\.png$", "loader": "file-loader"},
+        {"test": "\\.jpg$", "loader": "file-loader"}
+      ]
+    }
+  },
+
   "polyfill": {
     "cache": "#PELLET_PROJECT_PATH#/public/js/polyfill",
     "include": ["domelements", "dom4", "es5"]
