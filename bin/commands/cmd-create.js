@@ -279,7 +279,8 @@ module.exports = function(program, addToReadyQue) {
             var newComponent = {
               "name": answer.name,
               "version": answer.version,
-              "assets": ['.' + path.normalize(assetEP.replace(baseOutputDir, ''))]
+              "assetConfig": '.' + path.normalize(assetEP.replace(baseOutputDir, ''))
+//              "assets": ['.' + path.normalize(assetEP.replace(baseOutputDir, ''))]
 //                    "dependencies": ["react"],
 //                    "test": false,
 //                    "docs": false

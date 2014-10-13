@@ -352,6 +352,7 @@ manifestParser.prototype.resolveComponentPaths = function(manifestFilePath, comp
   }
 
   resolveComponentField('translations');
+  resolveComponentField('assetConfig');
 
   async.parallel(steps, function(err) {
     next(err, component);
@@ -445,16 +446,23 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
       /*
        * build a component lookup file that can be added to our webpack, so
-       * that the developer does not have to require a component, but referance
+       * that the developer does not have to require a component, but can reference
        * it via pellet.components.###.
+       *
+       * in addition look for the asset config and merge it into the assets
+       * endpoint so a developer does not have to include full paths to config
        */
 
       var subNode, manifestIndex = ourManifest.manifest;
       var indexScript = 'var index = {};';
+      var assetConfigPath = false;
       for(ix in manifestIndex) {
         if((subNode = manifestIndex[ix])) {
           if(subNode.component) {
             indexScript += 'index["' + ix + '"] = require("' + subNode.component + '");';
+          }
+          if(subNode.assetConfig) {
+            assetConfigPath = subNode.assetConfig;
           }
         }
       }
@@ -530,6 +538,15 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       var pelletEntryPointPath = path.resolve(__dirname, './pellet.js');
       ourManifest.webpackEP.component.push(pelletEntryPointPath);
 
+      // merge in asset config into the webpack assets
+      if(assetConfigPath) {
+        if(!ourManifest.webpackEP.assets) {
+          ourManifest.webpackEP.assets = [];
+        }
+
+        ourManifest.webpackEP.assets.push(assetConfigPath);
+      }
+
       var config = {
         bail: true,
         cache: true,
@@ -560,6 +577,11 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           ]
         }
       };
+
+      // alias the assetConfig to make it easy to get common styles merged into our assets
+      if(assetConfigPath) {
+        config.resolve.alias['assetConfig'] = assetConfigPath;
+      }
 
       // merge in our config overrides for both environments
       if(options.overrides) {
