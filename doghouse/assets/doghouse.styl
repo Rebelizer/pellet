@@ -1,12 +1,37 @@
-/* This is a greate place for your sitewide styles
- * and overwrites for components
- */
+@import 'settings'
 
-// @import "vender/jeet.styl"
-// @import "vender/bootstape.styl"
+// Load NIB
+@import 'nib'
 
-@import "reset.css"
+// Load Jeet
+@import 'vender/jeet/_functions'
+@import 'vender/jeet/_grid'
 
-// @import "colors.styl"
-// @import "fonts.styl"
-// @import "glyphs.styl"
+// Load Rupture
+@import 'vender/rupture/rupture'
+
+// Load AXIS
+@import 'vender/axis/reset'
+@import 'vender/axis/vendor'
+@import 'vender/axis/utilities'
+@import 'vender/axis/gradients'
+@import 'vender/axis/interaction'
+@import 'vender/axis/typography'
+@import 'vender/axis/code'
+@import 'vender/axis/ui'
+@import 'vender/axis/buttons'
+@import 'vender/axis/forms'
+@import 'vender/axis/tables'
+
+//@import "fonts.styl"
+//@import "glyphs.styl"
+
+// Init our basic styles
+global-reset()
+framework()
+base()
+typography()
+forms()
+buttons()
+code-blocks()
+tables()
