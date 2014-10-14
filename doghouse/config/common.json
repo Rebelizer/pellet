@@ -3,8 +3,8 @@
 
   "applicationConfig": {
     "__publicCommonConfig": {
-      "locales": "en"
     },
+    "locales": "en",
     "assetFileName": "assets.js",
     "componentFileName": "component.js",
     "polyfillPath": "/js/polyfills.js",

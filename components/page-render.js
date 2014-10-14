@@ -6,8 +6,8 @@ pellet.registerInitFn(function(next) {
 
   if(pellet.config.skeletonPage) {
     var fn = ejs.compile(fs.readFileSync(pellet.config.skeletonPage).toString());
-    pellet.setSkeletonPage(function(html, ctx) {
-      return fn({config:pellet.config, ctx:ctx, html:html});
+    pellet.setSkeletonPage(function(html, ctx, renderOptions) {
+      return fn({config:pellet.config, ctx:ctx, html:html, options:renderOptions});
     });
   } else {
     pellet.setSkeletonPage(defaultRender);
@@ -16,10 +16,10 @@ pellet.registerInitFn(function(next) {
   next();
 });
 
-function defaultRender(html, ctx) {
+function defaultRender(html, ctx, renderOptions) {
   var assetPath = pellet.config.jsMountPoint + pellet.config.assetFileName;
   var appPath = pellet.config.jsMountPoint + pellet.config.componentFileName;
-  var locales = pellet.config.jsMountPoint + (pellet.config.locales || 'en') + '.js';
+  var locales = pellet.config.jsMountPoint + (renderOptions.locales || pellet.config.locales || 'en') + '.js';
 
   var ourBodyScripts = '<script src="//cdnjs.cloudflare.com/ajax/libs/history.js/1.8/native.history.min.js"></script>'+
     '<script src="//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react-with-addons.js"></script>'+

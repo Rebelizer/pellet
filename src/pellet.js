@@ -275,7 +275,7 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
           }
 
           if(self.skeletonPageRender) {
-            routeContext.respose.end(self.skeletonPageRender(html, ctx));
+            routeContext.respose.end(self.skeletonPageRender(html, ctx, renderOptions));
           } else {
             routeContext.respose.end(html);
           }
