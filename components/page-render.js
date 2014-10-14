@@ -3,7 +3,6 @@ var pellet = require('pellet')
   , ejs = require('ejs');
 
 pellet.registerInitFn(function(next) {
-
   if(pellet.config.skeletonPage) {
     var fn = ejs.compile(fs.readFileSync(pellet.config.skeletonPage).toString());
     pellet.setSkeletonPage(function(html, ctx, renderOptions) {
