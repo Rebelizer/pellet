@@ -304,7 +304,7 @@ if(process.env.SERVER_ENV) {
 
   pellet.prototype.middleware = function (req, res, next) {
 
-    var match = module.exports.routes.parse(req.path);
+    var match = module.exports.routes.parse(req.originalUrl);
     if (!match) {
       return next();
     }
