@@ -4,6 +4,8 @@ React = require "react"
 pellet = require "pellet"
 
 module.exports = <%- name %>Page = pellet.createClass
+  routes: "/<%- name %>"
+
   setupInitialRender: (ctx, next) ->
     ctx.setProps myData: "loaded from an API"
     ctx.setProps showTitle: "my title", neat: "Neat"
@@ -15,7 +17,7 @@ module.exports = <%- name %>Page = pellet.createClass
     <div className="<%- name %>-page">
     </div>
 
-pellet.addComponentRoute "/<%- name %>", <%- name %>Page
+#pellet.addComponentRoute "/<%- name %>", <%- name %>Page
 
 ###
 require.ensure [], () ->
