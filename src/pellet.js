@@ -254,7 +254,7 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
       renderOptions.props.query = routeContext.query;
       renderOptions.props.url = routeContext.url;
 
-      // use pellets default local loookup function. This can replaced if you want
+      // use pellets default locale lookup function (devs can overwrite this for custom logic)
       renderOptions.locales = self.suggestLocales(renderOptions, component, options);
 
       // now render the isomorphic component
