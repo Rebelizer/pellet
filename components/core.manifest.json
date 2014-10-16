@@ -7,10 +7,10 @@
       "./internationalization/internationalization.styl"
     ],
     "client-dependencies": [
-        "./history-link.js"
+      "./history-polyfill.browser.min.js"
     ],
     "server-dependencies": [
-      "./page-render.js"
+      "./page-render.server.js"
     ]
   }
 ]

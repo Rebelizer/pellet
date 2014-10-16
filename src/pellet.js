@@ -333,5 +333,39 @@ else if(process.env.BROWSER_ENV) {
     });
 
     window.__pellet__ref.startInit(window.__pellet__config);
+
+    // add a listener to the history statechange and route requests
+    window.History.Adapter.bind(window, "statechange", function() {
+      var match = window.__pellet__ref.routes.parse(location.pathname + location.search);
+      if(match) {
+        match.fn.call(match);
+      } else {
+        console.error('Can not find route for:', location.pathname + location.search);
+      }
+    });
   }
+
+  document.addEventListener("click",function(e) {
+    var node = e.target;
+    while(node) {
+      if (node.nodeName == 'A') {
+        if (node.dataset.externalLink == 'true') {
+          return;
+        }
+
+        // ignore all links that start with [protocol]://
+        //if(node.href && node.href.indexOf('://') != -1) {
+        //  return;
+        //}
+
+        e.stopPropagation();
+        e.preventDefault();
+
+        window.History.pushState(null, null, node.href);
+      }
+
+      node = node.parentNode;
+    }
+  });
+
 }
