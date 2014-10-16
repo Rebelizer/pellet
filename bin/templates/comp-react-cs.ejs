@@ -2,27 +2,17 @@
 
 React = require "react"
 pellet = require "pellet"
+compo = pellet.components
 
 module.exports = <%- name %>Component = pellet.createClass
-  setupInitialRender: (ctx, next) ->
-    ctx.setProps myData: "loaded from an API"
-    ctx.setProps showTitle: true, neat: "list item"
-    next()
+  #setupInitialRender: (ctx, next) ->
+  #  ctx.setProps myData: "loaded from your API"
+  #  next()
+
+  #getInitialState: ()->
+  #  myData: @props.myData
 
   render: ->
-    {showTitle, neat} = @props
-
     <div className="<%- name %>-<%- type.toLowerCase() %>">
-      {<h1>Component <%- name %></h1> if showTitle}
-      Coffeescript really saves a lot of typing...
-      {<p>Item <br />{neat}x{times}</p> for times in [1..10]}
+      <span>My <%- name %> component</span>
     </div>
-
-###
-require.ensure [], () ->
-  require './other.coffee'
-
-process.env.NODE_ENV
-if process.env.SERVER_ENV
-if process.env.BROWSER_ENV
-###

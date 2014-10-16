@@ -2,29 +2,19 @@
 
 React = require "react"
 pellet = require "pellet"
+compo = pellet.components
 
 module.exports = <%- name %>Page = pellet.createClass
   routes: "/<%- name %>"
 
-  setupInitialRender: (ctx, next) ->
-    ctx.setProps myData: "loaded from an API"
-    ctx.setProps showTitle: "my title", neat: "Neat"
-    next()
+  #setupInitialRender: (ctx, next) ->
+  #  ctx.setProps myData: "loaded from your API"
+  #  next()
+
+  #getInitialState: ()->
+  #  myData: @props.myData
 
   render: ->
-    {showTitle, neat} = @props
-
     <div className="<%- name %>-page">
+      <span>My <%- name %> page</span>
     </div>
-
-#pellet.addComponentRoute "/<%- name %>", <%- name %>Page
-
-###
-require.ensure [], () ->
-  require './other.js'
-
-process.env.NODE_ENV
-if process.env.SERVER_ENV
-if process.env.BROWSER_ENV
-
-###
