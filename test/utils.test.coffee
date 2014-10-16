@@ -306,3 +306,94 @@ describe "Utils", ->
       out = {}
       utils.objectUnion([a, b], out, {arrayCopyMode:2})
       expect(out).to.deep.equal({a:[{aa:1},1,2]});
+
+    it "copy empty array", ->
+      a = {a:'str'}
+      b = {a:[]}
+
+      out = {}
+      utils.objectUnion([a, b], out, {arrayCopyMode:1})
+      expect(out).to.deep.equal({a:[]});
+
+    it "handle regex and functions", ->
+      fn = ()->
+      a = {a:1}
+      b = {b:{regex:/test/i, key:'test'}}
+      c = {c:fn}
+
+      out = {}
+      utils.objectUnion([a, b, c], out, {noneCopyTypes:[RegExp]})
+      expect(out).to.deep.equal({a:1, c:fn, b:{regex:/test/i, key:'test'}});
+      out.c.should.be.a('function')
+
+    it "skip deep obj copy and user ref copy for leafs", ->
+      x = {y:2}
+      a = {a:1, aa:{a:'str1'}}
+      b = {b:{x:x}, aa:{b:'str2'}}
+
+      out = {}
+      utils.objectUnion([a, b], out, {refCopy:true})
+      expect(out).to.deep.equal({a:1, aa:{a:'str1', b:'str2'}, b:{x:{y:2}}});
+      x.y = 100
+      expect(out).to.deep.equal({a:1, aa:{a:'str1', b:'str2'}, b:{x:{y:100}}});
+
+    it "blat regex target type", ->
+      a = {a:/test/i}
+      b = {a:'test'}
+
+      out = {}
+      utils.objectUnion([a, b], out)
+      expect(out).to.deep.equal({a:'test'});
+
+      out = {}
+      utils.objectUnion([a, b], out, {refCopy:true})
+      expect(out).to.deep.equal({a:'test'});
+
+      #b = {a:{aa:1}}
+
+      #out = {}
+      #utils.objectUnion([a, b], out)
+      #expect(out).to.deep.equal({a:{aa:1}});
+
+      #out = {}
+      #utils.objectUnion([a, b], out, {refCopy:true})
+      #expect(out).to.deep.equal({a:{aa:1}});
+
+    it "should be fast", ->
+      count = 100000
+      start = new Date()
+      while count--
+        a = {a:{aa:{bb:{cc:1}}}}
+        b = {b:{y:"", u:true}, a:{aa:{i:"test"}}}
+        c = {a:{aa:{bb:'haha'}}}
+        out = {}
+        utils.objectUnion([a, b, c], out)
+
+      elapse = new Date() - start
+      expect(elapse).to.be.at.most(800);
+
+    it "should be fast (refCopy)", ->
+      count = 100000
+      start = new Date()
+      while count--
+        a = {a:{aa:{bb:{cc:1}}}}
+        b = {b:{y:"", u:true}, a:{aa:{i:"test"}}}
+        c = {a:{aa:{bb:'haha'}}}
+        out = {}
+        utils.objectUnion([a, b, c], out, {refCopy:true})
+
+      elapse = new Date() - start
+      expect(elapse).to.be.at.most(400);
+
+    it "should be fast (with Array)", ->
+      count = 100000
+      start = new Date()
+      while count--
+        a = {a:{aa:{bb:{cc:1}}}}
+        b = {b:{y:[1,2,3,4], u:true}, a:{aa:{i:"test"}}}
+        c = {b:{y:[5]}}
+        out = {}
+        utils.objectUnion([a, b, c], out, {arrayCopyMode:2, refCopy:true})
+
+      elapse = new Date() - start
+      expect(elapse).to.be.at.most(400);
