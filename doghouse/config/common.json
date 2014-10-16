@@ -31,18 +31,25 @@
   },
 
   "webpackConfig": {
-    "alias": null,
-    "externals": null,
-    "extensions": null,
-    "noParse": ["\\.min\\.js$"],
-    "server": null,
-    "browser": {
+    "module":{
+      "noParse": ["\\.min\\.js$"],
       "loaders": [
-        {"test": "\\.less$", "loader": "style!css!autoprefixer!less"},
-        {"test": "\\.svg$", "loader": "url-loader?limit=100000&mimetype=image/svg+xml"},
         {"test": "\\.png$", "loader": "file-loader"},
-        {"test": "\\.jpg$", "loader": "file-loader"}
+        {"test": "\\.jpeg$", "loader": "file-loader"},
+        {"test": "\\.svg$", "loader": "url-loader?limit=100000&mimetype=image/svg+xml"},
+        {"test": "\\.woff$", "loader": "file-loader"},
+        {"test": "\\.ttf$", "loader": "file-loader"},
+        {"test": "\\.eot$", "loader": "file-loader"},
+        {"test": "\\.otf$", "loader": "file-loader"}
       ]
+    },
+    "server": {
+      "externals": [{"superagent":"superagent"}]
+    },
+    "browser": {
+      "resolve": {
+        "alias": {"superagent":"superagent/superagent"}
+      }
     }
   },
 

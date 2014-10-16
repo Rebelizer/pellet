@@ -1,10 +1,10 @@
 var fs = require('fs-extra')
   , path = require('path')
   , async = require('async')
-  , util = require('util')
   , webpack = require('webpack')
   , messageFormat = require('messageformat')
-  , glob = require('glob');
+  , glob = require('glob')
+  , utils = require('./utils');
 
 var WEBPACK_FIELDS = ['component', 'assets', 'server-dependencies', 'client-dependencies'];
 
@@ -45,80 +45,6 @@ function mergeUniqueComponentFields(self, component, field, targetField) {
         }
       }
     }
-  }
-}
-
-/**
- * helper function to merge webpack config
- * @param overrides
- * @param config
- */
-function mergeWebpackConfig(overrides, config, isCommonConfig) {
-  var asArray;
-
-  if(!isCommonConfig) {
-    config.resolve = Object.create(config.resolve);
-    config.module = Object.create(config.module);
-    config.resolve.alias = util._extend({}, config.resolve.alias);
-  }
-
-  if(overrides.alias) {
-    for(i in overrides.alias) {
-      config.resolve.alias[i] = overrides.alias[i];
-    }
-  }
-
-  if(overrides.extensions) {
-    if(overrides.extensions instanceof Array) {
-      asArray = overrides.extensions;
-    } else {
-      asArray = [overrides.extensions];
-    }
-
-    config.resolve.extensions = config.resolve.extensions.concat(asArray);
-  }
-
-  if(overrides.externals) {
-    if(overrides.externals instanceof Array) {
-      asArray = overrides.externals;
-    } else {
-      asArray = [overrides.externals];
-    }
-
-    if(!config.externals) {
-      config.externals = asArray;
-    } else {
-      config.externals = config.externals.concat(asArray);
-    }
-  }
-
-  if(overrides.noParse) {
-    if(overrides.noParse instanceof Array) {
-      asArray = overrides.noParse;
-    } else {
-      asArray = [overrides.noParse];
-    }
-
-    if(!config.module.noParse) {
-      config.module.noParse = [];
-    }
-
-    config.module.noParse = config.module.noParse.concat(asArray.map(function(exp) {
-      return new RegExp(exp);
-    }));
-  }
-
-  if(overrides.loaders) {
-    if(overrides.loaders instanceof Array) {
-      asArray = overrides.loaders;
-    } else {
-      asArray = [overrides.loaders];
-    }
-
-    config.module.loaders = config.module.loaders.concat(asArray.map(function(item) {
-      item.test = new RegExp(item.test);
-      return item;
-    }));
   }
 }
 
@@ -568,12 +494,12 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         module: {
           unknownContextCritical: false,
           loaders: [
-            { test: /\.json/, loader: 'json' },
-            { test: /\.jsx/, loader: 'jsx' },
-            { test: /\.cjsx/, loader: 'coffee!cjsx' },
+            { test: /\.json$/, loader: 'json' },
+            { test: /\.jsx$/, loader: 'jsx' },
+            { test: /\.cjsx$/, loader: 'coffee!cjsx' },
             { test: /\.styl$/, loader: 'style!css!autoprefixer!stylus' },
             { test: /\.css$/, loader: 'style!css!autoprefixer' },
-            { test: /\.coffee/, loader: 'coffee' }
+            { test: /\.coffee$/, loader: 'coffee' }
           ]
         }
       };
@@ -583,99 +509,101 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         config.resolve.alias['assetConfig'] = assetConfigPath;
       }
 
-      // merge in our config overrides for both environments
-      if(options.overrides) {
-        mergeWebpackConfig(options.overrides, config, true);
-      }
+      var browser = {}
+        , node = {};
 
-      var browser = Object.create(config);
-      var node = Object.create(config);
-
-      // merge in our config overrides for browser environment
-      if(options.overrides && options.overrides.browser) {
-        mergeWebpackConfig(options.overrides.browser, browser);
-      }
-
-      // merge in our config overrides for server environment
-      if(options.overrides && options.overrides.server) {
-        mergeWebpackConfig(options.overrides.server, node);
-      }
-
-      browser.target = 'web';
-      browser.output = {
-        path: path.resolve(process.cwd(), options.outputBrowser || '/tmp/dist/browser'),
-        publicPath: options.mountPoint,
-        filename: options.filename,
-        chunkFilename: options.chunkFilename,
-        hashDigestLength: 8
-      };
-
-      browser.externals = browser.externals.concat([{
-        React: 'React',
-        react: 'React',
-        intl: 'Intl'
-      }]);
-
-      browser.plugins = [
-        new webpack.optimize.DedupePlugin(),
-        //new webpack.NoErrorsPlugin(),
-        new webpack.DefinePlugin({
-          'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-          'process.env.SERVER_ENV': JSON.stringify(false),
-          'process.env.BROWSER_ENV': JSON.stringify(true)
-        }),
-        new webpack.BannerPlugin(
-          options.copyright +
-          '\nDate: '+new Date().toJSON()
-        )
-      ];
-
-      if(ourManifest.webpackEP['client-dependencies'] && browser.entry.component) {
-        browser.entry = Object.create(browser.entry);
-        browser.entry.component = ourManifest.webpackEP['client-dependencies'].concat(browser.entry.component);
-        delete ourManifest.webpackEP['client-dependencies'];
-      }
-
-      if(ourManifest.webpackEP['server-dependencies'] && node.entry.component) {
-        node.entry = Object.create(node.entry);
-        node.entry.component = ourManifest.webpackEP['server-dependencies'].concat(node.entry.component);
-        delete ourManifest.webpackEP['server-dependencies'];
-      }
-
-      node.target = 'node';
-      node.node = {
-        __dirname: true,
-        __filename: true
-      };
-
-      node.output = {
-        path: path.resolve(process.cwd(), options.outputServer || '/tmp/dist/node'),
-        filename: options.filename,
-        chunkFilename: options.chunkFilename,
-        hashDigestLength: 8,
-        libraryTarget:'commonjs2'
-      };
-
-      node.externals = node.externals.concat([{
-        React: require.resolve('react/addons'),
-        react: require.resolve('react/addons'),
-        intl: require.resolve('intl'),
-        ejs: require.resolve('ejs')
-      }]);
-
-      node.plugins = [
-        new webpack.optimize.DedupePlugin(),
-        //new webpack.NoErrorsPlugin(),
-        new webpack.DefinePlugin({
-          'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-          'process.env.SERVER_ENV': JSON.stringify(true),
-          'process.env.BROWSER_ENV': JSON.stringify(false)
-        }),
-        new webpack.BannerPlugin(
+      utils.objectUnion([config,{
+        target: 'web',
+        output: {
+          path: path.resolve(process.cwd(), options.outputBrowser || '/tmp/dist/browser'),
+          publicPath: options.mountPoint,
+          filename: options.filename,
+          chunkFilename: options.chunkFilename,
+          hashDigestLength: 8
+        },
+        externals:[{
+          React: 'React',
+          react: 'React',
+          intl: 'Intl'
+        }],
+        plugins:[
+          new webpack.optimize.DedupePlugin(),
+          //new webpack.NoErrorsPlugin(),
+          new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+            'process.env.SERVER_ENV': JSON.stringify(false),
+            'process.env.BROWSER_ENV': JSON.stringify(true)
+          }),
+          new webpack.BannerPlugin(
             options.copyright +
             '\nDate: '+new Date().toJSON()
-        )
-      ];
+          )
+        ]
+      }], browser, {arrayCopyMode:2});
+
+      utils.objectUnion([config, {
+        target: 'node',
+        node: {
+          __dirname: true,
+          __filename: true
+        },
+        output:{
+          path: path.resolve(process.cwd(), options.outputServer || '/tmp/dist/node'),
+          filename: options.filename,
+          chunkFilename: options.chunkFilename,
+          hashDigestLength: 8,
+          libraryTarget:'commonjs2'
+        },
+        externals: [{
+          React: require.resolve('react/addons'),
+          react: require.resolve('react/addons'),
+          intl: require.resolve('intl'),
+          ejs: require.resolve('ejs')
+        }],
+        plugins:[
+          new webpack.optimize.DedupePlugin(),
+          //new webpack.NoErrorsPlugin(),
+          new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+            'process.env.SERVER_ENV': JSON.stringify(true),
+            'process.env.BROWSER_ENV': JSON.stringify(false)
+          }),
+          new webpack.BannerPlugin(
+              options.copyright +
+              '\nDate: '+new Date().toJSON()
+          )
+        ]
+      }], node, {arrayCopyMode:2});
+
+      //
+      // Now move the client-dependencies and server-dependencies endpoint
+      // into the browser & node component entry points because this code
+      // is for the targeted environment and needed tobe apart of the code
+      // bundle. The order should also be dependencies before UI code.
+      //
+      if(ourManifest.webpackEP['client-dependencies']) {
+        if(!browser.entry.component) {
+          browser.entry.component = [ourManifest.webpackEP['client-dependencies']];
+        } else {
+          browser.entry.component = ourManifest.webpackEP['client-dependencies'].concat(browser.entry.component);
+        }
+
+        delete ourManifest.webpackEP['client-dependencies'];
+        delete browser.entry['client-dependencies'];
+        delete node.entry['client-dependencies'];
+      }
+
+      if(ourManifest.webpackEP['server-dependencies']) {
+        if(!node.entry.component) {
+          node.entry.component = [ourManifest.webpackEP['server-dependencies']];
+        } else {
+          node.entry.component = ourManifest.webpackEP['server-dependencies'].concat(node.entry.component);
+        }
+
+        delete ourManifest.webpackEP['server-dependencies'];
+        delete browser.entry['server-dependencies'];
+        delete node.entry['server-dependencies'];
+      }
 
       // for the browser version change to true source maps and minify the js
       if(options.mode === 'production') {

@@ -11,10 +11,43 @@ var path = require('path')
   , polyfill = require('polyfills')
   , react = require('react')
   , manifest = require('../../src/manifest')
-  , utils = require('../utils');
+  , utils = require('../utils')
+  , pelletUtils = require('../../src/utils');
 
 var PELLET_BIN_PATH = path.resolve(__dirname, '..');
 var LAUNCH_CWD = process.cwd();
+
+/*
+ * helper function to parse the nconf webpack overrides
+ * and conver the strings into RegExp
+ */
+function fixWebpackOverrideNConf(config) {
+  if(config.module) {
+    if (config.module.noParse) {
+      if (!Array.isArray(config.module.noParse)) {
+        config.module.noParse = [config.module.noParse];
+      }
+
+      config.module.noParse = config.module.noParse.map(function (exp) {
+        return new RegExp(exp);
+      });
+    }
+
+    if (config.module.loaders) {
+      if (!Array.isArray(config.module.loaders)) {
+        config.module.loaders = [config.module.loaders];
+      }
+
+      config.module.loaders = config.module.loaders.map(function (item) {
+        if (item.test) {
+          item.test = new RegExp(item.test);
+        }
+
+        return item;
+      });
+    }
+  }
+}
 
 module.exports = function(program, addToReadyQue) {
 
@@ -372,9 +405,6 @@ module.exports = function(program, addToReadyQue) {
 
             // todo: if running in the debug load more manifest stuff (i.e. translator tool, preview tool, etc.)
 
-            // pass in additional webpack config like loaders, alias
-            options.overrides = nconf.get('webpackConfig');
-
             ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
               if (err) {
                 console.error('Cannot build Webpack config because:', err.message);
@@ -441,8 +471,52 @@ module.exports = function(program, addToReadyQue) {
                   lastManifestDetails = buildManifestMap;
                 }));
 
+              // merge in our webpack override config
+              var overrides = nconf.get('webpackConfig');
+              if(overrides) {
+                var serverOverrides, browserOverrides;
+
+                if(overrides.browser) {
+                  browserOverrides = overrides.browser;
+                  fixWebpackOverrideNConf(browserOverrides);
+                  delete overrides.browser;
+                  browserOverrides = [overrides, browserOverrides];
+                } else {
+                  browserOverrides = [overrides];
+                }
+
+                if(overrides.server) {
+                  serverOverrides = overrides.server;
+                  fixWebpackOverrideNConf(serverOverrides);
+                  delete overrides.server;
+                  serverOverrides = [overrides, serverOverrides];
+                } else {
+                  serverOverrides = [overrides];
+                }
+
+                fixWebpackOverrideNConf(overrides);
+
+                pelletUtils.objectUnion(browserOverrides, config.browserConfig, {arrayCopyMode:2});
+                pelletUtils.objectUnion(serverOverrides, config.serverConfig, {arrayCopyMode:2});
+              }
+
+              // do not need to build server assets
+              //delete config.serverConfig.entry.assets;
+
               config.browserConfig.bail = false;
               config.serverConfig.bail = false;
+
+              /*
+              console.info('[Browser webpack config]');
+              console.info(JSON.stringify(config.browserConfig, null, 2)
+                .replace(/\s+[{},\]]+/g, "")
+                .replace(/[{\[":,]/g, ""));
+
+              console.info('[Server webpack config]');
+              console.info(JSON.stringify(config.serverConfig, null, 2)
+                .replace(/\s+[{},\]]+/g, "")
+                .replace(/[{\[":,]/g, ""));
+              */
 
               if(options.watch) {
                 // build both the server and browser webpack files

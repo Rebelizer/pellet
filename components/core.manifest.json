@@ -6,6 +6,9 @@
     "assets": [
       "./internationalization/internationalization.styl"
     ],
+    "client-dependencies": [
+        "./history-link.js"
+    ],
     "server-dependencies": [
       "./page-render.js"
     ]
