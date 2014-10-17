@@ -1,5 +1,6 @@
 var path = require('path')
   , fs = require('fs-extra')
+  , ejs = require('ejs')
   , os = require('os')
   , webpack = require('webpack')
   , glob = require('glob')
@@ -90,6 +91,7 @@ module.exports = function(program, addToReadyQue) {
       // We do this so the parent process can load all the config info
       // before execute ourself.
       addToReadyQue(function() {
+        var logException = false;
 
         utils.overwriteNconfWithArgs(nconf, options);
 
@@ -108,7 +110,7 @@ module.exports = function(program, addToReadyQue) {
         // catch all uncaught exception and try to email them
         if(nconf.get('winston:containers:alert')) {
           var alertLogger = winston.loggers.add('alert', nconf.get('winston:containers:alert'));
-          process.on('uncaughtException', function (err) {
+            logException = function(err) {
             var body = 'Stack Trace:\n\n' + err.stack + '\n\n';
 
             // only include the system information if requested
@@ -148,7 +150,9 @@ module.exports = function(program, addToReadyQue) {
             }
 
             alertLogger.error(body);
-          });
+          }
+
+          process.on('uncaughtException', logException);
         }
 
         // helper function to allow the config have access to dynamic paths
@@ -250,6 +254,9 @@ module.exports = function(program, addToReadyQue) {
             }
           }
 
+          var appConfig = nconf.get('applicationConfig');
+          appConfig.skeletonPage = resolveConfigPaths(appConfig.skeletonPage);
+
           // using Koa for ES6 mode else express
           if ('function' === typeof Map) {
             if (!nconf.get('silent')) {
@@ -328,10 +335,31 @@ module.exports = function(program, addToReadyQue) {
 
             // wire up pellet middleware
             app.use(pellet.middleware);
-          }
 
-          var appConfig = nconf.get('applicationConfig');
-          appConfig.skeletonPage = resolveConfigPaths(appConfig.skeletonPage);
+            if(appConfig.missingPage) {
+              appConfig.missingPage = resolveConfigPaths(appConfig.missingPage);
+              appConfig.missingPage = ejs.compile(fs.readFileSync(appConfig.missingPage).toString());
+              app.use(function(req, res, next) {
+                res.status(404).send(appConfig.missingPage({config:appConfig, req:req, res:res}));
+
+                // todo: load the 404 to a custom logger
+              });
+
+            }
+
+            if(appConfig.errorPage) {
+              appConfig.errorPage = resolveConfigPaths(appConfig.errorPage);
+              appConfig.errorPage = ejs.compile(fs.readFileSync(appConfig.errorPage).toString());
+              app.use(function(err, req, res, next) {
+                res.status(500).send(appConfig.errorPage({config:appConfig, req:req, res:res, err:err}));
+
+                console.error('Error rendering page:', err);
+                if(logException) {
+                  loadException(err);
+                }
+              });
+            }
+          }
 
           if (nconf.get('spdy')) {
             var spdyPath = resolveConfigPaths(nconf.get('spdy'));
