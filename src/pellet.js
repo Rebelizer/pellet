@@ -243,8 +243,8 @@ pellet.prototype.addComponentRoute = function(route, component, options) {
         renderOptions.provider = new isomorphicMiddlewareProvider();
 
         if(window.__pellet__ctx) {
-          // todo: I should make a copy of this!
           renderOptions.context = window.__pellet__ctx;
+          delete window.__pellet__ctx;
         }
       }
 
