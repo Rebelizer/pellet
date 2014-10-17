@@ -6,7 +6,7 @@ pellet.registerInitFn(function(next) {
   if(pellet.config.skeletonPage) {
     var fn = ejs.compile(fs.readFileSync(pellet.config.skeletonPage).toString());
     pellet.setSkeletonPage(function(html, ctx, renderOptions) {
-      return fn({config:pellet.config, ctx:ctx, html:html, options:renderOptions});
+      return fn({config:pellet.config, ctx:ctx.toJSON(), html:html, options:renderOptions});
     });
   } else {
     pellet.setSkeletonPage(defaultRender);
@@ -25,7 +25,7 @@ function defaultRender(html, ctx, renderOptions) {
     '<script src="' + locales + '"></script>';
 
   if(ctx) {
-    ourBodyScripts += '<script>window.__pellet__ctx = "' + ctx.toJSON().replace(/"/g,'\\"') + '";</script>';
+    ourBodyScripts += '<script>window.__pellet__ctx = ' + ctx.toJSON() + ';</script>';
   }
 
   ourBodyScripts += '<script>window.__pellet__config = ' + JSON.stringify(pellet.config.__publicCommonConfig) + ';</script>';
