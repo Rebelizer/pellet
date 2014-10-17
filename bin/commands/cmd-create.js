@@ -247,6 +247,16 @@ module.exports = function(program, addToReadyQue) {
             fs.copy(path.join(options.templateDir, 'project-page-skeleton.ejs'), skeletonFile, next);
           };
 
+          var errorPage = path.join(baseOutputDir, 'src', 'page-500.ejs');
+          outputFiles[errorPage] = function(next) {
+            fs.copy(path.join(options.templateDir, 'project-page-500.ejs'), errorPage, next);
+          };
+
+          var missingPage = path.join(baseOutputDir, 'src', 'page-404.ejs');
+          outputFiles[missingPage] = function(next) {
+            fs.copy(path.join(options.templateDir, 'project-page-404.ejs'), missingPage, next);
+          };
+
           var componentPath = path.join(baseOutputDir, 'frontend');
           outputFiles[componentPath] = function(next) {
             fs.ensureDir(componentPath, next);
