@@ -355,7 +355,7 @@ module.exports = function(program, addToReadyQue) {
 
                 console.error('Error rendering page:', err);
                 if(logException) {
-                  loadException(err);
+                  logException(err);
                 }
               });
             }
