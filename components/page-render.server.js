@@ -6,7 +6,7 @@ pellet.registerInitFn(function(next) {
   if(pellet.config.skeletonPage) {
     var fn = ejs.compile(fs.readFileSync(pellet.config.skeletonPage).toString());
     pellet.setSkeletonPage(function(html, ctx, renderOptions) {
-      return fn({config:pellet.config, ctx:ctx.toJSON(), html:html, options:renderOptions});
+      return fn({config:pellet.config, ctx:(ctx && ctx.toJSON()), html:html, options:renderOptions});
     });
   } else {
     pellet.setSkeletonPage(defaultRender);
