@@ -11,7 +11,7 @@ module.exports = indexPage = pellet.createClass
     this.transferPropsTo(<comp.layout>
       <div className="index-page">
         <h1>Hello {this.props.params.demi} xxx</h1>
-        <pellet.components.intl/>
+        <p>intl string=<comp.intl locale="en" key="test" GENDER="male" NUM_RESULTS={5} NUM_CATEGORIES="2"/></p>
       </div>
     </comp.layout>)
 

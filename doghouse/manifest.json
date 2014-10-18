@@ -9,6 +9,7 @@
     "name": "index",
     "version": "0.0.0",
     "component": "./frontend/index/index.cjsx",
+    "translations": "./frontend/index/translations.json",
     "assets": [
       "./frontend/index/index.styl"
     ]

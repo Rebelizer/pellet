@@ -1,0 +1,10 @@
+{
+  "test": {
+    "en":"{GENDER, select, male {He} female {She} other {They}} found {NUM_RESULTS, plural, one {1 result} other {# results}} in {NUM_CATEGORIES, plural, one {1 category} other {# categories}}.",
+    "en":"{GENDER, select, male {KJDFDF} female {DFLKJDF:LKDJF} other {They}} found {NUM_RESULTS, plural, one {1 result} other {# results}} in {NUM_CATEGORIES, plural, one {1 category} other {# categories}}."
+  },
+  "demi": {
+    "en": "my en version",
+    "fr": "my fr version"
+  }
+}
