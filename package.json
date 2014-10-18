@@ -21,7 +21,12 @@
   ],
   "files": [
     "bin",
-    "dest"
+    "src",
+    "components",
+    "index.js",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "main": "index.js",
   "bin": {
