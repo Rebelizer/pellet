@@ -1,6 +1,8 @@
 .github-api-token
 .DS_Store
 .idea/
+.elasticbeanstalk/
+.ebextensions/
 node_modules/
 npm-debug.log
 bower_components/
