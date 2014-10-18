@@ -1,3 +1,11 @@
+### 0.0.13 (2014-10-18)
+
+
+#### Bug Fixes
+
+* update the package dependencies so npm install -g will run pellet with out crash ([d2e31aa0](https://github.com/Rebelizer/pellet/commit/d2e31aa0ce3e685e3425b07224a2b158e21d1363))
+
+
 ### 0.0.12 (2014-10-18)
 
 
