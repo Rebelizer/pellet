@@ -5,42 +5,8 @@ chai.should()
 expect = chai.expect
 
 isomorphicContext = require "../src/isomorphic-context.js"
-utils = require "../src/utils.js"
 
 describe "Isomorphic Context", ->
-    describe "merge", ->
-        it "ignore empty", ->
-            root = {}
-            utils.objectUnion([], root);
-            expect(root).to.eql({});
-
-            expect(utils.objectUnion.bind(root)).to.throw('both objects and result are required');
-            expect(utils.objectUnion).to.throw('both objects and result are required');
-
-        it "deep merge", ->
-            root = {}
-            utils.objectUnion([{a:1, sub1:{sub2:{sub3:'ok'}}}], root);
-            expect(root).to.eql({a:1, sub1:{sub2:{sub3:'ok'}}});
-
-            utils.objectUnion([{b:2, sub1:{sub2:{test:true}}}], root);
-            expect(root).to.eql({a:1, b:2, sub1:{sub2:{test:true, sub3:'ok'}}});
-
-            utils.objectUnion([{b:30}, {sub1:{foo:{sub1:true}}}], root);
-            expect(root).to.eql({a:1, b:30, sub1:{foo:{sub1:true},sub2:{test:true, sub3:'ok'}}});
-
-        it "deleting undefined", ->
-            root = {}
-            utils.objectUnion([{a:1, sub1:{sub2:{sub3:'ok'}}}], root);
-            expect(root).to.eql({a:1, sub1:{sub2:{sub3:'ok'}}});
-
-            utils.objectUnion([{a:1, sub1:{sub2:undefined}}], root);
-            expect(root).to.eql({a:1, sub1:{}});
-
-        it "root test", ->
-            root = {}
-            utils.objectUnion(['test'], root);
-            expect(root).to.eql({0:'test'});
-
     describe "namespace", ->
         it "ignore empty namespace switching", ->
             container = new isomorphicContext()
