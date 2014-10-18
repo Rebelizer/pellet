@@ -1,3 +1,33 @@
+### 0.0.12 (2014-10-18)
+
+
+#### Bug Fixes
+
+* npm install to not crash because missing package ([011c224e](https://github.com/Rebelizer/pellet/commit/011c224ea8ed81d23577f8ff23b23df5ac824614))
+* make sure setProp and set on isomorphic context remove undefined ([63b714ce](https://github.com/Rebelizer/pellet/commit/63b714ce21e58c524c7d7351578ebf4159534df8))
+* error logging in pellets render fn (typeo wrong func name) ([e41747b3](https://github.com/Rebelizer/pellet/commit/e41747b30637aad8566026654c28a9a2cb96ea57))
+* when loading state from server we should only do this once (for the initial rout ([27996465](https://github.com/Rebelizer/pellet/commit/2799646504414b881b6ee4fc0780e08cb68fe2df))
+* the ctx was not getting onto the page ([a9ddca29](https://github.com/Rebelizer/pellet/commit/a9ddca2925dd6228db810926e58b0a0874935554))
+* was not parsing the full url that included the query prams ([bceb2a5b](https://github.com/Rebelizer/pellet/commit/bceb2a5b25f02ab588123d91d6a85a3a2a72e42a))
+* translation not loading because i18n bundle was returning the wrong reference ([5a876b22](https://github.com/Rebelizer/pellet/commit/5a876b22b0fd1bfb35403d8ec00456cf5530b9d1))
+* the spelling on pellet boot message ([803cfde0](https://github.com/Rebelizer/pellet/commit/803cfde0988658fa6fe5034189ea4c9187736096))
+* clean up duplicate css amd spelling errors ([8cec8904](https://github.com/Rebelizer/pellet/commit/8cec89048395dc028137b291fd822b846a055b7d))
+
+
+#### Features
+
+* add unit tests for render container ([9092111b](https://github.com/Rebelizer/pellet/commit/9092111bd81c5857c2b69f5f137baff3f2102629))
+* add the 404 & 500 pages to our pellet create command ([d22f389d](https://github.com/Rebelizer/pellet/commit/d22f389d8552e0abb0ad0bc4ae8bcd26412eb8fa))
+* add basic 404 & 500 pages to pellet middleware ([c3abfd70](https://github.com/Rebelizer/pellet/commit/c3abfd702524c6982c266e18565ebc96cbc11c01))
+* as a dev I want html5 history and a way to control what a tags push state vs got ([4bf47fbc](https://github.com/Rebelizer/pellet/commit/4bf47fbc8d604331ead58638ef3adb718522bc07))
+* refactor object merge fn to handle arrays, clone, ref code, delete & add unit te ([437f21e1](https://github.com/Rebelizer/pellet/commit/437f21e13b15e7414f583363a73ac16a357dce5d))
+* add better deep merge support with unit tests ([5d32852b](https://github.com/Rebelizer/pellet/commit/5d32852b53b88982dc98a13f4fffdea4399f7572))
+* as a dev I want the page render to have access to server side options (for local ([7d3fd16e](https://github.com/Rebelizer/pellet/commit/7d3fd16e352e6307af6e79e3ba73ff2e97dad17a))
+* as a dev I want a modern css framework to build a site with ([e0851535](https://github.com/Rebelizer/pellet/commit/e085153585bd1a14e58def573d45e56f788eb328))
+* as a dev I want to have assets share a common config file for all components ([a67be15c](https://github.com/Rebelizer/pellet/commit/a67be15cd365d6f4a5c80bc41171b0217fe48516))
+* as a dev I want more control over webpack config ([9ea9a02b](https://github.com/Rebelizer/pellet/commit/9ea9a02b594c2642d1d745a544d2cf94fd38baa1))
+
+
 ### 0.0.10 (2014-10-08)
 
 
