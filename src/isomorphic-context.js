@@ -92,7 +92,7 @@ isomorphicContext.prototype.setProps = function(obj) {
   }
 
   var mergeObj = this.buildMergeObjFromNamespace(obj);
-  utils.objectUnion([mergeObj], this.props);
+  utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
 };
 
 isomorphicContext.prototype.set = function(obj) {
@@ -101,8 +101,8 @@ isomorphicContext.prototype.set = function(obj) {
   }
 
   var mergeObj = this.buildMergeObjFromNamespace(obj);
-  utils.objectUnion([mergeObj], this.props);
-  utils.objectUnion([mergeObj], this.serialize);
+  utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
+  utils.objectUnion([mergeObj], this.serialize, {deleteUndefined:true});
 };
 
 isomorphicContext.prototype.emit = function(streamName, data) {
