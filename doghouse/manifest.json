@@ -19,7 +19,13 @@
     "version": "0.0.0",
     "component": "./frontend/layout/layout.cjsx",
     "assets": [
-      "./frontend/layout/layout.styl"
+      "./frontend/layout/layout.styl",
+      "./frontend/layout/css/bootstrap.css",
+      "./frontend/layout/css/theme.css",
+      "./frontend/layout/css/color-defaults.css",
+      "./frontend/layout/css/fonts.css"
+    ],
+    "client-dependencies": [
     ]
   }
 ]

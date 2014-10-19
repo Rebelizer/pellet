@@ -2,13 +2,17 @@
 
 React = require "react"
 pellet = require "pellet"
+layoutHeader = require "./header"
+layoutFooter = require "./footer"
 
 module.exports = layoutLayout = pellet.createClass
   render: ->
     <div className="layout-layout">
-      <header>header {this.props.params.demi}</header>
-      {this.props.children}
-      <footer>footer <pellet.components.intl value="t2"/></footer>
+      <layoutHeader/>
+      <div id="content" role="main">
+        {this.props.children}
+      </div>
+      <layoutFooter/>
     </div>
 
 ###

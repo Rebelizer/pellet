@@ -38,6 +38,7 @@
       "noParse": ["\\.min\\.js$"],
       "loaders": [
         {"test": "\\.png$", "loader": "file-loader"},
+        {"test": "\\.gif$", "loader": "file-loader"},
         {"test": "\\.jpeg$", "loader": "file-loader"},
         {"test": "\\.svg$", "loader": "url-loader?limit=100000&mimetype=image/svg+xml"},
         {"test": "\\.woff$", "loader": "file-loader"},
