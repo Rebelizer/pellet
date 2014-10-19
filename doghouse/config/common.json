@@ -18,7 +18,8 @@
   "pellet": {
     "output": "#PELLET_PROJECT_PATH#/build",
     "outputBrowser" : "browser",
-    "outputServer" : "server"
+    "outputServer" : "server",
+    "useInternalDependencies": true
   },
 
   "server": {

@@ -541,6 +541,26 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         ]
       }], browser, {arrayCopyMode:2});
 
+      // allow dev to target the version of react, intl, ejs
+      // i.e. does webpack use pellet react version or the calling
+      // projects version
+      var externalDependencies;
+      if(options.useInternalDependencies) {
+        externalDependencies = {
+          React: 'react/addons',
+          react: 'react/addons',
+          intl: 'intl',
+          ejs: 'ejs'
+        };
+      } else {
+        externalDependencies = {
+          React: 'pellet/node_modules/react/addons',
+          react: 'pellet/node_modules/react/addons',
+          intl: 'pellet/node_modules/intl',
+          ejs: 'pellet/node_modules/ejs'
+        };
+      }
+
       utils.objectUnion([config, {
         target: 'node',
         node: {
@@ -554,12 +574,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           hashDigestLength: 8,
           libraryTarget:'commonjs2'
         },
-        externals: [{
-          React: require.resolve('react/addons'),
-          react: require.resolve('react/addons'),
-          intl: require.resolve('intl'),
-          ejs: require.resolve('ejs')
-        }],
+        externals: [externalDependencies],
         plugins:[
           new webpack.optimize.DedupePlugin(),
           //new webpack.NoErrorsPlugin(),

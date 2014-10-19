@@ -256,6 +256,9 @@ module.exports = function(program, addToReadyQue) {
 
           var appConfig = nconf.get('applicationConfig');
           appConfig.skeletonPage = resolveConfigPaths(appConfig.skeletonPage);
+          appConfig.assetFileName = componentModule.browser.assets;
+          appConfig.componentFileName = componentModule.browser.component;
+          appConfig.manifest = componentModule;
 
           // using Koa for ES6 mode else express
           if ('function' === typeof Map) {
@@ -406,6 +409,7 @@ module.exports = function(program, addToReadyQue) {
         options.outputBrowser = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputBrowser'), true) || 'browser');
         options.outputServer = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputServer'), true) || 'server');
         options.mountPoint = nconf.get('server:webpackMountPoint');
+        options.useInternalDependencies = !!nconf.get('pellet:useInternalDependencies');
 
         var componentModule = path.join(options.output, '_MANIFEST.json');
 

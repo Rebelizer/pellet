@@ -5,8 +5,6 @@
     "__publicCommonConfig": {
     },
     "locales": "en",
-    "assetFileName": "assets.js",
-    "componentFileName": "component.js",
     "polyfillPath": "/js/polyfills.js",
     "polyfillPathIO": "//polyfill.io",
     "skeletonPage": "#PELLET_PROJECT_PATH#/src/page-skeleton.ejs",
@@ -18,7 +16,8 @@
   "pellet": {
     "output": "#PELLET_PROJECT_PATH#/build",
     "outputBrowser" : "browser",
-    "outputServer" : "server"
+    "outputServer" : "server",
+    "useInternalDependencies": false
   },
 
   "server": {
