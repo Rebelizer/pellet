@@ -1,3 +1,12 @@
+### 0.0.14 (2014-10-18)
+
+
+#### Bug Fixes
+
+* pellet manifest build and server to run in dev mode and not reference full path  ([677ba82b](https://github.com/Rebelizer/pellet/commit/677ba82bc7ba2047c5307d8f026539663b29d498))
+* when installed pellet via npm -g we are missing npm module ([0ba55901](https://github.com/Rebelizer/pellet/commit/0ba5590117001bd5c446cf66a306ffdd9e1702f9))
+
+
 ### 0.0.13 (2014-10-18)
 
 
