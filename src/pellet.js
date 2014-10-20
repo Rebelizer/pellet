@@ -336,7 +336,15 @@ else if(process.env.BROWSER_ENV) {
 
     // add a listener to the history statechange and route requests
     window.History.Adapter.bind(window, "statechange", function() {
-      var match = window.__pellet__ref.routes.parse(location.pathname + location.search);
+      var match
+        , state = History.getState();
+
+      if(state && state.route) {
+        match = state.routeMatch;
+      } else {
+        match = window.__pellet__ref.routes.parse(location.pathname + location.search);
+      }
+
       if(match) {
         match.fn.call(match);
       } else {
@@ -353,15 +361,19 @@ else if(process.env.BROWSER_ENV) {
           return;
         }
 
-        // ignore all links that start with [protocol]://
-        //if(node.href && node.href.indexOf('://') != -1) {
-        //  return;
-        //}
+        if(node.target && node.target != '_self') {
+          return;
+        }
+
+        var match = window.__pellet__ref.routes.parse(node.href);
+        if(!match) {
+          return;
+        }
 
         e.stopPropagation();
         e.preventDefault();
 
-        window.History.pushState(null, null, node.href);
+        window.History.pushState({routeMatch:match}, null, node.href);
       }
 
       node = node.parentNode;
