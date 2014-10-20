@@ -16,6 +16,11 @@ var program = require('commander')
 process.env.SERVER_ENV = true;
 process.env.BROWSER_ENV = false;
 
+//todo: remove this because it was added for aws local run but I think I can use PELLET_CONF_DIR todo the same thing!
+if(process.env.PELLET_DIR) {
+  process.chdir(process.env.PELLET_DIR);
+}
+
 // monkey patch inquirer (nicer formatting)
 for(i in inquirer.prompts) {
   inquirer.prompts[i].prototype.prefix = function (str) {
