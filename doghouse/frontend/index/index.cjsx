@@ -12,7 +12,7 @@ module.exports = indexPage = pellet.createClass
       <section className="section swatch-red-white">
         <div className="container">
           <header className="section-header underline">
-            <h1 className="headline hyper hairline">Pellet IO</h1>
+            <h1 className="headline hyper hairline">Pellet</h1>
 
             <p className="big">Making isomorphic apps easy!</p>
           </header>

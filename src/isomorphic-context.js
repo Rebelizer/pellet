@@ -1,7 +1,10 @@
 var utils = require('./utils');
 
 /**
- *
+ * context to merge the two envirments
+ * @class
+ * @param initData
+ * @param middlewareProvider
  */
 function isomorphicContext(initData, middlewareProvider) {
   this.provider = middlewareProvider;
