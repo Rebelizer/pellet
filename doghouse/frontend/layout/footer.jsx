@@ -19,18 +19,23 @@ module.exports = React.createClass({
                 <div id="swatch_social-2" className="sidebar-widget  widget_swatch_social">
                   <ul className="unstyled inline small-screen-center social-icons social-background social-big">
                     <li>
-                      <a target="_blank" href="http://www.oxygenna.com">
-                        <i className="fa fa-facebook" />
-                      </a>
-                    </li>
-                    <li>
-                      <a target="_blank" href="http://www.oxygenna.com">
+                      <a target="_blank" href="http://www.twitter.com/vevo">
                         <i className="fa fa-twitter" />
                       </a>
                     </li>
                     <li>
-                      <a target="_blank" href="http://www.oxygenna.com">
+                      <a target="_blank" href="https://github.com/Rebelizer">
+                        <i className="fa fa-github" />
+                      </a>
+                    </li>
+                    <li>
+                      <a target="_blank" href="https://plus.google.com/+VEVO/posts">
                         <i className="fa fa-google-plus" />
+                      </a>
+                    </li>
+                    <li>
+                      <a target="_blank" href="http://www.vevo.com">
+                        <i className="fa fa-heart-o" />
                       </a>
                     </li>
                   </ul>

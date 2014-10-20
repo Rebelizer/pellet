@@ -36,13 +36,13 @@ module.exports = indexPage = pellet.createClass
               <li className="col-md-3 text-center">
                 <div className="box-round">
                   <div className="box-dummy"/>
-                  <a className="box-inner " href="/single-service.html">
+                  <a className="box-inner " href="/isomorphic">
                     <img className="svg-inject" src="/img/wayfarer.png"
                          alt="glasses" data-animation="bounce"/>
                   </a>
                 </div>
                 <h3 className="text-center">
-                  <a href="/single-service.html">
+                  <a href="/isomorphic">
                     Isomorphic
                   </a>
                 </h3>
@@ -52,13 +52,13 @@ module.exports = indexPage = pellet.createClass
               <li className="col-md-3 text-center">
                 <div className="box-round">
                   <div className="box-dummy"/>
-                  <a className="box-inner " href="/single-service.html">
+                  <a className="box-inner " href="/react">
                     <img className="svg-inject" src="/img/react.png" alt="a clock"
                          data-animation="bounce"/>
                   </a>
                 </div>
                 <h3 className="text-center">
-                  <a>
+                  <a href="/react">
                     React
                   </a>
                 </h3>
@@ -68,13 +68,13 @@ module.exports = indexPage = pellet.createClass
               <li className="col-md-3 text-center">
                 <div className="box-round">
                   <div className="box-dummy"/>
-                  <a className="box-inner " href="/single-service.html">
+                  <a className="box-inner " href="/nodejs">
                     <img className="svg-inject" src="/img/node.png" alt="a clock"
                          data-animation="bounce"/>
                   </a>
                 </div>
                 <h3 className="text-center">
-                  <a href="/single-service.html">
+                  <a href="/nodejs">
                     NodeJS
                   </a>
                 </h3>
@@ -84,13 +84,13 @@ module.exports = indexPage = pellet.createClass
               <li className="col-md-3 text-center">
                 <div className="box-round">
                   <div className="box-dummy"/>
-                  <a className="box-inner " href="/single-service.html">
+                  <a className="box-inner " href="/internalization">
                     <img className="svg-inject" src="/img/multilanguage.png"
                          alt="a clock" data-animation="bounce"/>
                   </a>
                 </div>
                 <h3 className="text-center">
-                  <a href="/single-service.html">
+                  <a href="/internalization">
                     Multilanguage
                   </a>
                 </h3>
@@ -105,13 +105,13 @@ module.exports = indexPage = pellet.createClass
               <li className="col-md-3 text-center">
                 <div className="box-round">
                   <div className="box-dummy"/>
-                  <a className="box-inner " href="/single-service.html">
+                  <a className="box-inner " href="/seo">
                     <img className="svg-inject" src="/img/seo.png"
                          alt="glasses" data-animation="bounce"/>
                   </a>
                 </div>
                 <h3 className="text-center">
-                  <a>
+                  <a href="/seo">
                     SEO
                   </a>
                 </h3>
@@ -122,13 +122,13 @@ module.exports = indexPage = pellet.createClass
               <li className="col-md-3 text-center">
                 <div className="box-round">
                   <div className="box-dummy"/>
-                  <a className="box-inner " href="/single-service.html">
+                  <a className="box-inner " href="/reactive-programming">
                     <img className="svg-inject" src="/img/cogs.png" alt="a clock"
                          data-animation="bounce"/>
                   </a>
                 </div>
                 <h3 className="text-center">
-                  <a>
+                  <a href="/reactive-programming">
                     Reactive Programming
                   </a>
                 </h3>
@@ -139,13 +139,13 @@ module.exports = indexPage = pellet.createClass
               <li className="col-md-3 text-center">
                 <div className="box-round">
                   <div className="box-dummy"/>
-                  <a className="box-inner " href="/single-service.html">
+                  <a className="box-inner " href="/webpack">
                     <img className="svg-inject" src="/img/composer.png" alt="a clock"
                          data-animation="bounce"/>
                   </a>
                 </div>
                 <h3 className="text-center">
-                  <a>
+                  <a href="/webpack">
                     Webpack
                   </a>
                 </h3>
@@ -156,13 +156,13 @@ module.exports = indexPage = pellet.createClass
               <li className="col-md-3 text-center">
                 <div className="box-round">
                   <div className="box-dummy"/>
-                  <a className="box-inner " href="/single-service.html">
+                  <a className="box-inner " href="/html5">
                     <img className="svg-inject" src="/img/mug.png"
                          alt="a clock" data-animation="bounce"/>
                   </a>
                 </div>
                 <h3 className="text-center">
-                  <a href="/single-service.html">
+                  <a href="/html5">
                     HTML5
                   </a>
                 </h3>

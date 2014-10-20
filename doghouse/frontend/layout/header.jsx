@@ -21,19 +21,16 @@ module.exports = React.createClass({
           <nav className="collapse navbar-collapse main-navbar" role="navigation">
             <ul className="nav navbar-nav navbar-right">
               <li className="dropdown active">
-                <a href="/index" className="dropdown-toggle" data-toggle="dropdown">Home</a>
+                <a href="/">Home</a>
               </li>
               <li className="dropdown ">
-                <a href="/install" className="dropdown-toggle" data-toggle="dropdown">Install</a>
+                <a href="/install">Install</a>
               </li>
               <li className="dropdown ">
-                <a href="/docs/index.html" className="dropdown-toggle" data-toggle="dropdown">Docs</a>
+                <a href="/docs/index.html">Docs</a>
               </li>
               <li className="dropdown ">
-                <a href="/blog" className="dropdown-toggle" data-toggle="dropdown">Blog</a>
-              </li>
-              <li className="dropdown ">
-                <a href="https://github.com/Rebelizer/pellet" className="dropdown-toggle" data-toggle="dropdown">GitHub</a>
+                <a href="https://github.com/Rebelizer/pellet">GitHub</a>
               </li>
             </ul>
           </nav>

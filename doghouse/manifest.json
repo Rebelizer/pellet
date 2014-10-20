@@ -15,6 +15,51 @@
     ]
   },
   {
+    "name": "install",
+    "version": "0.0.0",
+    "component": "./frontend/install.cjsx"
+  },
+  {
+    "name": "isomorphicPage",
+    "version": "0.0.0",
+    "component": "./frontend/isomorphic-page.cjsx"
+  },
+  {
+    "name": "html5Page",
+    "version": "0.0.0",
+    "component": "./frontend/html5-page.cjsx"
+  },
+  {
+    "name": "internalizationPage",
+    "version": "0.0.0",
+    "component": "./frontend/internalization-page.cjsx"
+  },
+  {
+    "name": "nodejsPage",
+    "version": "0.0.0",
+    "component": "./frontend/nodejs-page.cjsx"
+  },
+  {
+    "name": "reactPage",
+    "version": "0.0.0",
+    "component": "./frontend/react-page.cjsx"
+  },
+  {
+    "name": "reactiveProgrammingPage",
+    "version": "0.0.0",
+    "component": "./frontend/reactive-programming-page.cjsx"
+  },
+  {
+    "name": "seoPage",
+    "version": "0.0.0",
+    "component": "./frontend/seo-page.cjsx"
+  },
+  {
+    "name": "webpackPage",
+    "version": "0.0.0",
+    "component": "./frontend/webpack-page.cjsx"
+  },
+  {
     "name": "layout",
     "version": "0.0.0",
     "component": "./frontend/layout/layout.cjsx",
@@ -23,9 +68,10 @@
       "./frontend/layout/css/bootstrap.css",
       "./frontend/layout/css/theme.css",
       "./frontend/layout/css/color-defaults.css",
+      "./frontend/layout/css/swatch-red-white.css",
+      "./frontend/layout/css/swatch-white-red.css",
       "./frontend/layout/css/fonts.css"
     ],
-    "client-dependencies": [
-    ]
+    "client-dependencies": []
   }
 ]
