@@ -1,3 +1,17 @@
+### 0.0.15 (2014-10-20)
+
+
+#### Bug Fixes
+
+* remove this code because we can do the same thing with PELLET_CONF_DIR ([4dc064d9](https://github.com/Rebelizer/pellet/commit/4dc064d960eaa79e0ea8a263ac03a8a5ad0fa473))
+
+
+#### Features
+
+* allow the environment to change pellet working directory and update aws start CM ([a5453539](https://github.com/Rebelizer/pellet/commit/a5453539ecf04b351374d4204c2a3980ae67965e))
+* start work on the pellet.io site and try to integrate old style markup i.e. jque ([a8b828ce](https://github.com/Rebelizer/pellet/commit/a8b828ce7990bedfcfe920a5fa5dfc2825448672))
+
+
 ### 0.0.14 (2014-10-18)
 
 
