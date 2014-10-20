@@ -16,10 +16,6 @@ var program = require('commander')
 process.env.SERVER_ENV = true;
 process.env.BROWSER_ENV = false;
 
-if(process.env.PELLET_DIR) {
-  process.chdir(process.env.PELLET_DIR);
-}
-
 // monkey patch inquirer (nicer formatting)
 for(i in inquirer.prompts) {
   inquirer.prompts[i].prototype.prefix = function (str) {
