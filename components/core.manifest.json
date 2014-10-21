@@ -7,9 +7,11 @@
       "./internationalization/internationalization.styl"
     ],
     "client-dependencies": [
-      "./history-polyfill.browser.min.js"
+      "./history-polyfill.browser.min.js",
+      "./pellet-routing.js"
     ],
     "server-dependencies": [
+      "./pellet-routing.js",
       "./page-render.server.js"
     ]
   }

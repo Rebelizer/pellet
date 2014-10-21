@@ -336,8 +336,13 @@ module.exports = function(program, addToReadyQue) {
 
             });
 
-            // wire up pellet middleware
-            app.use(pellet.middleware);
+            // wire up pellet middleware, but first sort the stack
+            pellet.middlewareStack = pellet.middlewareStack.sort(function(a,b) {return (a.priority||1000) - (b.priority||1000)});
+            for(var i in pellet.middlewareStack) {
+              if(pellet.middlewareStack[i] && pellet.middlewareStack[i].fn) {
+                app.use(pellet.middlewareStack[i].fn);
+              }
+            }
 
             if(appConfig.missingPage) {
               appConfig.missingPage = resolveConfigPaths(appConfig.missingPage);
@@ -347,7 +352,6 @@ module.exports = function(program, addToReadyQue) {
 
                 // todo: load the 404 to a custom logger
               });
-
             }
 
             if(appConfig.errorPage) {
@@ -410,6 +414,7 @@ module.exports = function(program, addToReadyQue) {
         options.outputServer = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputServer'), true) || 'server');
         options.mountPoint = nconf.get('server:webpackMountPoint');
         options.useInternalDependencies = !!nconf.get('pellet:useInternalDependencies');
+        options.ignoreCoreManifest = !!nconf.get('pellet:skipIncludedInternalCoreManifest');
 
         var componentModule = path.join(options.output, '_MANIFEST.json');
 
@@ -432,10 +437,15 @@ module.exports = function(program, addToReadyQue) {
             // build the translation map
             options.translationMapFile = path.join(options.output, '_TRANSLATIONS.json');
 
-            // include our core manifest so our webpack will include pellet internal mixin, components, etc.
-            manifestGlob.push(path.resolve(__dirname, '../../components/core.manifest.json'));
 
-            // todo: if running in the debug load more manifest stuff (i.e. translator tool, preview tool, etc.)
+            //if(options.ignoreCoreManifest) {
+              // include our core manifest so our webpack will include pellet internal mixin, components, etc.
+              // try to make this one of the first manifest so webpack will load it first (some of the core components)
+              // augment the pellet class/interface.
+              manifestGlob.unshift(path.resolve(__dirname, '../../components/core.manifest.json'));
+
+              // todo: if running in the debug load more manifest stuff (i.e. translator tool, preview tool, etc.)
+            //}
 
             ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
               if (err) {
