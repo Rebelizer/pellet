@@ -25,7 +25,7 @@ module.exports = installPage = pellet.createClass
               <div className="col-md-9  text-default">
                 <h1 className="bordered-header">React</h1>
                 <p className="lead">
-                Your bones don’t break, mine do. That’s clear. Your cells react to bacteria and viruses differently than mine. You don’t get sick, I do. That’s also clear. But for some reason, you and I react the exact same way to water. We swallow it too fast, we choke.
+                  Coming soon
                 </p>
               </div>
             </div>

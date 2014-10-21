@@ -63,7 +63,7 @@ module.exports = indexPage = pellet.createClass
                   </a>
                 </h3>
 
-                <p className="text-center">Pellet uses React to render your code so its blazing fast and make events and user interactions soo much easier.</p>
+                <p className="text-center">Pellet uses React to render your markup so its blazing fast. It also make event handling and user interactions soo much easier.</p>
               </li>
               <li className="col-md-3 text-center">
                 <div className="box-round">
@@ -79,7 +79,7 @@ module.exports = indexPage = pellet.createClass
                   </a>
                 </h3>
 
-                <p className="text-center">We all love JavaScript and now we can run our code on both the server and client. Pellet use NodeJS to create a isomorphic environment so we can run our code not only in the browser but now on the server.</p>
+                <p className="text-center">We all love JavaScript and now we can run our code on both the server and client. With Pellet and NodeJS no longer have to run multiple stacks or languages, you can just run one isomorphic JavaScript environment including web server.</p>
               </li>
               <li className="col-md-3 text-center">
                 <div className="box-round">
@@ -95,8 +95,7 @@ module.exports = indexPage = pellet.createClass
                   </a>
                 </h3>
 
-                <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua.</p>
+                <p className="text-center">We live in a global world why does internalization have to be so complex. Now with React is simple and built into from day one.</p>
               </li>
             </ul>
           </div>
@@ -116,8 +115,7 @@ module.exports = indexPage = pellet.createClass
                   </a>
                 </h3>
 
-                <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua.</p>
+                <p className="text-center">Why do we have to sacrfice SEO from web applications, or have to build complex fragment systems, or slow down the users first implrstion on first load</p>
               </li>
               <li className="col-md-3 text-center">
                 <div className="box-round">
@@ -133,8 +131,7 @@ module.exports = indexPage = pellet.createClass
                   </a>
                 </h3>
 
-                <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua.</p>
+                <p className="text-center">Thw world is changing.</p>
               </li>
               <li className="col-md-3 text-center">
                 <div className="box-round">
@@ -163,12 +160,11 @@ module.exports = indexPage = pellet.createClass
                 </div>
                 <h3 className="text-center">
                   <a href="/html5">
-                    HTML5
+                    Cordova
                   </a>
                 </h3>
 
-                <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua.</p>
+                <p className="text-center">Deply to a doson platforms.</p>
               </li>
             </ul>
           </div>
