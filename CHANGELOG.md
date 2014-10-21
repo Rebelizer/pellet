@@ -1,3 +1,11 @@
+### 0.0.16 (2014-10-21)
+
+
+#### Features
+
+* as a dev I want to have full control over what routing component/logic is loaded ([55264479](https://github.com/Rebelizer/pellet/commit/55264479d256e60cdbc548107076c5349b1eadb1))
+
+
 ### 0.0.15 (2014-10-20)
 
 
