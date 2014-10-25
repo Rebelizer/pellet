@@ -158,7 +158,6 @@ if(process.env.SERVER_ENV) {
     var node = e.target;
     while(node) {
       if (node.nodeName == 'A') {
-        console.log('my href', node.href, node.dataset.externalLink, node.target, node);
         if (node.dataset.externalLink == 'true') {
           return;
         }
