@@ -19,6 +19,7 @@
     "output": "#PELLET_PROJECT_PATH#/build",
     "outputBrowser" : "browser",
     "outputServer" : "server",
+    "jadeTemplateSupport": true,
     "useInternalDependencies": true
   },
 

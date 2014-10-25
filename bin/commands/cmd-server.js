@@ -415,6 +415,7 @@ module.exports = function(program, addToReadyQue) {
         options.mountPoint = nconf.get('server:webpackMountPoint');
         options.useInternalDependencies = !!nconf.get('pellet:useInternalDependencies');
         options.ignoreCoreManifest = !!nconf.get('pellet:skipIncludedInternalCoreManifest');
+        options.jadeTemplateSupport = !!nconf.get('pellet:jadeTemplateSupport');
 
         var componentModule = path.join(options.output, '_MANIFEST.json');
 

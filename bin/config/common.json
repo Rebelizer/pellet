@@ -18,6 +18,7 @@
     "outputBrowser" : "browser",
     "outputServer" : "server",
     "useInternalDependencies": false,
+    "jadeTemplateSupport": true,
     "skipIncludedInternalCoreManifest": false
   },
 

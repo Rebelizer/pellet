@@ -4,6 +4,7 @@ var fs = require('fs-extra')
   , webpack = require('webpack')
   , messageFormat = require('messageformat')
   , glob = require('glob')
+  , rectifier = require('./jade-loader')
   , utils = require('./utils');
 
 var WEBPACK_FIELDS = ['component', 'assets', 'server-dependencies', 'client-dependencies'];
@@ -503,6 +504,11 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           ]
         }
       };
+
+      if(options.jadeTemplateSupport) {
+        config.resolve.extensions.push('.jade');
+        config.module.loaders.push({test: /\.jade$/, loader: path.join(__dirname, 'jade-loader')});
+      }
 
       // alias the assetConfig to make it easy to get common styles merged into our assets
       if(assetConfigPath) {

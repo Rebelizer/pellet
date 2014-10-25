@@ -19,7 +19,7 @@ var exports = module.exports = {
    * @param options
    *   deleteUndefined
    *   arrayCopyMode 0 = replace, 1=copy, 2=join/copy
-   *   noneCopyTypes array of types like RegExp
+   *   noneCopyTypes array of types like RegExp, Date
    *   refCopy - will make a ref to the source node if the target node is undefined or a non object type. If object type keep walking to and until endpoint.
    */
   objectUnion: function(objects, result, options, inRecursiveLoop) {
