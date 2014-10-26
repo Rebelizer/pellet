@@ -3,7 +3,7 @@ function middlewareProvider (req, res, next) {
   this.res = res;
   this.next = next;
 
-  this.title = null;
+  this.headTags = [];
 }
 
 middlewareProvider.prototype = {
@@ -14,7 +14,8 @@ middlewareProvider.prototype = {
 
     this.res.status(code);
   },
-  set: function(field, val) {
+
+  header: function(field, val) {
     if(process.env.BROWSER_ENV) {
       return;
     }
@@ -49,6 +50,100 @@ middlewareProvider.prototype = {
     }
 
     this.res.redirect(url);
+  },
+
+  addToHead: function(type, fields) {
+    if(process.env.BROWSER_ENV) {
+      if(type == 'title') {
+        document.title = fields;
+      }
+
+      return;
+    }
+
+    var newLine;
+
+    switch(type) {
+      case 'meta':
+        newLine = ['<meta'];
+
+        if (fields.name) {
+          newLine.push('name="' + fields.name + '"');
+        }
+
+        if (fields.charset) {
+          newLine.push('charset="' + fields.charset + '"');
+        }
+
+        if (fields.content) {
+          newLine.push('content="' + fields.content + '"');
+        }
+
+        if (fields.httpEquiv) {
+          newLine.push('http-equiv="' + fields.httpEquiv + '"');
+        }
+
+        if (fields['http-equiv']) {
+          newLine.push('http-equiv="' + fields['http-equiv'] + '"');
+        }
+
+        newLine = newLine.join(' ') + '>';
+        break;
+      case 'link':
+        newLine = ['<link'];
+
+        if (fields.href) {
+          newLine.push('href="' + fields.href + '"');
+        }
+
+        if (fields.charset) {
+          newLine.push('charset="' + fields.charset + '"');
+        }
+
+        if (fields.hreflang) {
+          newLine.push('hreflang="' + fields.hreflang + '"');
+        }
+
+        if (fields.media) {
+          newLine.push('media="' + fields.media + '"');
+        }
+
+        if (fields.rev) {
+          newLine.push('rev="' + fields.rev + '"');
+        }
+
+        if (fields.rel) {
+          newLine.push('rev="' + fields.rel + '"');
+        }
+
+        if (fields.sizes) {
+          newLine.push('sizes="' + fields.sizes + '"');
+        }
+
+        if (fields.type) {
+          newLine.push('type="' + type + '"');
+        }
+
+        if (fields.target) {
+          newLine.push('target="' + target + '"');
+        }
+
+        newLine = newLine.join(' ') + '>';
+        break;
+      case 'title':
+        newLine = '<title>' + fields + '</title>';
+        break;
+      case 'script':
+        throw new Error('Use the addScript function');
+        break;
+      case 'style':
+        throw new Error('Use the addStyle function');
+        break;
+      default:
+        throw new Error('Unknown head tag ' + type);
+    }
+
+    this.headTags.push(newLine);
   }
 };
 

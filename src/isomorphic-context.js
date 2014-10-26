@@ -1,7 +1,8 @@
 var utils = require('./utils');
 
 /**
- * context to merge the two envirments
+ * context to merge the two environments
+ *
  * @class
  * @param initData
  * @param middlewareProvider
@@ -34,6 +35,22 @@ function isomorphicContext(initData, middlewareProvider) {
     root: root
   };
 }
+
+isomorphicContext.prototype.LINK = 'link';
+isomorphicContext.prototype.META = 'meta';
+isomorphicContext.prototype.TITLE = 'title';
+
+isomorphicContext.prototype.addToHead = function(field, val) {
+  this.provider.addToHead(field, val);
+};
+
+isomorphicContext.prototype.setTitle = function(title) {
+  this.provider.addToHead(this.TITLE, title);
+};
+
+isomorphicContext.prototype.setCanonical = function(url) {
+  this.provider.addToHead(this.LINK, {rel:'canonical', href:url});
+};
 
 /**
  * create a new namespace
@@ -122,6 +139,5 @@ isomorphicContext.prototype.toJSON = function() {
   });
 };
 
-// todo: need to add support to set thinks like (title, http status, meta tags, script load tags, etc. this is because we want component to have access to this kind of stuff (and on server render we need this kind of data!
 // todo: think about adding caching control so content can tell the system if we can cache it and how long and for what... ie. cache for all users or only us vs fr etc. This will let use cache local copys
 module.exports = isomorphicContext;

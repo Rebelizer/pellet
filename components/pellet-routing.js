@@ -46,6 +46,8 @@ pellet.addComponentRoute = function(route, component, options) {
         // create a isomorphic req/res provider for the isomorphic render
         renderOptions.provider = new isomorphicMiddlewareProvider();
 
+        // in the browser only use the serialized date once the bootstrap
+        // call router  .
         if(window.__pellet__ctx) {
           renderOptions.context = window.__pellet__ctx;
           delete window.__pellet__ctx;
@@ -86,10 +88,6 @@ pellet.addComponentRoute = function(route, component, options) {
         } else {
           if(err) {
             console.error('Error trying to render because:', ex.message);
-          }
-
-          if(renderOptions.provider.title) {
-            window.document.title = renderOptions.provider.title;
           }
         }
       });
@@ -166,7 +164,7 @@ if(process.env.SERVER_ENV) {
           return;
         }
 
-        var match = pellet.routes.parse(node.href);
+        var match = pellet.routes.parse(node.getAttribute('href'));
         if(!match) {
           return;
         }
