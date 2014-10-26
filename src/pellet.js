@@ -96,32 +96,47 @@ pellet.prototype.loadManifestComponents = function(manifest) {
   }
 };
 
-/**
- * helper function for jade templates
- *
- * because its hard in the jade to create react component this fn was added
- * to let you use "#{pellet.buildComponents('span', null, 'AMAZING')}" syntax
- * in your jade and it will insert a jade component at that location.
- *
- * @returns {*}
- */
-pellet.prototype.buildComponents = function() {
-  var args = Array.prototype.slice.call(arguments, 0);
-  var type = args.shift();
+pellet.prototype.jadeUtils = {
 
-  if(!type) {
-    return null;
+  /**
+   * helper function for jade templates
+   *
+   * because its hard in the jade to create react component this fn was added
+   * to let you use "#{utils.addComponent('span', null, 'AMAZING')}" syntax
+   * in your jade and it will insert a jade component at that location.
+   *
+   * @returns {*}
+   */
+  addComponent: function () {
+    var args = Array.prototype.slice.call(arguments, 0);
+    var type = args.shift();
+
+    if (!type) {
+      return null;
+    }
+
+    var comp = this.components[type] || react.DOM[type];
+    if (!comp) {
+      return null;
+    }
+
+    return function () {
+      return comp.apply(comp, args);
+    };
+  },
+
+  /**
+   * helper function for jade templates
+   *
+   * @param el
+   * @returns {Function}
+   */
+  addEl: function (el) {
+    return function () {
+      return el;
+    }
   }
-
-  var comp =  this.components[type] || react.DOM[type];
-  if(!comp) {
-    return null;
-  }
-
-  return function() {
-    return comp.apply(comp, args);
-  };
-}
+};
 
 /**
  *

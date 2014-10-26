@@ -1,12 +1,48 @@
-/* This is a great place for your sitewide styles
- * and overwrites for components
+/* Master styles file
+ * defined all your framework, defaults, common styles, etc.
+ * because is an example of the kind of files you can load in
  */
 
-// @import "vender/jeet.styl"
-// @import "vender/bootstape.styl"
+// Load NIB
+@import 'nib'
 
-@import "reset.css"
+// Load reset file
+@import 'reset.styl'
 
-// @import "colors.styl"
+/* You can install other frameworks so no need to have
+ * a reset file :)
+ */
+
+// Load Jeet (https://github.com/mojotech/jeet/tree/master/stylus/jeet)
+// @import 'vender/jeet/_functions'
+// @import 'vender/jeet/_grid'
+
+// Load Rupture (https://github.com/jenius/rupture/tree/master/rupture)
+// @import 'vender/rupture/rupture'
+
+// Load AXIS (https://github.com/jenius/axis/tree/master/axis)
+// @import 'vender/axis/reset'
+// @import 'vender/axis/vendor'
+// @import 'vender/axis/utilities'
+// @import 'vender/axis/gradients'
+// @import 'vender/axis/interaction'
+// @import 'vender/axis/typography'
+// @import 'vender/axis/code'
+// @import 'vender/axis/ui'
+// @import 'vender/axis/buttons'
+// @import 'vender/axis/forms'
+// @import 'vender/axis/tables'
+
+// Load all your fonts, glyphs, colors, etc.
 // @import "fonts.styl"
 // @import "glyphs.styl"
+// @import "colors.styl"
+
+// Init framework stuff like (Jeet, AXIS, etc) Read their docs
+// global-reset()
+// framework()
+// base()
+// bold-italic()
+// headers()
+// lists()
+// text-selection()

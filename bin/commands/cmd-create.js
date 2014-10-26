@@ -101,14 +101,34 @@ module.exports = function(program, addToReadyQue) {
 
           baseTemplateNames = baseTemplateNames[CREATE_TYPES.indexOf(answer.type)];
 
-          var componentEP, assetEP;
+          var componentEP, assetEP, jadeEP;
+
           // now build up the work needed to render/generate the template output
-          if (answer.lang === 'JavaScript') {
-            componentEP = path.join(baseOutputDir, answer.fileName + '.jsx');
-            renderFile(outputFiles, componentEP, path.join(options.templateDir, baseTemplateNames[0]+'-js.ejs'), answer);
-          } else if (answer.lang === 'CoffeeScript') {
-            componentEP = path.join(baseOutputDir, answer.fileName + '.cjsx');
-            renderFile(outputFiles, componentEP, path.join(options.templateDir, baseTemplateNames[0]+'-cs.ejs'), answer);
+          if(answer.templateType === 'Jade') {
+            baseTemplateNames[0] = 'jade-' + baseTemplateNames[0];
+
+            jadeEP = path.join(baseOutputDir, answer.fileName + '.jade');
+            renderFile(outputFiles, jadeEP, path.join(options.templateDir, baseTemplateNames[0]+'.ejs'), answer);
+
+            if (answer.lang === 'JavaScript') {
+              componentEP = path.join(baseOutputDir, answer.fileName + '.js');
+              renderFile(outputFiles, componentEP, path.join(options.templateDir, baseTemplateNames[0]+'-js.ejs'), answer);
+            } else if (answer.lang === 'CoffeeScript') {
+              componentEP = path.join(baseOutputDir, answer.fileName + '.coffee');
+              renderFile(outputFiles, componentEP, path.join(options.templateDir, baseTemplateNames[0]+'-cs.ejs'), answer);
+            }
+
+          } else if(answer.templateType === 'JSX') {
+            baseTemplateNames[0] = 'jsx-' + baseTemplateNames[0];
+
+            if (answer.lang === 'JavaScript') {
+              componentEP = path.join(baseOutputDir, answer.fileName + '.jsx');
+              renderFile(outputFiles, componentEP, path.join(options.templateDir, baseTemplateNames[0]+'-js.ejs'), answer);
+            } else if (answer.lang === 'CoffeeScript') {
+              componentEP = path.join(baseOutputDir, answer.fileName + '.cjsx');
+              renderFile(outputFiles, componentEP, path.join(options.templateDir, baseTemplateNames[0]+'-cs.ejs'), answer);
+            }
+
           }
 
           if (answer.assets === 'stylus') {
@@ -237,11 +257,6 @@ module.exports = function(program, addToReadyQue) {
             fs.copy(path.resolve(__dirname, '..', 'public'), publicDir, next);
           };
 
-          var resetFile = path.join(baseOutputDir, 'assets', 'reset.css');
-          outputFiles[resetFile] = function(next) {
-            fs.copy(path.join(options.templateDir, 'project-assets-reset.css'), resetFile, next);
-          };
-
           var skeletonFile = path.join(baseOutputDir, 'src', 'page-skeleton.ejs');
           outputFiles[skeletonFile] = function(next) {
             fs.copy(path.join(options.templateDir, 'project-page-skeleton.ejs'), skeletonFile, next);
@@ -264,23 +279,41 @@ module.exports = function(program, addToReadyQue) {
 
           renderFile(outputFiles, path.join(baseOutputDir, '.pellet'), path.join(options.templateDir, 'pellet.ejs'), answer);
 
-          var componentEP, assetEP;
-          // now build up the work needed to render/generate the template output
+          var componentEP, assetEP, jadeEP, templateType, resetFile;
+
+          // we should add a example into /src that is server only, client only, etc.
+
+          if(answer.templateType === 'Jade') {
+            templateType = 'jade';
+            jadeEP = path.join(baseOutputDir, 'frontend', 'index.jade');
+            renderFile(outputFiles, jadeEP, path.join(options.templateDir, templateType+'-page-react.ejs'), {type:'Page', name:'index', mode:'project'});
+          } else if(answer.templateType === 'JSX') {
+            templateType = 'jsx';
+          }
+
           if (answer.lang === 'JavaScript') {
-            componentEP = path.join(baseOutputDir, 'src', answer.fileName + '.js');
-            renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-js.ejs'), answer);
+            componentEP = path.join(baseOutputDir, 'frontend', 'index.js');
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, templateType+'-page-react-js.ejs'), {type:'Page', name:'index', mode:'project'});
           } else if (answer.lang === 'CoffeeScript') {
-            componentEP = path.join(baseOutputDir, 'src', answer.fileName + '.coffee');
-            renderFile(outputFiles, componentEP, path.join(options.templateDir, 'comp-react-cs.ejs'), answer);
+            componentEP = path.join(baseOutputDir, 'src', 'index.coffee');
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, templateType+'-page-react-cs.ejs'), {type:'Page', name:'index', mode:'project'});
           }
 
           if (answer.assets === 'stylus') {
             assetEP = path.join(baseOutputDir, 'assets', answer.fileName + '.styl');
             renderFile(outputFiles, assetEP, path.join(options.templateDir, 'project-assets-site-styl.ejs'), answer);
+
+            resetFile = path.join(baseOutputDir, 'assets', 'reset.styl');
           } else if (answer.assets === 'css') {
             assetEP = path.join(baseOutputDir, 'assets', answer.fileName + '.css');
             renderFile(outputFiles, assetEP, path.join(options.templateDir, 'project-assets-site-css.ejs'), answer);
+
+            resetFile = path.join(baseOutputDir, 'assets', 'reset.css');
           }
+
+          outputFiles[resetFile] = function(next) {
+            fs.copy(path.join(options.templateDir, 'project-assets-reset.css'), resetFile, next);
+          };
 
           var manifestOutputPath = path.join(baseOutputDir, 'manifest.json');
           answer.relitiveManifestPath = '.' + path.sep + 'manifest.json';
@@ -289,7 +322,8 @@ module.exports = function(program, addToReadyQue) {
             var newComponent = {
               "name": answer.name,
               "version": answer.version,
-              "assetConfig": '.' + path.normalize(assetEP.replace(baseOutputDir, ''))
+              "assetConfig": '.' + path.normalize(assetEP.replace(baseOutputDir, '')),
+              "component": '.' + path.sep + path.relative(baseOutputDir, componentEP)
 //              "assets": ['.' + path.normalize(assetEP.replace(baseOutputDir, ''))]
 //                    "dependencies": ["react"],
 //                    "test": false,
@@ -349,6 +383,14 @@ module.exports = function(program, addToReadyQue) {
             console.log('\n\nCreated the', answer.type, '(please comeback again WHINER!)');
             console.log('Helpful tips: set PELLET_CONF_DIR environment variable and');
             console.log('add .pellet to your .gitignore file');
+
+            if(answer.type === 'Project') {
+              console.log('#### IMPORTANT');
+              console.log('Install pellet via "npm install pellet --save" in this directory or');
+              console.log('you will need to update config/common.json and set useInternalDependencies');
+              console.log('to to true and add install react & ejs via npm.');
+              console.log('\nIf not you will get errors running "pellet run --build"');
+            }
           });
         }
 
@@ -401,6 +443,12 @@ module.exports = function(program, addToReadyQue) {
             var currentBase = path.basename(options.output);
             return (answer.name !== currentBase || currentBase === 'frontend');
           }
+        },{
+          type: 'list',
+          name: 'templateType',
+          message: 'Template Type',
+          'default': program.pelletConfig && program.pelletConfig.defaults.templateType,
+          choices: ['Jade', 'JSX'] // code only
         },{
           type: 'list',
           name: 'lang',

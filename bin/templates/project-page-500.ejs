@@ -12,11 +12,37 @@
 
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
+        <style>
+          body {
+            color: #CCC;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+          h1 {
+            font-size: 140px;
+          }
+          h2 {
+            font-size: 28px;
+          }
+          pre {
+            text-align: left;
+            margin: 0 auto;
+            width: 70%;
+            overflow: hidden;
+            padding: 10px;
+            opacity: 0.4;
+          }
+        </style>
+
     </head>
     <body>
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+
+        <h1>500</h1>
+        <h2>Internal Error</h2>
+        <pre><%- err.stack %></pre>
 
         <!-- Google Analytics: change <%- ((config && config.googleTrackID) || 'UA-XXXXXX-X') %> to be your site's ID. -->
         <script>

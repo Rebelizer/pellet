@@ -1,8 +1,10 @@
 {
   "securityFilter": "\\s(user|pass|aws_)\\w*\\s+.+$",
 
+  // your application config
   "applicationConfig": {
     "__publicCommonConfig": {
+      // sent to the broswer
     },
     "locales": "en",
     "polyfillPath": "/js/polyfills.js",
@@ -13,15 +15,7 @@
     "googleTrackID": "UA-XXXXX-X"
   },
 
-  "pellet": {
-    "output": "#PELLET_PROJECT_PATH#/build",
-    "outputBrowser" : "browser",
-    "outputServer" : "server",
-    "useInternalDependencies": false,
-    "jadeTemplateSupport": true,
-    "skipIncludedInternalCoreManifest": false
-  },
-
+  // pellet basic http server options
   "server": {
     "favicon": "#PELLET_PROJECT_PATH#/public/favicon.ico",
     "static": "#PELLET_PROJECT_PATH#/public",
@@ -33,18 +27,33 @@
     "polyfillRebuild": false
   },
 
+  // pellet build/package options
+  "pellet": {
+    "output": "#PELLET_PROJECT_PATH#/build",
+    "outputBrowser" : "browser",
+    "outputServer" : "server",
+    "useInternalDependencies": false,
+    "jadeTemplateSupport": true,
+    "skipIncludedInternalCoreManifest": false
+  },
+
+  // overwrite pellets webpack config
   "webpackConfig": {
-    "alias": null,
-    "externals": null,
-    "extensions": null,
+    // "alias": ,
+    // "externals": ,
+    // "extensions": null,
+    // "server": null,
     "noParse": ["\\.min\\.js$"],
-    "server": null,
     "browser": {
       "loaders": [
         {"test": "\\.less$", "loader": "style!css!autoprefixer!less"},
         {"test": "\\.svg$", "loader": "url-loader?limit=100000&mimetype=image/svg+xml"},
         {"test": "\\.png$", "loader": "file-loader"},
-        {"test": "\\.jpg$", "loader": "file-loader"}
+        {"test": "\\.jpg$", "loader": "file-loader"},
+        {"test": "\\.woff$", "loader": "file-loader"},
+        {"test": "\\.ttf$", "loader": "file-loader"},
+        {"test": "\\.eot$", "loader": "file-loader"},
+        {"test": "\\.otf$", "loader": "file-loader"}
       ]
     }
   },

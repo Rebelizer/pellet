@@ -1,12 +1,10 @@
-# @cjsx React.DOM
-
 React = require "react"
 pellet = require "pellet"
 compo = pellet.components
 
-module.exports = <%- name %>Page = pellet.createClass
-  routes: "/<%- name %>"
+<%- name %>View = require "<%- name %>.jade"
 
+module.exports = <%- name %>Component = pellet.createClass
   #setupInitialRender: (ctx, next) ->
   #  ctx.setProps myData: "loaded from your API"
   #  next()
@@ -15,6 +13,4 @@ module.exports = <%- name %>Page = pellet.createClass
   #  myData: @props.myData
 
   render: ->
-    <div className="<%- name %>-page">
-      <span>My <%- name %> page</span>
-    </div>
+    <%- name %>View
