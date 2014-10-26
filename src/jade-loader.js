@@ -6,7 +6,7 @@ module.exports = function(source) {
   var jscode = rectifier.compileClient(source, {filename:'/Users/demi/Projects/pellet/doghouse/frontend/haha'});
   jscode = 'React = react = require("react");' +
     'Pellet = pellet = require("pellet");' +
-    'utils = pellet.jadeUtils;' +
+    'utils = {addComponent:pellet.jade_addComponent, addEl:pellet.jade_addEl, intl:pellet.jade_intl};' +
     'module.exports=function(scope)' +
     jscode.substring(25);
 

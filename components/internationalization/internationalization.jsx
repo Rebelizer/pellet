@@ -67,7 +67,7 @@ function getTranslation(locales, props) {
  * @param options
  * @returns {Function}
  */
-pellet.jadeUtils.intl = function(options) {
+pellet.jade_intl = function(options) {
   return function() {
     return module.exports(options);
   };
