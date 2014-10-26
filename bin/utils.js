@@ -1,6 +1,7 @@
 var path = require('path')
   , fs = require('fs-extra')
-  , crypto = require('crypto');
+  , crypto = require('crypto')
+  , json5 = require('json5');
 
 var VALID_MANIFEST_FILES = [/*'package.json',*/ 'pellet.json', 'manifest.json'];
 var CONFIG_EXT = ['', '.json', '.js', '.config'];
@@ -48,7 +49,11 @@ var exports = module.exports = {
     for (var i in CONFIG_EXT) {
       filePath = targetPath + CONFIG_EXT[i];
       if (fs.existsSync(filePath)) {
-        return require(filePath);
+        if(filePath.match(/\.json$/i)) {
+          return json5.parse(fs.readFileSync(filePath).toString());
+        } else {
+          return require(filePath);
+        }
       }
     }
 
