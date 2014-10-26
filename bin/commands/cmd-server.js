@@ -60,9 +60,9 @@ module.exports = function(program, addToReadyQue) {
     .description('Start Pellet server')
     .option('-v, --verbose [silly|debug|verbose|info|warn|error]', 'verbose mode', false)
     .option('-n, --cluster:count <size>', 'number of process', 0)
-    .option('--http:port <port>', 'http server port', process.env.PORT || 3000)
+    .option('--http:port <port>', 'http server port', process.env.PORT || 8080)
     .option('--http:address <ip>', 'http bind address', process.env.BIND_ADDR || '0.0.0.0')
-    .option('--https:port <port>', 'https server port', process.env.SSL_PORT || 3001)
+    .option('--https:port <port>', 'https server port', process.env.SSL_PORT || 8081)
     .option('--https:address <ip>', 'https bind address', process.env.BIND_ADDR || '0.0.0.0')
     .option('--pellet:output <path>', 'path to the build dir')
     .option('--pellet:output-browser <dir>', 'Directory browser packed version saved to')
@@ -437,7 +437,6 @@ module.exports = function(program, addToReadyQue) {
 
             // build the translation map
             options.translationMapFile = path.join(options.output, '_TRANSLATIONS.json');
-
 
             //if(options.ignoreCoreManifest) {
               // include our core manifest so our webpack will include pellet internal mixin, components, etc.
