@@ -518,7 +518,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       var browser = {}
         , node = {};
 
-      utils.objectUnion([config,{
+      utils.objectUnion([config, {
         target: 'web',
         output: {
           path: path.resolve(process.cwd(), options.outputBrowser || '/tmp/dist/browser'),
