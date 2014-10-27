@@ -7,7 +7,7 @@ compo = pellet.components
 module.exports = <%- name %>Page = pellet.createClass
   routes: "/<%- name %>"
 
-  #setupInitialRender: (ctx, next) ->
+  #getRouteDefaultProps: (ctx, next) ->
   #  ctx.setProps myData: "loaded from your API"
   #  next()
 

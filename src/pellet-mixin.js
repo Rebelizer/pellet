@@ -71,7 +71,7 @@ var testComp = react.createClass({
       //isomorphicContext.redirect();
 
       // switch ctx namespace to /subComponent/sweet
-      //subCmp.setupInitialRender(isomorphicContext.namespace('subComponent.sweet', true), next);
+      //subCmp.getRouteDefaultProps(isomorphicContext.namespace('subComponent.sweet', true), next);
       next(null);
     }
   },
@@ -83,7 +83,7 @@ var testComp = react.createClass({
 });
 
 var r = new isomorphicContext();
-testComp.setupInitialRender(r, function() {
+testComp.getRouteDefaultProps(r, function() {
   console.log(r); //<-- dump our state needed at the server side
 
 

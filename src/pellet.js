@@ -28,13 +28,13 @@ pellet.prototype.createClass = function(spec) {
     spec.mixins.push(pelletMixin);
   }
 
-  if(spec.setupInitialRender) {
+  if(spec.getRouteDefaultProps) {
     if(!spec.statics) {
       spec.statics = {};
     }
 
-    spec.statics.setupInitialRender = spec.setupInitialRender;
-    delete spec.setupInitialRender;
+    spec.statics.getRouteDefaultProps = spec.getRouteDefaultProps;
+    delete spec.getRouteDefaultProps;
   }
 
   if(typeof spec.routes !== 'undefined') {

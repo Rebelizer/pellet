@@ -66,8 +66,8 @@ var isomorphicRender = module.exports = {
 
     var componentWithContext;
 
-    // get serialize state if component supports the setupInitialRender
-    if (component.setupInitialRender) {
+    // get serialize state if component supports the getRouteDefaultProps
+    if (component.getRouteDefaultProps) {
       var ctx = new isomorphicContext(options.context, options.provider);
 
       if(options.props) {
@@ -75,7 +75,7 @@ var isomorphicRender = module.exports = {
       }
 
       try {
-        component.setupInitialRender(ctx, function (err) {
+        component.getRouteDefaultProps(ctx, function (err) {
           if(err) {
             return next(err);
           }

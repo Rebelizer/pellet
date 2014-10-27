@@ -5,7 +5,7 @@ pellet = require "pellet"
 compo = pellet.components
 
 module.exports = <%- name %>Component = pellet.createClass
-  #setupInitialRender: (ctx, next) ->
+  #getRouteDefaultProps: (ctx, next) ->
   #  ctx.setProps myData: "loaded from your API"
   #  next()
 
