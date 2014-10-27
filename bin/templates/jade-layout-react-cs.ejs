@@ -1,0 +1,18 @@
+# @cjsx React.DOM
+
+React = require "react"
+pellet = require "pellet"
+compo = pellet.components
+
+module.exports = <%- name %>Layout = pellet.createClass
+  render: ->
+
+    <div className="<%- name %>-layout">
+      <header>
+        <span>My Header</span>
+      </header>
+      {this.props.children}
+      <footer>
+        <span>My Footer</span>
+      </footer>
+    </div>
