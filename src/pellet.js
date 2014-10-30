@@ -171,6 +171,8 @@ pellet.prototype.getCoordinator = function(name, type) {
 
   var instance = new isomorphicCoordinator();
   utils.mixInto(instance, this.coordinatorSpecs[type], false, ['initialize', 'load']);
+  instance.initialize();
+
   this.coordinators[name] = instance;
 
   return instance;

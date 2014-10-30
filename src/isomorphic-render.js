@@ -50,6 +50,7 @@ var isomorphicRender = module.exports = {
             }
           }
 
+          react.unmountComponentAtNode(options.targetEl);
           result = react.renderComponent(component, options.targetEl);
         } else if(options.mode == isomorphicRender.MODE_STRING) {
           result = react.renderComponentToStaticMarkup(component);
