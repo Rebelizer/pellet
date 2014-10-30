@@ -87,7 +87,7 @@ pellet.addComponentRoute = function(route, component, options) {
           }
         } else {
           if(err) {
-            console.error('Error trying to render because:', ex.message);
+            console.error('Error trying to render because:', err.message, err.stack);
           }
         }
       });
