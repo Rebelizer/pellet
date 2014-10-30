@@ -68,13 +68,14 @@ var isomorphicRender = module.exports = {
 
     // get serialize state if component supports the getRouteDefaultProps
     if (component.getRouteDefaultProps) {
-      var ctx = new isomorphicContext(options.context, options.provider);
-
-      if(options.props) {
-        ctx.setProps(options.props);
-      }
 
       try {
+        var ctx = new isomorphicContext(options.context, options.provider);
+
+        if(options.props) {
+          ctx.setProps(options.props);
+        }
+
         component.getRouteDefaultProps(ctx, function (err) {
           if(err) {
             return next(err);
@@ -82,7 +83,6 @@ var isomorphicRender = module.exports = {
 
           try {
             componentWithContext = react.withContext({
-              isomorphicContext: ctx,
               locales: options.locales
             }, function () {
               return component(ctx.props);
@@ -92,9 +92,17 @@ var isomorphicRender = module.exports = {
             return;
           }
 
-          renderReactComponent(componentWithContext, ctx);
+          // wait a tick so all kefir emit get processed for the
+          // context serialization.
+          setTimeout(function() {
+            ctx.release();
+            renderReactComponent(componentWithContext, ctx);
+          }, 0);
         });
       } catch(ex) {
+        console.error('Error in trying to render component because:', ex.message);
+
+        ctx.release();
         next(ex);
       }
     } else {

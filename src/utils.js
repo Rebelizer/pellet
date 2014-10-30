@@ -12,6 +12,48 @@ var exports = module.exports = {
   },
 
   /**
+   *
+   * @param one
+   * @param two
+   * @returns {Function}
+   */
+  createChainedFunction: function (one, two) {
+    return function chainedFunction() {
+      one.apply(this, arguments);
+      two.apply(this, arguments);
+    };
+  },
+
+  /**
+   *
+   * @param dest
+   * @param src
+   * @param ignoreSpec
+   * @param singleSpec array of
+   */
+  mixInto: function (dest, src, ignoreSpec, chainableSpec) {
+    Object.keys(src).forEach(function (prop) {
+      if (ignoreSpec && -1 !== ignoreSpec.indexOf(prop)) {
+        return;
+      }
+
+      if (chainableSpec && chainableSpec.indexOf(prop) !== -1) {
+        if (!dest[prop]) {
+          dest[prop] = src[prop];
+        } else {
+          dest[prop] = exports.createChainedFunction(dest[prop], src[prop]);
+        }
+      } else {
+        if (!dest[prop]) {
+          dest[prop] = src[prop];
+        } else {
+          throw new Error('Mixin property collision for property "' + prop + '"');
+        }
+      }
+    });
+  },
+
+  /**
    * deep merge/copy objects into a single union object
    *
    * @param objects

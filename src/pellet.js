@@ -1,6 +1,8 @@
 var react = require('react')
-  , kefir = require('kefir')
-  , pelletMixin = require('./pellet-mixin.js');
+  , utils = require('./utils')
+  , observables = require('./observables.js')
+  , isomorphicCoordinator = require('./isomorphic-coordinator.js')
+  , pelletReactMixin = require('./pellet-react-mixin.js');
 
 /**
  * @class pellet
@@ -9,11 +11,19 @@ var react = require('react')
 function pellet() {
   this.readyFnQue = [];
   this.initFnQue = [];
-  this.emitters = {};
+  this.coordinators = {};
+  this.coordinatorSpecs = {};
   this.components = {};
   this.locales = {};
+
   this.middlewareStack = [];
 }
+
+/**
+ *
+ * @type {observables}
+ */
+pellet.prototype.observables = observables;
 
 /**
  *
@@ -24,8 +34,8 @@ pellet.prototype.createClass = function(spec) {
     spec.mixins = [];
   }
 
-  if(!(pelletMixin in spec.mixins)) {
-    spec.mixins.push(pelletMixin);
+  if(!(pelletReactMixin in spec.mixins)) {
+    spec.mixins.push(pelletReactMixin);
   }
 
   if(spec.getRouteDefaultProps) {
@@ -138,20 +148,52 @@ pellet.prototype.jade_addEl = function (el) {
 /**
  *
  * @param key
- * @param namespace
+ * @param isGlobal
+ * @param options
  * @returns {*}
  */
-pellet.prototype.getEmitter = function(key, namespace) {
-  if(this.emitters[key]) {
-    return this.emitters[key];
+pellet.prototype.getCoordinator = function(name, type) {
+  var instance;
+
+  if(!name) {
+    throw new Error('name is required');
   }
 
-  var stream = this.emitters[key] = kefir.emitter();
-  stream.onEnd(function() {
-    delete this.emitters[key];
-  });
+  if(instance = this.coordinators[name]) {
+    return instance;
+  }
 
-  return stream;
+  type = type || name;
+
+  if(!this.coordinatorSpecs[type]) {
+    throw new Error('Cannot find ' + type + ' coordinator spec');
+  }
+
+  var instance = new isomorphicCoordinator();
+  utils.mixInto(instance, this.coordinatorSpecs[type], false, ['initialize', 'load']);
+  this.coordinators[name] = instance;
+
+  return instance;
+};
+
+/**
+ * register the coordinator spec that creates the new coordinator
+ * of type name.
+ *
+ * @param name
+ * @param fn
+ */
+pellet.prototype.registerCoordinator = function(name, spec) {
+  if(!spec || !name) {
+    throw new Error('Spec and name are required for all coordinators.');
+  }
+
+  if(this.coordinatorSpecs[name]) {
+    console.error('Error duplicate store specs:', name);
+    throw new Error('Cannot have duplicate store specs');
+  }
+
+  this.coordinatorSpecs[name] = spec;
 };
 
 /**
