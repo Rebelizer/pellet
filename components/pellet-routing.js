@@ -17,7 +17,7 @@ pellet.setSkeletonPage = function(templatingFn) {
  * @param options
  */
 pellet.addComponentRoute = function(route, component, options) {
-  var self = this;
+  var _this = this;
 
   this.routes.add(route, function() {
     var routeContext = this
@@ -61,7 +61,7 @@ pellet.addComponentRoute = function(route, component, options) {
       renderOptions.props.url = routeContext.url;
 
       // use pellets default locale lookup function (devs can overwrite this for custom logic)
-      renderOptions.locales = self.suggestLocales(renderOptions, component, options);
+      renderOptions.locales = _this.suggestLocales(renderOptions, component, options);
 
       // now render the isomorphic component
       isomorphicRender.renderComponent(component, renderOptions, function(err, html, ctx) {
@@ -80,8 +80,8 @@ pellet.addComponentRoute = function(route, component, options) {
             return;
           }
 
-          if(self.skeletonPageRender) {
-            routeContext.respose.end(self.skeletonPageRender(html, ctx, renderOptions));
+          if(_this.skeletonPageRender) {
+            routeContext.respose.end(_this.skeletonPageRender(html, ctx, renderOptions));
           } else {
             routeContext.respose.end(html);
           }

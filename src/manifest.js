@@ -124,7 +124,7 @@ function manifestParser() {
  * @param next
  */
 manifestParser.prototype.load = function(fullPath, options, next) {
-  var self = this;
+  var _this = this;
 
   if(typeof options === 'function') {
     next = options;
@@ -139,7 +139,7 @@ manifestParser.prototype.load = function(fullPath, options, next) {
       return next(new Error('Cannot parse manifest file'));
     }
 
-    self.merge(fullPath, manifest, options, next);
+    _this.merge(fullPath, manifest, options, next);
   });
 };
 
@@ -180,7 +180,7 @@ manifestParser.prototype.save = function(fullPath, options, next) {
  * @param next
  */
 manifestParser.prototype.merge = function(file, additionalItems, options, next) {
-  var uid, component, self = this;
+  var uid, component, _this = this;
 
   if(typeof options === 'function') {
     next = options;
@@ -223,7 +223,7 @@ manifestParser.prototype.merge = function(file, additionalItems, options, next) 
   }
 
   async.each(additionalItems, function(item, next) {
-    self.resolveComponentPaths(file, item, function(err, component) {
+    _this.resolveComponentPaths(file, item, function(err, component) {
       var i, j, field;
 
       if(err) {
@@ -235,14 +235,14 @@ manifestParser.prototype.merge = function(file, additionalItems, options, next) 
       for(i in WEBPACK_FIELDS) {
         field = WEBPACK_FIELDS[i];
 
-        mergeUniqueComponentFields(self, component, field, 'webpackEP');
+        mergeUniqueComponentFields(_this, component, field, 'webpackEP');
       }
 
-      mergeUniqueComponentFields(self, component, 'translations');
+      mergeUniqueComponentFields(_this, component, 'translations');
 
       // add the component to our manifest and cleanup _id
       // we added in the validate step above
-      self.manifest[component._id] = component;
+      _this.manifest[component._id] = component;
       delete component._id;
 
       next(null);
