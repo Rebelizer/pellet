@@ -1,16 +1,28 @@
-React = require "react"
-pellet = require "pellet"
+React = require("react")
+pellet = require("pellet")
 compo = pellet.components
 
-<%- name %>View = require "<%- name %>.jade"
+<%- name %>Jade = require('./<%- fileName %>.jade')
 
 module.exports = <%- name %>Component = pellet.createClass
-  #getRouteDefaultProps: (ctx, next) ->
-  #  ctx.setProps myData: "loaded from your API"
-  #  next()
+  ###
+  getRouteDefaultProps: (ctx, next) ->
+    ctx.set({val:'val'})      # serialized to the broswer from the server render
+    ctx.setProps({val:'val'}) # set props passed to getInitialState
 
-  #getInitialState: ()->
-  #  myData: @props.myData
+    next()
 
-  render: ->
-    <%- name %>View
+  getInitialState: () ->
+    {}
+  componentWillMount: () ->
+  componentDidMount: (nextProps) ->
+  componentWillReceiveProps: (nextProps) ->
+  shouldComponentUpdate: (nextProps, nextState) ->
+  componentWillUpdate: (nextProps, nextState) ->
+  componentDidUpdate: (prevProps, prevState) ->
+  componentWillUnmount: (nextProps, nextState) ->
+  ###
+
+  render: () ->
+    <%- name %>Jade @
+
