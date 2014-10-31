@@ -1,3 +1,24 @@
+### 0.0.17 (2014-10-30)
+
+
+#### Bug Fixes
+
+* Display error message with correct stack trace ([fa35d878](https://github.com/Rebelizer/pellet/commit/fa35d878c441e558ba27731e0d692f7f7be388c3))
+* update json5 to be included in package.json ([56f604fe](https://github.com/Rebelizer/pellet/commit/56f604fe5ca102cd1f6e5a67975f944faebda901))
+* initialize new coordinators ([d2a209b9](https://github.com/Rebelizer/pellet/commit/d2a209b9a891103713d97c0884ac67ee741c1bb9))
+* can not defined utils because some fn need pellet scope, so revert until I have  ([f80cdbbf](https://github.com/Rebelizer/pellet/commit/f80cdbbf1cc31f719291861b83fa3da8c87620e8))
+
+
+#### Features
+
+* as a dev I want support of isomorphic FRP and a more flexible store ([4b6272bb](https://github.com/Rebelizer/pellet/commit/4b6272bb42c8bdc9fd02e6b77877cb97857beb35))
+* as a dev I want to set head tags like meta tags, titles, rel canonical ([fdd685a5](https://github.com/Rebelizer/pellet/commit/fdd685a5f5b9fce8c0564428560f9acfbea92fa9))
+* as a dev I want comments in my config files ([757f277d](https://github.com/Rebelizer/pellet/commit/757f277d7be84679c4a54d4ba2f469cd2eeb61f3))
+* as a dev I want pellet template accurate and to support jade output options ([fbe1cbfe](https://github.com/Rebelizer/pellet/commit/fbe1cbfebbd2576866d0b40bc908761f9a2a81be))
+* as a dev I want to use jade and not jsx for my template logic ([99652142](https://github.com/Rebelizer/pellet/commit/99652142c85594be0ba215db06fa184261a22102))
+* as a dev I want pellet internationalization to be accessible anywhere ([e36ac96a](https://github.com/Rebelizer/pellet/commit/e36ac96a685c3b2e5caf674df9603b504783691b))
+
+
 ### 0.0.16 (2014-10-21)
 
 
