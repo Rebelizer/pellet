@@ -228,7 +228,7 @@ gulp.task('release:tag', 'DO NOT USE! Use release', function(next) {
                                 return next(err);
                               }
 
-                              if(res.status.indexOf('201 Created') != -1) {
+                              if(res.status && res.status.indexOf('201 Created') != -1) {
                                 gutil.log('Failed to create release tag');
                               }
 
