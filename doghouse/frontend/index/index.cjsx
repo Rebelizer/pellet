@@ -172,5 +172,3 @@ module.exports = indexPage = pellet.createClass
       </section>
 
     </comp.layout>)
-
-#pellet.addComponentRoute "/index", indexPage
