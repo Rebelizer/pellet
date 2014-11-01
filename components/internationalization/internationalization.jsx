@@ -60,20 +60,6 @@ function getTranslation(locales, props) {
 }
 
 /**
- * helper function for jade teammates making it easier to add intl to jade
- *
- * just add: "#{pellet.intlComponent({key:'MyKEY'})}"
- *
- * @param options
- * @returns {Function}
- */
-pellet.jade_intl = function(options) {
-  return function() {
-    return module.exports(options);
-  };
-}
-
-/**
  * helper function to lookup translation in pellet
  *
  * @param scope

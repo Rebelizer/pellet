@@ -17,6 +17,10 @@ var Rectifier = module.exports = function Rectifier (program, options) {
   this.options = options || {};
   this.visit = this.visit.bind(this);
   this.visitFunction = this.visitFunction.bind(this);
+
+  if(!this.PELLET_COMPONENT) {
+    this.PELLET_COMPONENT = /pellet_/i;
+  }
 }
 
 /**
@@ -91,6 +95,8 @@ Rectifier.prototype = {
    */
 
   visit: function (node) {
+    //console.log('@@@@@@', JSON.stringify(node,null,2));
+
     // this.depth++;
     // console.log(new Array(this.depth).join('  ') + node.type);
     var visitor = this['visit' + node.type];
@@ -453,7 +459,7 @@ Rectifier.prototype = {
    */
 
   visitThisExpression: function (self) {
-    return self;
+    return  b.identifier('__$this');
   },
 
   /**
@@ -618,13 +624,27 @@ Rectifier.prototype = {
   visitCallExpression: function (call) {
     var args = call.arguments;
     var attrs;
+    var domType, isCreateElement;
 
     if (b.isIdentifier(call.callee)) {
       switch (call.callee.name) {
         case 'ǃDOM＿':
           this.scope.returns = null;
-          // callee
-          call.callee = this.domCall(this.visit(args.shift()));
+
+          domType = this.visit(args.shift());
+          isCreateElement = false;
+
+          if (typeof domType === 'string') {
+            call.callee = b.identifier(domType);
+          } else if (domType.name in React.DOM) {
+            call.callee = b.memberExpression(
+              b.identifier('React'),
+              b.identifier('createElement'), false);
+            isCreateElement = true;
+          } else {
+            call.callee = domType;
+          }
+
           // attributes
           attrs = this.filterAttrs(this.visit(args.shift()));
           // merge escape inro attrs
@@ -663,6 +683,11 @@ Rectifier.prototype = {
           args = this.nullWithNext(args.filter(notEmpty));
           // if there are attributes or there are arguments
           if (notNull(attrs) || args.length) args.unshift(attrs);
+
+          if(isCreateElement) {
+            args.unshift(b.literal(domType.name));
+          }
+
           // put args back
           call.arguments = args;
           return call;
@@ -715,6 +740,18 @@ Rectifier.prototype = {
    */
 
   visitIdentifier: function (id) {
+    if(id.name === 'intl') {
+      return b.memberExpression(
+        b.identifier('pellet'),
+        b.identifier('intl'), false)
+    } else if(this.PELLET_COMPONENT.test(id.name)) {
+      return b.memberExpression(
+        b.memberExpression(
+          b.identifier('pellet'),
+          b.identifier('components'), false),
+        b.identifier(id.name.replace(this.PELLET_COMPONENT,'')), false)
+    }
+
     return id;
   },
 

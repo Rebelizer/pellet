@@ -18,8 +18,7 @@ module.exports = function(source) {
   var jscode = _compiler.compile();
   jscode = 'React = react = require("react");' +
     'Pellet = pellet = require("pellet");' +
-    'utils = {addComponent:pellet.jade_addComponent, addEl:pellet.jade_addEl, intl:pellet.jade_intl};' +
-    'module.exports=function(scope)' +
+    'module.exports=function(__$this)' +
     jscode.substring(27);
   //console.log(jscode)
 
