@@ -95,8 +95,6 @@ Rectifier.prototype = {
    */
 
   visit: function (node) {
-    //console.log('@@@@@@', JSON.stringify(node,null,2));
-
     // this.depth++;
     // console.log(new Array(this.depth).join('  ') + node.type);
     var visitor = this['visit' + node.type];
@@ -698,6 +696,19 @@ Rectifier.prototype = {
         case 'ǃunescape＿':
           this.scope.returns = null;
           if (!args.length) return;
+
+          if(args[0].type == 'MemberExpression') {
+            var deepScan = args[0];
+            while(deepScan && deepScan.type == 'MemberExpression') {
+              deepScan = deepScan.object;
+            }
+            if(deepScan.type == 'ThisExpression') {
+              deepScan.type = 'Identifier';
+              deepScan.name = '__$this';
+            }
+            return args[0];
+          }
+
           call.callee = this.domCall('text');
           call.arguments = [
             this.escape(this.concat(args.map(this.visit), '\n'))];
