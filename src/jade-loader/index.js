@@ -16,12 +16,12 @@ module.exports = function(source) {
   var _compiler = new compiler(_parser.parse(), options);
 
   var jscode = _compiler.compile();
-  console.log(jscode)
   jscode = 'React = react = require("react");' +
     'Pellet = pellet = require("pellet");' +
     'utils = {addComponent:pellet.jade_addComponent, addEl:pellet.jade_addEl, intl:pellet.jade_intl};' +
     'module.exports=function(scope)' +
-    jscode.substring(25);
+    jscode.substring(27);
+  //console.log(jscode)
 
   return jscode;
 };

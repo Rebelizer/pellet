@@ -20,7 +20,7 @@ function defaultRender(html, ctx, renderOptions) {
   var appPath = pellet.config.jsMountPoint + pellet.config.componentFileName;
   var locales = pellet.config.jsMountPoint + (renderOptions.locales || pellet.config.locales || 'en') + '.js';
 
-  var ourBodyScripts = '<script src="//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react-with-addons.js"></script>'+
+  var ourBodyScripts = '<script src="'+pellet.config.reactCDNUrl+'"></script>'+
     '<script src="' + appPath + '"></script>'+
     '<script src="' + locales + '"></script>';
 

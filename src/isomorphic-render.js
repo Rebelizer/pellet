@@ -51,11 +51,11 @@ var isomorphicRender = module.exports = {
           }
 
           react.unmountComponentAtNode(options.targetEl);
-          result = react.renderComponent(component, options.targetEl);
+          result = react.render(component, options.targetEl);
         } else if(options.mode == isomorphicRender.MODE_STRING) {
-          result = react.renderComponentToStaticMarkup(component);
+          result = react.renderToStaticMarkup(component);
         } else if(options.mode == isomorphicRender.MODE_HTML) {
-          result = react.renderComponentToString(component);
+          result = react.renderToString(component);
         }
       } catch(ex) {
         next(ex);

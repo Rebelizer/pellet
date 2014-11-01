@@ -7,6 +7,6 @@ var page = require('./html5-page.jade');
 module.exports = installPage = pellet.createClass({
   routes: '/html5',
   render: function() {
-    return this.transferPropsTo(compo.layout(null, page(this)));
+    return compo.layout(this.props, page(this)));
   }
 });

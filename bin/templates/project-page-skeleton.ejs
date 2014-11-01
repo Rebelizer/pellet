@@ -21,7 +21,7 @@
           <%- html %>
         </div>
 
-        <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react-with-addons.js"></script>
+        <script src="<%- config.reactCDNUrl %>"></script>
         <script src="<%- config.jsMountPoint + config.componentFileName %>"></script>
         <script src="<%- config.jsMountPoint + (options.locales || config.locales || 'en') + '.js' %>"></script>
         <% if(ctx) { %>

@@ -8,7 +8,7 @@ module.exports = installPage = pellet.createClass
   routes: "/internalization"
 
   render: ->
-    @transferPropsTo(<compo.layout>
+    compo.layout(@props,
       <section className="section swatch-red-white">
         <div className="container">
           <div className="row">
@@ -31,4 +31,4 @@ module.exports = installPage = pellet.createClass
             </div>
           </div>
         </section>
-    </compo.layout>)
+    )

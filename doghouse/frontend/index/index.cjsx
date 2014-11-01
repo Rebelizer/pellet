@@ -8,7 +8,7 @@ module.exports = indexPage = pellet.createClass
   routes: "/"
 
   render: ->
-    this.transferPropsTo(<comp.layout>
+    comp.layout(@props,
       <section className="section swatch-red-white">
         <div className="container">
           <header className="section-header underline">
@@ -171,4 +171,4 @@ module.exports = indexPage = pellet.createClass
         </div>
       </section>
 
-    </comp.layout>)
+    )

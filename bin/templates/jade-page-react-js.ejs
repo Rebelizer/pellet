@@ -40,7 +40,7 @@ module.exports = <%- name %>Page = pellet.createClass({
     return <%- name %>Jade(this);
 
     /* ==== OR FOR PAGES with LAYOUTS (update yourLayout with name of your payout)====
-     * return this.transferPropsTo(compo.<- yourLayout ->(null,  <%- name %>Jade(this)));
+     * return compo.<- yourLayout ->(this.props,  <%- name %>Jade(this)));
      */
   }
 });
