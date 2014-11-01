@@ -1,3 +1,5 @@
+// THANKS TO "Michael Phan-Ba" for this code https://github.com/mikepb/jade-react-compiler
+// We modified it slightly to support react 0.12 but Michael did all the hard work!
 
 var React = require('react');
 var b = require('./builder');

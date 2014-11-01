@@ -4,7 +4,6 @@ var fs = require('fs-extra')
   , webpack = require('webpack')
   , messageFormat = require('messageformat')
   , glob = require('glob')
-  , rectifier = require('./jade-loader')
   , utils = require('./utils');
 
 var WEBPACK_FIELDS = ['component', 'assets', 'server-dependencies', 'client-dependencies'];

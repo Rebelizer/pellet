@@ -1,15 +1,12 @@
 var parser = require('jade').Parser
   , compiler = require('./compiler')
 
-// THANKS TO "Michael Phan-Ba" for this code https://github.com/mikepb/jade-react-compiler
-// We just needed to update to support the new react!
-
 module.exports = function(source) {
   this.cacheable && this.cacheable();
 
   var options = {
-    // todo: need to update this path using the source path info
-    filename:'/Users/demi/Projects/pellet/doghouse/frontend/haha'
+    filename:this.resourcePath,
+    webpackLoader: this
   };
 
   var _parser = new parser(source.toString('utf8'), options.filename, options)

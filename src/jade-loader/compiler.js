@@ -1,10 +1,13 @@
+// THANKS TO "Michael Phan-Ba" for this code https://github.com/mikepb/jade-react-compiler
+// We modified it slightly to support react 0.12 but Michael did all the hard work!
 
-var esprima = require('esprima');
-var escodegen = require('escodegen');
-var parseJSExpression = require('character-parser').parseMax;
-var Rectifier = require('./rectifier');
-var UglifyJS = require('uglify-js');
-var b = require('./builder');
+var esprima = require('esprima')
+  , escodegen = require('escodegen')
+  , parseJSExpression = require('character-parser').parseMax
+  , transformJadeAST = require('./transform-ast')
+  , UglifyJS = require('uglify-js')
+  , b = require('./builder')
+  , path = require('path');
 
 /**
  * Initialize `Compiler` with the given `token` and `options`.
@@ -16,8 +19,13 @@ var b = require('./builder');
 
 var Compiler = module.exports = function Compiler (node, options) {
   this.visit = this.visit.bind(this)
-  this.options = options = options || {};
+  this.options = options || {};
+  this.dependentFiles = [];
   this.node = node;
+
+  if(this.options.filename) {
+    this.dependentFiles.push(this.options.filename);
+  }
 };
 
 /**
@@ -82,17 +90,9 @@ Compiler.prototype = {
 
   rectify: function () {
     this.ast = esprima.parse(this.buf);
-    var rectifier = new this.rectifier(this.ast);
-    this.ast = rectifier.rectify();
+    var transformer = new transformJadeAST(this.ast);
+    this.ast = transformer.rectify();
   },
-
-  /**
-   * Rectifier class.
-   *
-   * @api public
-   */
-
-  rectifier: Rectifier,
 
   /**
    * Convert to UglifyJS AST and compress.
@@ -239,7 +239,16 @@ Compiler.prototype = {
    */
 
   visitBlock: function (block, start) {
-    block.nodes.forEach(this.visit);
+    block.nodes.forEach(function(val, index, visited) {
+      this.visit(val, index, visited);
+
+      if(this.options.webpackLoader && val.filename) {
+        if(this.dependentFiles.indexOf(val.filename) == -1) {
+          this.options.webpackLoader.addDependency(val.filename);
+          this.dependentFiles.push(val.filename);
+        }
+      }
+    }, this);
   },
 
   /**
