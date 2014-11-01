@@ -475,13 +475,13 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
       // merge in the code into the webpack component
       if(ourManifest.webpackEP.code) {
-        ourManifest.webpackEP.code = ourManifest.webpackEP.component.concat(ourManifest.webpackEP.code);
+        ourManifest.webpackEP.component = ourManifest.webpackEP.code.concat(ourManifest.webpackEP.component);
         delete ourManifest.webpackEP.code;
       }
 
       // merge in the coordinators into the webpack component
       if(ourManifest.webpackEP.coordinator) {
-        ourManifest.webpackEP.component = ourManifest.webpackEP.component.concat(ourManifest.webpackEP.coordinator);
+        ourManifest.webpackEP.component = ourManifest.webpackEP.coordinator.concat(ourManifest.webpackEP.component);
         delete ourManifest.webpackEP.coordinator;
       }
 

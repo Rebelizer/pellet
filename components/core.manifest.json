@@ -6,12 +6,13 @@
     "assets": [
       "./internationalization/internationalization.styl"
     ],
-    "client-dependencies": [
-      "./history-polyfill.browser.min.js",
+    "code": [
       "./pellet-routing.js"
     ],
+    "client-dependencies": [
+      "./history-polyfill.browser.min.js"
+    ],
     "server-dependencies": [
-      "./pellet-routing.js",
       "./page-render.server.js"
     ]
   }
