@@ -6,7 +6,7 @@ var fs = require('fs-extra')
   , glob = require('glob')
   , utils = require('./utils');
 
-var WEBPACK_FIELDS = ['component', 'assets', 'server-dependencies', 'client-dependencies'];
+var WEBPACK_FIELDS = ['component', 'assets', 'server-dependencies', 'client-dependencies', 'coordinator', 'code'];
 
 // todo: create a winston logger for pellet (budjs) and use it not console.log (let use ignore the logging if include is someone else project)
 
@@ -471,6 +471,18 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         }
 
         ourManifest.webpackEP.assets.push(assetConfigPath);
+      }
+
+      // merge in the code into the webpack component
+      if(ourManifest.webpackEP.code) {
+        ourManifest.webpackEP.code = ourManifest.webpackEP.component.concat(ourManifest.webpackEP.code);
+        delete ourManifest.webpackEP.code;
+      }
+
+      // merge in the coordinators into the webpack component
+      if(ourManifest.webpackEP.coordinator) {
+        ourManifest.webpackEP.component = ourManifest.webpackEP.component.concat(ourManifest.webpackEP.coordinator);
+        delete ourManifest.webpackEP.coordinator;
       }
 
       var config = {
