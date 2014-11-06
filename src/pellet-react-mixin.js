@@ -12,6 +12,10 @@ module.exports = {
   contextTypes     : spec,
   childContextTypes: spec,
 
+  getInitialState: function() {
+    return (this.props && this.props.__initState) || {};
+  },
+
   getChildContext: function () {
     return {
       locales: this.props.locales || this.context.locales

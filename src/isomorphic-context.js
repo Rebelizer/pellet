@@ -193,6 +193,15 @@ isomorphicContext.prototype.setProps = function(obj) {
   utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
 };
 
+isomorphicContext.prototype.setInitialState = function(obj) {
+  if(typeof obj !== 'object') {
+    throw new Error('Cannot merge non objects to context state')
+  }
+
+  var mergeObj = this.buildMergeObjFromNamespace({__initState:obj});
+  utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
+};
+
 /**
  *
  * @param coordinator
