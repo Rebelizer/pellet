@@ -3,7 +3,7 @@ var pellet = require('pellet')
   , isomorphicMiddlewareProvider = require('../src/isomorphic-middleware-provider')
   , routeTable = require('../src/route-table')
 
-pellet.routes = new routeTable();
+pellet.routes = new routeTable(); // TODO: pass in an options for sensitive & strict vi pellet.config
 pellet.skeletonPageRender = false;
 
 pellet.setSkeletonPage = function(templatingFn) {
