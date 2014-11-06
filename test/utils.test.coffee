@@ -117,6 +117,21 @@ describe "Utils", ->
       expect(a).to.deep.equal({a:10})
       expect(a).to.equal(bk)
 
+    it "merge primitive types", ->
+      a = {str:-1, num:-1, _null:-1, bool:-1, bool2:-1}
+      b = {str:'str', num:123, _null:null, bool:true, bool2:false}
+
+      out = {}
+      utils.objectUnion([a, b], out)
+      expect(out).to.deep.equal({str:'str', num:123, _null:null, bool:true, bool2:false})
+
+      a = {aa:{str:-1, num:-1, _null:-1, bool:-1, bool2:-1}}
+      b = {aa:{str:'str', num:123, _null:null, bool:true, bool2:false}, bb:{str:'str', num:123, _null:null, bool:true, bool2:false}}
+
+      out = {}
+      utils.objectUnion([a, b], out)
+      expect(out).to.deep.equal({aa:{str:'str', num:123, _null:null, bool:true, bool2:false}, bb:{str:'str', num:123, _null:null, bool:true, bool2:false}})
+
     it "deep merge values", ->
       a = {a:1, b:2, aa:{}}
       b = {a:10, aa:{cc:'deep val'}}

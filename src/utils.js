@@ -104,7 +104,7 @@ var exports = module.exports = {
         for (j in obj) {
           val = obj[j];
 
-          if(typeof(val) === 'object') {
+          if(typeof(val) === 'object' && val !== null) {
             if(Array.isArray(val)) {
               if(arrayCopyMode === 1) {
                 result[j] = [].concat(val);

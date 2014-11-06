@@ -105,6 +105,33 @@ describe "Isomorphic Context", ->
             expect(childContainer.buildMergeObjFromNamespace(false)).eql({ns1:false})
             expect(childChildContainer.buildMergeObjFromNamespace(false)).eql({ns1:{"sub-ns2":false}})
 
+        it "merge all primitive types", ->
+            container = new isomorphicContext()
+            childContainer = container.namespace("ns1")
+            childChildContainer = childContainer.namespace("sub-ns2")
+
+            expect(container.buildMergeObjFromNamespace({num:1, str:'str', _null:null, bool:true})).eql({num:1, str:'str', _null:null, bool:true})
+            expect(childContainer.buildMergeObjFromNamespace({num:1, str:'str', _null:null, bool:true})).eql({ns1:{num:1, str:'str', _null:null, bool:true}})
+            expect(childChildContainer.buildMergeObjFromNamespace({num:1, str:'str', _null:null, bool:true})).eql({ns1:{"sub-ns2":{num:1, str:'str', _null:null, bool:true}}})
+
+            container = new isomorphicContext()
+
+            container.setProps({num:1, str:'str', _null:null, bool:true})
+            expect(container.props).eql({num:1, str:'str', _null:null, bool:true})
+
+            container = new isomorphicContext()
+            childContainer = container.namespace("ns1")
+
+            childContainer.setProps({num:1, str:'str', _null:null, bool:true})
+            expect(container.props).eql({ns1:{num:1, str:'str', _null:null, bool:true}})
+
+            container = new isomorphicContext()
+            childContainer = container.namespace("ns1")
+            childChildContainer = childContainer.namespace("sub-ns2")
+
+            childChildContainer.setProps({num:1, str:'str', _null:null, bool:true})
+            expect(container.props).eql({ns1:{"sub-ns2":{num:1, str:'str', _null:null, bool:true}}})
+
         it "merge objects always clean up after themselves", ->
             container = new isomorphicContext()
             childContainer = container.namespace("ns1")
