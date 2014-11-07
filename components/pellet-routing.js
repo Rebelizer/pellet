@@ -1,6 +1,6 @@
 var pellet = require('pellet')
   , isomorphicRender = require('../src/isomorphic-render')
-  , isomorphicMiddlewareProvider = require('../src/isomorphic-middleware-provider')
+  , isomorphicRouteRequest = require('../src/isomorphic-route-request')
   , routeTable = require('../src/route-table')
 
 pellet.routes = new routeTable(); // TODO: pass in an options for sensitive & strict vi pellet.config
@@ -37,14 +37,14 @@ pellet.addComponentRoute = function(route, component, options) {
         }
 
         // create a isomorphic req/res provider for the isomorphic render
-        renderOptions.provider = new isomorphicMiddlewareProvider(
+        renderOptions.provider = new isomorphicRouteRequest(
           routeContext.res,
           routeContext.res,
           routeContext.next);
 
       } else {
         // create a isomorphic req/res provider for the isomorphic render
-        renderOptions.provider = new isomorphicMiddlewareProvider();
+        renderOptions.provider = new isomorphicRouteRequest();
 
         // in the browser only use the serialized date once the bootstrap
         // call router  .

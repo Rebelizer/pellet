@@ -1,7 +1,7 @@
 var react = require('react')
   , utils = require('./utils')
   , observables = require('./observables.js')
-  , isomorphicCoordinator = require('./isomorphic-coordinator.js')
+  , coordinator = require('./coordinator.js')
   , pelletReactMixin = require('./pellet-react-mixin.js');
 
 /**
@@ -38,13 +38,9 @@ pellet.prototype.createClass = function(spec) {
     spec.mixins.push(pelletReactMixin);
   }
 
-  if(spec.getRouteDefaultProps) {
-    if(!spec.statics) {
-      spec.statics = {};
-    }
-
-    spec.statics.getRouteDefaultProps = spec.getRouteDefaultProps;
-    delete spec.getRouteDefaultProps;
+  if(spec.onRoute) {
+    var _onRoute = spec.onRoute;
+    delete spec.onRoute;
   }
 
   if(typeof spec.routes !== 'undefined') {
@@ -62,8 +58,11 @@ pellet.prototype.createClass = function(spec) {
   var reactClass = react.createClass(spec);
   if(allRoutes) {
     for(i in allRoutes) {
-      this.addComponentRoute(allRoutes[i], reactClass);
+      this.addComponentRoute(allRoutes[i], reactClass, {});
     }
+  }
+  if(_onRoute) {
+    reactClass.__$onRoute = _onRoute;
   }
 
   return reactClass;
@@ -130,7 +129,7 @@ pellet.prototype.getCoordinator = function(name, type) {
     throw new Error('Cannot find ' + type + ' coordinator spec');
   }
 
-  var instance = new isomorphicCoordinator();
+  var instance = new coordinator();
   utils.mixInto(instance, this.coordinatorSpecs[type], false, ['initialize', 'load']);
   instance.initialize();
 

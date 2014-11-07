@@ -1,4 +1,4 @@
-function middlewareProvider (req, res, next) {
+function isomorphicRouteRequest (req, res, next) {
   this.req = req;
   this.res = res;
   this.next = next;
@@ -6,7 +6,7 @@ function middlewareProvider (req, res, next) {
   this.headTags = [];
 }
 
-middlewareProvider.prototype = {
+isomorphicRouteRequest.prototype = {
   status: function(code) {
     if(process.env.BROWSER_ENV) {
       return;
@@ -147,4 +147,4 @@ middlewareProvider.prototype = {
   }
 };
 
-module.exports = middlewareProvider;
+module.exports = isomorphicRouteRequest;

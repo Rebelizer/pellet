@@ -4,12 +4,12 @@ chai = require "chai"
 chai.should()
 expect = chai.expect
 
-isomorphicContext = require "../src/isomorphic-context.js"
+isomorphicRouteContext = require "../src/isomorphic-route-context.js"
 
 describe "Isomorphic Context", ->
     describe "namespace", ->
         it "ignore empty namespace switching", ->
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace()
 
             expect(childContainer).to.equal(container)
@@ -26,7 +26,7 @@ describe "Isomorphic Context", ->
 
             # make sure the namespace does not change any of the parent value
             # make sure the parentContext is updated and our path is correct now
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace("ns1")
             childChildContainer = childContainer.namespace("sub-ns2")
 
@@ -56,7 +56,7 @@ describe "Isomorphic Context", ->
             expect(childChildContainer.insertNode.root).not.equal(container.insertNode.root)
 
         it "can create merge objects using current namespace", ->
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace("ns1")
             childChildContainer = childContainer.namespace("sub-ns2")
             childChildChildContainer = childChildContainer.namespace("sub-ns3")
@@ -87,7 +87,7 @@ describe "Isomorphic Context", ->
             expect(childChildChildContainer.insertNode.root).eql({ns1:{"sub-ns2":{"sub-ns3":{test:true}}}})
 
         it "empty merge objects", ->
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace("ns1")
             childChildContainer = childContainer.namespace("sub-ns2")
 
@@ -106,7 +106,7 @@ describe "Isomorphic Context", ->
             expect(childChildContainer.buildMergeObjFromNamespace(false)).eql({ns1:{"sub-ns2":false}})
 
         it "merge all primitive types", ->
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace("ns1")
             childChildContainer = childContainer.namespace("sub-ns2")
 
@@ -114,18 +114,18 @@ describe "Isomorphic Context", ->
             expect(childContainer.buildMergeObjFromNamespace({num:1, str:'str', _null:null, bool:true})).eql({ns1:{num:1, str:'str', _null:null, bool:true}})
             expect(childChildContainer.buildMergeObjFromNamespace({num:1, str:'str', _null:null, bool:true})).eql({ns1:{"sub-ns2":{num:1, str:'str', _null:null, bool:true}}})
 
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
 
             container.setProps({num:1, str:'str', _null:null, bool:true})
             expect(container.props).eql({num:1, str:'str', _null:null, bool:true})
 
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace("ns1")
 
             childContainer.setProps({num:1, str:'str', _null:null, bool:true})
             expect(container.props).eql({ns1:{num:1, str:'str', _null:null, bool:true}})
 
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace("ns1")
             childChildContainer = childContainer.namespace("sub-ns2")
 
@@ -133,7 +133,7 @@ describe "Isomorphic Context", ->
             expect(container.props).eql({ns1:{"sub-ns2":{num:1, str:'str', _null:null, bool:true}}})
 
         it "merge objects always clean up after themselves", ->
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace("ns1")
             childChildContainer = childContainer.namespace("sub-ns2")
             childChildChildContainer = childChildContainer.namespace("sub-ns3")
@@ -200,7 +200,7 @@ describe "Isomorphic Context", ->
             expect(childChildChildContainer.insertNode.root).eql({ns1:{"sub-ns2":{"sub-ns3":"test"}}})
 
         it "merge objects allow deep objects", ->
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace("ns1")
             childChildContainer = childContainer.namespace("sub-ns2")
             childChildChildContainer = childChildContainer.namespace("sub-ns3")
@@ -227,7 +227,7 @@ describe "Isomorphic Context", ->
 
     describe "set property", ->
         it "from root namespace", ->
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
 
             container.setProps({field1:"f1"})
             container.setProps({field2:"f2"})
@@ -247,7 +247,7 @@ describe "Isomorphic Context", ->
             expect(container.setProps.bind(container, (undefined))).to.throw("Cannot merge non objects to root namespace")
 
         it "from child namespace", ->
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
             childContainer = container.namespace("ns1")
 
             childContainer.setProps({field1:"f1"})
@@ -273,7 +273,7 @@ describe "Isomorphic Context", ->
 
     describe "set serialize props", ->
         it "props get set also", ->
-            container = new isomorphicContext()
+            container = new isomorphicRouteContext()
 
             container.set({field1:"f1"})
             container.setProps({field2:"f2"})

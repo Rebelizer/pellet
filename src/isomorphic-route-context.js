@@ -8,7 +8,7 @@ var pellet
  * @param initData
  * @param middlewareProvider
  */
-function isomorphicContext(initData, middlewareProvider) {
+function isomorphicRouteContext(initData, middlewareProvider) {
   this.provider = middlewareProvider;
   this.serialize = {};
   this.props = {};
@@ -55,19 +55,19 @@ function isomorphicContext(initData, middlewareProvider) {
 }
 
 // HELPER FUNCTIONS - wrappers around
-isomorphicContext.prototype.LINK = 'link';
-isomorphicContext.prototype.META = 'meta';
-isomorphicContext.prototype.TITLE = 'title';
+isomorphicRouteContext.prototype.LINK = 'link';
+isomorphicRouteContext.prototype.META = 'meta';
+isomorphicRouteContext.prototype.TITLE = 'title';
 
-isomorphicContext.prototype.addToHead = function(field, val) {
+isomorphicRouteContext.prototype.addToHead = function(field, val) {
   this.provider.addToHead(field, val);
 };
 
-isomorphicContext.prototype.setTitle = function(title) {
+isomorphicRouteContext.prototype.setTitle = function(title) {
   this.provider.addToHead(this.TITLE, title);
 };
 
-isomorphicContext.prototype.setCanonical = function(url) {
+isomorphicRouteContext.prototype.setCanonical = function(url) {
   this.provider.addToHead(this.LINK, {rel:'canonical', href:url});
 };
 
@@ -80,7 +80,7 @@ isomorphicContext.prototype.setCanonical = function(url) {
  * @param name
  * @returns {*}
  */
-isomorphicContext.prototype.getCoordinator = function(name, type, autoSerialize) {
+isomorphicRouteContext.prototype.getCoordinator = function(name, type, autoSerialize) {
   if(this.coordinators[name]) {
     return this.coordinators[name];
   }
@@ -102,7 +102,7 @@ isomorphicContext.prototype.getCoordinator = function(name, type, autoSerialize)
  *
  * @returns {Function}
  */
-isomorphicContext.prototype.serializeCoordinator = function(name, filterFn) {
+isomorphicRouteContext.prototype.serializeCoordinator = function(name, filterFn) {
   // ignore serializetion on client
   if(process.env.SERVER_ENV) {
     var coordinator;
@@ -134,7 +134,7 @@ isomorphicContext.prototype.serializeCoordinator = function(name, filterFn) {
  * @param fromRoot
  * @returns {*}
  */
-isomorphicContext.prototype.namespace = function(namespace, fromRoot) {
+isomorphicRouteContext.prototype.namespace = function(namespace, fromRoot) {
   // ignore if no change in namespace
   if(!namespace && !fromRoot) {
     return this;
@@ -173,7 +173,7 @@ isomorphicContext.prototype.namespace = function(namespace, fromRoot) {
  * @param obj
  * @returns {*}
  */
-isomorphicContext.prototype.buildMergeObjFromNamespace = function(obj) {
+isomorphicRouteContext.prototype.buildMergeObjFromNamespace = function(obj) {
   if(!this.insertNode.key) {
     return obj;
   }
@@ -182,7 +182,7 @@ isomorphicContext.prototype.buildMergeObjFromNamespace = function(obj) {
   return this.insertNode.root;
 };
 
-isomorphicContext.prototype.setProps = function(obj) {
+isomorphicRouteContext.prototype.setProps = function(obj) {
   if(this.insertNode.key === false && typeof obj !== 'object') {
     throw new Error('Cannot merge non objects to root namespace')
   }
@@ -193,7 +193,7 @@ isomorphicContext.prototype.setProps = function(obj) {
   utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
 };
 
-isomorphicContext.prototype.setInitialState = function(obj) {
+isomorphicRouteContext.prototype.setInitialState = function(obj) {
   if(typeof obj !== 'object') {
     throw new Error('Cannot merge non objects to context state')
   }
@@ -207,7 +207,7 @@ isomorphicContext.prototype.setInitialState = function(obj) {
  * @param coordinator
  * @param obj
  */
-isomorphicContext.prototype.set = function(coordinator, obj) {
+isomorphicRouteContext.prototype.set = function(coordinator, obj) {
 
   if(typeof obj !== 'undefined' && typeof(coordinator) === 'string' && this.coordinators[coordinator]) {
     var data;
@@ -233,7 +233,7 @@ isomorphicContext.prototype.set = function(coordinator, obj) {
   utils.objectUnion([mergeObj], this.serialize, {deleteUndefined:true});
 };
 
-isomorphicContext.prototype.toJSON = function() {
+isomorphicRouteContext.prototype.toJSON = function() {
   try {
     return JSON.stringify({
       props: this.serialize,
@@ -245,7 +245,7 @@ isomorphicContext.prototype.toJSON = function() {
   }
 };
 
-isomorphicContext.prototype.release = function() {
+isomorphicRouteContext.prototype.release = function() {
   for(var i in this.coordinators) {
     this.coordinators[i].release();
   }
@@ -254,4 +254,4 @@ isomorphicContext.prototype.release = function() {
 };
 
 // todo: think about adding caching control so content can tell the system if we can cache it and how long and for what... ie. cache for all users or only us vs fr etc. This will let use cache local copys
-module.exports = isomorphicContext;
+module.exports = isomorphicRouteContext;

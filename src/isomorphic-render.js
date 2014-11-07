@@ -1,6 +1,6 @@
 var react = require('react')
   , utils = require('./utils')
-  , isomorphicContext = require('./isomorphic-context.js');
+  , isomorphicRouteContext = require('./isomorphic-route-context.js');
 
 // options.context options.mode=MODE_HTML, options.dom =
 
@@ -67,17 +67,17 @@ var isomorphicRender = module.exports = {
 
     var componentWithContext;
 
-    // get serialize state if component supports the getRouteDefaultProps
-    if (component.getRouteDefaultProps) {
+    // get the serialize state if component has a onRoute function
+    if (component.__$onRoute) {
 
       try {
-        var ctx = new isomorphicContext(options.context, options.provider);
+        var ctx = new isomorphicRouteContext(options.context, options.provider);
 
         if(options.props) {
           ctx.setProps(options.props);
         }
 
-        component.getRouteDefaultProps(ctx, function (err) {
+        component.__$onRoute.call(ctx, {}, function (err) {
           if(err) {
             return next(err);
           }
