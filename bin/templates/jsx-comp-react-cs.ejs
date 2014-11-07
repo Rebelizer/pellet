@@ -5,8 +5,8 @@ pellet = require "pellet"
 compo = pellet.components
 
 module.exports = <%- name %>Component = pellet.createClass
-  #getRouteDefaultProps: (ctx, next) ->
-  #  ctx.setProps myData: "loaded from your API"
+  #onRoute: (options, next) ->
+  #  @setProps myData: "loaded from your API"
   #  next()
 
   #getInitialState: ()->
