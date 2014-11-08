@@ -112,9 +112,7 @@ pellet.prototype.loadManifestComponents = function(manifest) {
  * @param options
  * @returns {*}
  */
-pellet.prototype.getCoordinator = function(name, type) {
-  var instance;
-
+pellet.prototype.getCoordinator = function(name, type, options) {
   if(!name) {
     throw new Error('name is required');
   }
@@ -123,17 +121,39 @@ pellet.prototype.getCoordinator = function(name, type) {
     return instance;
   }
 
-  type = type || name;
+  if(typeof type !== 'string') {
+    type = name;
+    if(typeof type === 'object') {
+      options = type;
+    }
+  }
+
+  // now create a global coordinator
+  var instance = this.createCoordinator(type, options);
+  this.coordinators[name] = instance;
+
+  return instance;
+};
+
+/**
+ *
+ * @param key
+ * @param isGlobal
+ * @param options
+ * @returns {*}
+ */
+pellet.prototype.createCoordinator = function(type, options) {
+  if(!type) {
+    throw new Error('type is required');
+  }
 
   if(!this.coordinatorSpecs[type]) {
     throw new Error('Cannot find ' + type + ' coordinator spec');
   }
 
   var instance = new coordinator();
-  utils.mixInto(instance, this.coordinatorSpecs[type], false, ['initialize', 'load']);
-  instance.initialize();
-
-  this.coordinators[name] = instance;
+  utils.mixInto(instance, this.coordinatorSpecs[type], false, ['initialize', 'load', 'release']);
+  instance.initialize(options);
 
   return instance;
 };
@@ -145,7 +165,7 @@ pellet.prototype.getCoordinator = function(name, type) {
  * @param name
  * @param fn
  */
-pellet.prototype.registerCoordinator = function(name, spec) {
+pellet.prototype.registerCoordinatorSpec = function(name, spec) {
   if(!spec || !name) {
     throw new Error('Spec and name are required for all coordinators.');
   }
@@ -245,4 +265,6 @@ if(process.env.SERVER_ENV) {
 }
 else if(process.env.BROWSER_ENV) {
   module.exports = window.__pellet__ref = new pellet();
+} else {
+  module.exports = new pellet();
 }
