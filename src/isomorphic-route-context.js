@@ -1,4 +1,5 @@
 var pellet
+  , coordinator = require('./coordinator')
   , utils = require('./utils');
 
 /**
@@ -12,7 +13,7 @@ function isomorphicRouteContext(initData, middlewareProvider) {
   this.provider = middlewareProvider;
   this.serialize = {};
   this.props = {};
-  this.coordinators = {};
+  this.rootCoordinator = new coordinator();
 
   // use the require('pellet') to fix a webpack bug
   // if we require at head of this files pellet is not
@@ -71,61 +72,12 @@ isomorphicRouteContext.prototype.setCanonical = function(url) {
   this.provider.addToHead(this.LINK, {rel:'canonical', href:url});
 };
 
-/**
- * Get coordinator for this context
- *
- * Use this to automatically get a coordinator that is wraped
- * for...
- *
- * @param name
- * @returns {*}
- */
-isomorphicRouteContext.prototype.getCoordinator = function(name, type, autoSerialize) {
-  if(this.coordinators[name]) {
-    return this.coordinators[name];
-  }
+isomorphicRouteContext.prototype.event = function(name) {
+  return this.rootCoordinator.event(name);
+}
 
-  var coordinator = pellet.getCoordinator(name, type);
-  if(coordinator) {
-    coordinator = coordinator.createContext(this);
-    this.coordinators[name] = coordinator;
-  }
-
-  if(autoSerialize) {
-    this.serializeCoordinator(name);
-  }
-
-  return coordinator;
-};
-
-/**
- *
- * @returns {Function}
- */
-isomorphicRouteContext.prototype.serializeCoordinator = function(name, filterFn) {
-  // ignore serializetion on client
-  if(process.env.SERVER_ENV) {
-    var coordinator;
-    var _this = this;
-
-    if (!(coordinator = this.coordinators[name])) {
-      console.error('Cannot serialize', name, 'because it has not been defined yet');
-      throw new Error('Cannot serialize undefined coordinator')
-    }
-
-    if (!filterFn) {
-      filterFn = function (details) {
-        return (details.ctx !== _this);
-      };
-    }
-
-    var serializeEvent = coordinator.getEvent("serialize");
-    serializeEvent.filter(filterFn).on(function (data) {
-      if (data.details && data.details.type) {
-        _this.set(name, data.details);
-      }
-    });
-  }
+isomorphicRouteContext.prototype.coordinator = function(name, type, options) {
+  return this.rootCoordinator.coordinator(name, type, options);
 }
 
 /**
@@ -255,3 +207,49 @@ isomorphicRouteContext.prototype.release = function() {
 
 // todo: think about adding caching control so content can tell the system if we can cache it and how long and for what... ie. cache for all users or only us vs fr etc. This will let use cache local copys
 module.exports = isomorphicRouteContext;
+
+
+/*
+isomorphicRouteContext.prototype.getCoordinator = function(name, type, autoSerialize) {
+  if(this.coordinators[name]) {
+    return this.coordinators[name];
+  }
+
+  var coordinator = pellet.getCoordinator(name, type);
+  if(coordinator) {
+    coordinator = coordinator.createContext(this);
+    this.coordinators[name] = coordinator;
+  }
+
+  if(autoSerialize) {
+    this.serializeCoordinator(name);
+  }
+
+  return coordinator;
+};
+
+isomorphicRouteContext.prototype.serializeCoordinator = function(name, filterFn) {
+  // ignore serializetion on client
+  if(process.env.SERVER_ENV) {
+    var coordinator;
+    var _this = this;
+
+    if (!(coordinator = this.coordinators[name])) {
+      console.error('Cannot serialize', name, 'because it has not been defined yet');
+      throw new Error('Cannot serialize undefined coordinator')
+    }
+
+    if (!filterFn) {
+      filterFn = function (details) {
+        return (details.ctx !== _this);
+      };
+    }
+
+    var serializeEvent = coordinator.getEvent("serialize");
+    serializeEvent.filter(filterFn).on(function (data) {
+      if (data.details && data.details.type) {
+        _this.set(name, data.details);
+      }
+    });
+  }
+}*/

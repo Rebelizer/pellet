@@ -1,60 +1,82 @@
 var observables = require('./observables.js');
 
-/**
- *
- * @param name
- */
-function coordinator() {
-  this.actions = observables.emitter();
-  this.serialize = observables.emitter();
+function coordinator(path, type, id) {
+  this._emitters = {};
+  this._releaseList = {};
+
+  this._id = {id:id||this};
+
+  if(path) {
+    this._id.path = path;
+  }
+
+  if(type) {
+    this._id.type = type;
+  }
 }
 
-/**
- * creates a new context over coordinator
- *
- * @param context
- */
-coordinator.prototype.createContext = function(context) {
+coordinator.prototype.createChildCoordinator = function() {
   var proxy = Object.create(this);
-  proxy._context = context;
-  proxy._autoReleaseObservables = [];
+  proxy._releaseList = {};
+  this._releaseList['_$' + Object.keys(this._releaseList).length] = proxy;
+
   return proxy;
 }
 
-coordinator.prototype.getEvent = function(name, isContextFiltered) {
-  if(!name || !this[name]) {
-    throw new Error('invalid event')
+coordinator.prototype.event = function(name) {
+  var emitter, autoRelease;
+
+  if(autoRelease = this._releaseList[name]) {
+    if(autoRelease instanceof observables.autoRelease) {
+      return autoRelease;
+    }
+
+    // throw because the key already exists and is not an emitter. this is most
+    // likely because we have a coordinator with that name or name is _$..
+    throw new Error('Conflict with existing key');
   }
 
-  if(!(this[name] instanceof this.actions.constructor)) {
-    throw new Error('event must be an observable');
+  emitter = this._emitters[name];
+  if(!emitter) {
+    emitter = this._emitters[name] = observables.emitter();
   }
 
-  var autoRelease = new observables.autoRelease(this[name]);
-  if(this._autoReleaseObservables) {
-    this._autoReleaseObservables.push(autoRelease);
-  }
-
-  if(isContextFiltered) {
-    var _this = this;
-    autoRelease = autoRelease.on(function(details) {
-      return (details.ctx !== _this);
-    });
-  }
+  autoRelease = new observables.autoRelease(emitter, this._id);
+  this._releaseList[name] = autoRelease;
 
   return autoRelease;
 }
 
-coordinator.prototype.release = function() {
-  if(this._autoReleaseObservables) {
-    for(var i in this._autoReleaseObservables) {
-      this._autoReleaseObservables[i].release();
+coordinator.prototype.coordinator = function(name, type, options) {
+  var instance = this._releaseList[name];
+  if(instance) {
+    if(instance instanceof coordinator) {
+      return instance;
     }
 
-    this._autoReleaseObservables = [];
+    // throw because the key already exists and is not an coordinator. this is most
+    // likely because we have a event with that name or name is _$..
+    throw new Error('Conflict with existing key');
   }
+
+  // NOTE: require('./pellet') is required to work around a webpack load order
+  // pellet.js loads this file so we need to lazy get pellet to have full init
+  // version.
+  instance = require('./pellet').getCoordinator(name, type, options);
+  this._releaseList[name] = instance = instance.createChildCoordinator();
+
+  return instance;
 }
 
-coordinator.prototype.load = function() {}
+/**
+ * release only the observables but the emit will remain
+ */
+coordinator.prototype.release = function() {
+  for(var i in this._releaseList) {
+    this._releaseList[i].release();
+  }
+
+  this._releaseList = {};
+}
 
 module.exports = coordinator;
