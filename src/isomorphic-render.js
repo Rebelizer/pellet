@@ -71,13 +71,13 @@ var isomorphicRender = module.exports = {
     if (component.__$onRoute) {
 
       try {
-        var ctx = new isomorphicRouteContext(options.context, options.provider);
+        var context = new isomorphicRouteContext(options.context, options.provider);
 
         if(options.props) {
-          ctx.setProps(options.props);
+          context.setProps(options.props);
         }
 
-        component.__$onRoute.call(ctx, {}, function (err) {
+        component.__$onRoute.call(context, {}, function (err) {
           if(err) {
             return next(err);
           }
@@ -86,7 +86,7 @@ var isomorphicRender = module.exports = {
             componentWithContext = react.withContext({
               locales: options.locales
             }, function () {
-              return component(ctx.props);
+              return component(context.props);
             });
           } catch(ex) {
             next(ex);
@@ -96,14 +96,14 @@ var isomorphicRender = module.exports = {
           // wait a tick so all kefir emit get processed for the
           // context serialization.
           setTimeout(function() {
-            ctx.release();
-            renderReactComponent(componentWithContext, ctx);
+            context.release();
+            renderReactComponent(componentWithContext, context);
           }, 0);
         });
       } catch(ex) {
         console.error('Error in trying to render component because:', ex.message);
 
-        ctx.release();
+        context.release();
         next(ex);
       }
     } else {
