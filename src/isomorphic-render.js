@@ -71,17 +71,31 @@ var isomorphicRender = module.exports = {
     if (component.__$onRoute) {
 
       try {
+        // options.context is the serialized data from the server is any and the
+        // options.provider is isomorphic req/res to let http status, etc get set
+
+        // create a context/coordinator to run the render throw. its a coordinator because
+        // it makes is easy to track and auto release all event emitters
         var context = new isomorphicRouteContext(options.context, options.provider);
 
+        // update the context props because we got them in our options
+        // the route function sets things like originalUrl, params, etc.
+        // so the __$onRoute can know about the route that was triggered
         if(options.props) {
           context.setProps(options.props);
         }
 
+        // now run the pre-flight code before asking react to render
+        // this allows for async code to be executed and tracks any
+        // data that needs to get serialized to the client.
         component.__$onRoute.call(context, {}, function (err) {
           if(err) {
             return next(err);
           }
 
+          // make sure the react context has locales to pick the
+          // rendered language. Then render the element with the
+          // props from the __$onRoute.
           try {
             componentWithContext = react.withContext({
               locales: options.locales
@@ -114,13 +128,15 @@ var isomorphicRender = module.exports = {
         }, function () {
           var props;
 
-          if(options.context && options.props && options.context.props) {
-            props = {};
-            utils.objectUnion([options.context.props, options.props], props);
+          if(options.context && options.context.props) {
+            if(options.props) {
+              props = {};
+              utils.objectUnion([options.context.props, options.props], props);
+            } else {
+              props = options.context.props;
+            }
           } else if(options.props) {
             props = options.props;
-          } else if(options.context && options.context.props) {
-            props = options.context.props;
           }
 
           return component(props);
