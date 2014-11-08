@@ -107,12 +107,16 @@ pellet.prototype.loadManifestComponents = function(manifest) {
 
 /**
  *
+ * NOTE: be careful with the options because once initialized
+ * we never create the coordinator so for each unique name the options
+ * need to match!
+ *
  * @param key
  * @param isGlobal
  * @param options
  * @returns {*}
  */
-pellet.prototype.getCoordinator = function(name, type, options) {
+pellet.prototype.getCoordinator = function(name, type) {
   if(!name) {
     throw new Error('name is required');
   }
@@ -129,7 +133,7 @@ pellet.prototype.getCoordinator = function(name, type, options) {
   }
 
   // now create a global coordinator
-  var instance = this.createCoordinator(type, options);
+  var instance = this.createCoordinator(type);
   this.coordinators[name] = instance;
 
   return instance;
@@ -142,7 +146,7 @@ pellet.prototype.getCoordinator = function(name, type, options) {
  * @param options
  * @returns {*}
  */
-pellet.prototype.createCoordinator = function(type, options) {
+pellet.prototype.createCoordinator = function(type) {
   if(!type) {
     throw new Error('type is required');
   }
@@ -153,7 +157,7 @@ pellet.prototype.createCoordinator = function(type, options) {
 
   var instance = new coordinator();
   utils.mixInto(instance, this.coordinatorSpecs[type], false, ['initialize', 'load', 'release']);
-  instance.initialize(options);
+  instance.initialize();
 
   return instance;
 };

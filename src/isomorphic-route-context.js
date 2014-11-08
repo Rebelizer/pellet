@@ -7,10 +7,10 @@ var pellet
  *
  * @class
  * @param initData
- * @param middlewareProvider
+ * @param provider
  */
-function isomorphicRouteContext(initData, middlewareProvider) {
-  this.provider = middlewareProvider;
+function isomorphicRouteContext(initData, provider) {
+  this.provider = provider;
   this.serialize = {};
   this.props = {};
   this.rootCoordinator = new coordinator();
@@ -31,6 +31,7 @@ function isomorphicRouteContext(initData, middlewareProvider) {
     if(initData.coordinatorState) {
       this.coordinatorState = initData.coordinatorState;
       for(var i in this.coordinatorState) {
+        // todo: we need a way to pass in the type, options to pellet.getCoordinator
         var _coordinator = pellet.getCoordinator(i);
         if(_coordinator) {
           _coordinator.load(this.coordinatorState[i]);
@@ -39,7 +40,6 @@ function isomorphicRouteContext(initData, middlewareProvider) {
     } else {
       this.coordinatorState = {};
     }
-
   } else {
     this.coordinatorState = {};
   }
@@ -72,12 +72,14 @@ isomorphicRouteContext.prototype.setCanonical = function(url) {
   this.provider.addToHead(this.LINK, {rel:'canonical', href:url});
 };
 
+// HELPER FUNCTIONS - wrappers around coordinator
 isomorphicRouteContext.prototype.event = function(name) {
   return this.rootCoordinator.event(name);
 }
 
-isomorphicRouteContext.prototype.coordinator = function(name, type, options) {
-  return this.rootCoordinator.coordinator(name, type, options);
+isomorphicRouteContext.prototype.coordinator = function(name, type) {
+  // todo: need to save the name/type so we can send to client
+  return this.rootCoordinator.coordinator(name, type);
 }
 
 /**
@@ -97,7 +99,7 @@ isomorphicRouteContext.prototype.namespace = function(namespace, fromRoot) {
     , head = root
     , newCtx = Object.create(this);
 
-  // trim out trailing "." and clean up duplicate "..." before geting path
+  // trim out trailing "." and clean up duplicate "..." before getting path
   path = (fromRoot ? namespace : (this.insertAt + '.' + namespace));
   path = path.trim().replace(/\.+/g, '.').replace(/(^\.)|(\.$)/g, '');
 
@@ -198,11 +200,7 @@ isomorphicRouteContext.prototype.toJSON = function() {
 };
 
 isomorphicRouteContext.prototype.release = function() {
-  for(var i in this.coordinators) {
-    this.coordinators[i].release();
-  }
-
-  this.coordinators = [];
+  this.rootCoordinator.release();
 };
 
 // todo: think about adding caching control so content can tell the system if we can cache it and how long and for what... ie. cache for all users or only us vs fr etc. This will let use cache local copys

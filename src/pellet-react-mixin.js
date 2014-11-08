@@ -1,5 +1,4 @@
 var react = require('react')
-  , isomorphicRouteContext = require('./isomorphic-route-context.js');
 
 var spec = {
   locales: react.PropTypes.oneOfType([
