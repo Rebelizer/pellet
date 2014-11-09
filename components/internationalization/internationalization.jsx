@@ -10,6 +10,13 @@ var spec = {
   missing: react.PropTypes.string
 };
 
+var _intl;
+if(process.env.SERVER_ENV) {
+  _intl = require('Intl');
+} else {
+  _intl = window.Intl;
+}
+
 function getTranslation(locales, props) {
 
   var state = {
@@ -68,6 +75,14 @@ function getTranslation(locales, props) {
  */
 pellet.intl = function(scope, options) {
   return getTranslation(scope.props.locales || scope.context.locales || scope, options).translation;
+}
+
+pellet.intl.formatNumber = function(scope, number) {
+  return _intl.NumberFormat(scope.props.locales || scope.context.locales).format(number);
+}
+
+pellet.intl.formatDateTime = function(scope, options) {
+  return _intl.DateTimeFormat(scope.props.locales || scope.context.locales).format(options);
 }
 
 module.exports = pellet.createClass({
