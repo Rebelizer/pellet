@@ -1,5 +1,6 @@
 var react = require('react')
   , utils = require('./utils')
+  , coordinator = require('./coordinator.js')
   , isomorphicRouteContext = require('./isomorphic-route-context.js');
 
 // options.context options.mode=MODE_HTML, options.dom =
@@ -98,6 +99,7 @@ var isomorphicRender = module.exports = {
           // props from the __$onRoute.
           try {
             componentWithContext = react.withContext({
+              rootCoordinator: new coordinator(), // we could be smart and only for the client move rootCoordinator from context.rootCoordinator
               locales: options.locales
             }, function () {
               return component(context.props);
@@ -124,6 +126,7 @@ var isomorphicRender = module.exports = {
 
       try {
         componentWithContext = react.withContext({
+          rootCoordinator: new coordinator(),
           locales: options.locales
         }, function () {
           var props;

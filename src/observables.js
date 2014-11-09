@@ -78,16 +78,25 @@ autoRelease.prototype.end = function() {
   return this;
 }
 
-autoRelease.prototype.on = function(fn, type) {
-  if(type === kefir.AUTO_RELEASE_ENDED) {
-    this.refEnd.push(fn);
-    this.__obs.onEnd(fn);
-  } else if(type === kefir.AUTO_RELEASE_BOTH) {
-    this.refBoth.push(fn);
-    this.__obs.onAny(fn);
+autoRelease.prototype.on = function(fn, rawEvent, type) {
+  var _fn;
+  if(!rawEvent) {
+    _fn = function(data) {
+      return fn(data.event);
+    }
   } else {
-    this.refValue.push(fn);
-    this.__obs.onValue(fn);
+    _fn = fn;
+  }
+
+  if(type === kefir.AUTO_RELEASE_ENDED) {
+    this.refEnd.push(_fn);
+    this.__obs.onEnd(_fn);
+  } else if(type === kefir.AUTO_RELEASE_BOTH) {
+    this.refBoth.push(_fn);
+    this.__obs.onAny(_fn);
+  } else {
+    this.refValue.push(_fn);
+    this.__obs.onValue(_fn);
   }
 
   return this;

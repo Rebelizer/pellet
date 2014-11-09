@@ -61,6 +61,7 @@ pellet.prototype.createClass = function(spec) {
       this.addComponentRoute(allRoutes[i], reactClass, {});
     }
   }
+
   if(_onRoute) {
     reactClass.__$onRoute = _onRoute;
   }
