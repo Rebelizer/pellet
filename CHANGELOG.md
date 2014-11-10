@@ -1,3 +1,11 @@
+### 0.0.19 (2014-11-09)
+
+
+#### Bug Fixes
+
+* change the internationalization component key props to index (because key is res ([9aa3fdb8](https://github.com/Rebelizer/pellet/commit/9aa3fdb83f0cf8a6ec166c47add1cad1e05e10a5))
+
+
 ### 0.0.18 (2014-11-09)
 
 
