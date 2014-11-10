@@ -1,7 +1,7 @@
 var react = require('react')
   , utils = require('./utils')
   , coordinator = require('./coordinator.js')
-  , isomorphicRouteContext = require('./isomorphic-route-context.js');
+  , isomorphicConstructionContext = require('./isomorphic-construction-context.js');
 
 // options.context options.mode=MODE_HTML, options.dom =
 
@@ -77,7 +77,7 @@ var isomorphicRender = module.exports = {
 
         // create a context/coordinator to run the render throw. its a coordinator because
         // it makes is easy to track and auto release all event emitters
-        var context = new isomorphicRouteContext(options.context, options.provider);
+        var context = new isomorphicConstructionContext(options.context, options.provider);
 
         // update the context props because we got them in our options
         // the route function sets things like originalUrl, params, etc.

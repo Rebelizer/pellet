@@ -4,7 +4,7 @@ chai = require "chai"
 chai.should()
 expect = chai.expect
 
-isomorphicRouteContext = require "../src/coordinator.js"
+isomorphicConstructionContext = require "../src/coordinator.js"
 observables = require "../src/observables.js"
 pellet = require "../src/pellet.js"
 
@@ -17,7 +17,7 @@ pellet.registerCoordinatorSpec "testCoordinator",
 describe "Coordinator", ->
     describe "event", ->
         it "create event ondemand", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
 
           foobarE = coordinator.event("foobar")
 
@@ -25,7 +25,7 @@ describe "Coordinator", ->
           expect(coordinator._releaseList).to.deep.equal({foobar:foobarE})
 
         it "getting an event (in a coordinator) always return identical reference", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
 
           foobarE = coordinator.event("foobar")
           expect(foobarE).to.be.an.instanceof(observables.autoRelease)
@@ -38,7 +38,7 @@ describe "Coordinator", ->
           expect(coordinator._releaseList).to.deep.equal({foobar:foobarE})
 
         it "getting an event (in a child coordinator) always return wrapped reference", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
           childCoordinator = coordinator.createChildCoordinator()
 
           foobarE = coordinator.event("foobar")
@@ -53,7 +53,7 @@ describe "Coordinator", ->
           expect(childCoordinator._releaseList).to.deep.equal({foobar:foobarE_2})
 
         it "allow multiple events (by name)", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
 
           foobarE = coordinator.event("foobar")
           expect(foobarE).to.be.an.instanceof(observables.autoRelease)
@@ -66,7 +66,7 @@ describe "Coordinator", ->
           expect(coordinator._releaseList).to.deep.equal({foobar:foobarE, foobar2:foobarE_2})
 
         it "throw exception if event trying to overwrite existing key of wrong type", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
           childCoordinator = coordinator.createChildCoordinator()
 
           expect(coordinator.event.bind(coordinator, "_$0")).to.throw('Conflict with existing key')
@@ -80,7 +80,7 @@ describe "Coordinator", ->
           expect(coordinator.event.bind(coordinator, "foobar2")).to.throw('Conflict with existing key')
 
         it "track emits and auto release", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
 
           cbCount = 0
 
@@ -103,7 +103,7 @@ describe "Coordinator", ->
           expect(cbCount).to.equal(3)
 
         it "on release do not destroy the emitter", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
 
           cbCount = 0
           cbCount_raw = 0
@@ -134,7 +134,7 @@ describe "Coordinator", ->
           expect(cbCount_raw).to.equal(4)
 
         it "child share parent events", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
           childCoordinator = coordinator.createChildCoordinator()
 
           cbCount = 0
@@ -167,7 +167,7 @@ describe "Coordinator", ->
           expect(propCount).to.equal(3)
 
         it "child coordinator share event with parent", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
           childCoordinator = coordinator.createChildCoordinator()
 
           cbCount = 0
@@ -193,7 +193,7 @@ describe "Coordinator", ->
         # child coordinator do not share properies! ie if you update a child it will not update parent!
 
         it "child coordinator define event on root coordinator", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
           childCoordinator = coordinator.createChildCoordinator()
 
           cbCount = 0
@@ -216,7 +216,7 @@ describe "Coordinator", ->
           expect(cbCount_2).to.equal(2)
 
         it "child coordinator track auto release separately", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
           childCoordinator = coordinator.createChildCoordinator()
 
           cbCount = 0
@@ -271,7 +271,7 @@ describe "Coordinator", ->
           expect(cbCount_2).to.equal(5)
 
         it "track auto release via pellet register coordinator", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
 
           cbCount = 0
           cbCount_2 = 0
@@ -291,7 +291,7 @@ describe "Coordinator", ->
           expect(cbCount).to.equal(1)
 
         it "pellet register coordinator are independent to all coordinator", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
           childCoordinator = coordinator.createChildCoordinator()
 
           testCoordinator = coordinator.coordinator("foobar", "testCoordinator")
@@ -300,7 +300,7 @@ describe "Coordinator", ->
           expect(testCoordinator).to.not.equal(testCoordinator_2)
 
         it "pellet register coordinator auto relaese is tracked", ->
-          coordinator = new isomorphicRouteContext()
+          coordinator = new isomorphicConstructionContext()
           childCoordinator = coordinator.createChildCoordinator()
 
           testCoordinator = coordinator.coordinator("foobar", "testCoordinator")

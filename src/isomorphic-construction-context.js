@@ -9,7 +9,7 @@ var pellet
  * @param initData
  * @param provider
  */
-function isomorphicRouteContext(initData, provider) {
+function isomorphicConstructionContext(initData, provider) {
   this.provider = provider;
   this.serialize = {};
   this.props = {};
@@ -56,28 +56,28 @@ function isomorphicRouteContext(initData, provider) {
 }
 
 // HELPER FUNCTIONS - wrappers around
-isomorphicRouteContext.prototype.LINK = 'link';
-isomorphicRouteContext.prototype.META = 'meta';
-isomorphicRouteContext.prototype.TITLE = 'title';
+isomorphicConstructionContext.prototype.LINK = 'link';
+isomorphicConstructionContext.prototype.META = 'meta';
+isomorphicConstructionContext.prototype.TITLE = 'title';
 
-isomorphicRouteContext.prototype.addToHead = function(field, val) {
+isomorphicConstructionContext.prototype.addToHead = function(field, val) {
   this.provider.addToHead(field, val);
 };
 
-isomorphicRouteContext.prototype.setTitle = function(title) {
+isomorphicConstructionContext.prototype.setTitle = function(title) {
   this.provider.addToHead(this.TITLE, title);
 };
 
-isomorphicRouteContext.prototype.setCanonical = function(url) {
+isomorphicConstructionContext.prototype.setCanonical = function(url) {
   this.provider.addToHead(this.LINK, {rel:'canonical', href:url});
 };
 
 // HELPER FUNCTIONS - wrappers around coordinator
-isomorphicRouteContext.prototype.event = function(name) {
+isomorphicConstructionContext.prototype.event = function(name) {
   return this.rootCoordinator.event(name);
 }
 
-isomorphicRouteContext.prototype.coordinator = function(name, type, serializeEventName) {
+isomorphicConstructionContext.prototype.coordinator = function(name, type, serializeEventName) {
   this.coordinatorNameTypeMap[name] = type;
   var coordinator = this.rootCoordinator.coordinator(name, type);
 
@@ -100,7 +100,7 @@ isomorphicRouteContext.prototype.coordinator = function(name, type, serializeEve
  * @param fromRoot
  * @returns {*}
  */
-isomorphicRouteContext.prototype.namespace = function(namespace, fromRoot) {
+isomorphicConstructionContext.prototype.namespace = function(namespace, fromRoot) {
   // ignore if no change in namespace
   if(!namespace && !fromRoot) {
     return this;
@@ -139,7 +139,7 @@ isomorphicRouteContext.prototype.namespace = function(namespace, fromRoot) {
  * @param obj
  * @returns {*}
  */
-isomorphicRouteContext.prototype.buildMergeObjFromNamespace = function(obj) {
+isomorphicConstructionContext.prototype.buildMergeObjFromNamespace = function(obj) {
   if(!this.insertNode.key) {
     return obj;
   }
@@ -148,7 +148,7 @@ isomorphicRouteContext.prototype.buildMergeObjFromNamespace = function(obj) {
   return this.insertNode.root;
 };
 
-isomorphicRouteContext.prototype.setProps = function(obj) {
+isomorphicConstructionContext.prototype.setProps = function(obj) {
   if(this.insertNode.key === false && typeof obj !== 'object') {
     throw new Error('Cannot merge non objects to root namespace')
   }
@@ -159,7 +159,7 @@ isomorphicRouteContext.prototype.setProps = function(obj) {
   utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
 };
 
-isomorphicRouteContext.prototype.setInitialState = function(obj) {
+isomorphicConstructionContext.prototype.setState = function(obj) {
   if(typeof obj !== 'object') {
     throw new Error('Cannot merge non objects to context state')
   }
@@ -173,7 +173,7 @@ isomorphicRouteContext.prototype.setInitialState = function(obj) {
  * @param coordinator
  * @param obj
  */
-isomorphicRouteContext.prototype.set = function(key, value) {
+isomorphicConstructionContext.prototype.set = function(key, value) {
 
   // check if we are serialize data for a coordinator (need to make sure its one of our coordinators)
   if(typeof value !== 'undefined' && typeof(key) === 'string' && this.coordinatorNameTypeMap[key]) {
@@ -203,7 +203,7 @@ isomorphicRouteContext.prototype.set = function(key, value) {
   utils.objectUnion([mergeObj], this.serialize, {deleteUndefined:true});
 };
 
-isomorphicRouteContext.prototype.addChildComponent = function(namespace, component, options, next) {
+isomorphicConstructionContext.prototype.addChildComponent = function(namespace, component, options, next) {
   var context = this;
 
   if(component.__$construction) {
@@ -217,7 +217,7 @@ isomorphicRouteContext.prototype.addChildComponent = function(namespace, compone
   }
 };
 
-isomorphicRouteContext.prototype.toJSON = function() {
+isomorphicConstructionContext.prototype.toJSON = function() {
   try {
     return JSON.stringify({
       props: this.serialize,
@@ -229,8 +229,8 @@ isomorphicRouteContext.prototype.toJSON = function() {
   }
 };
 
-isomorphicRouteContext.prototype.release = function() {
+isomorphicConstructionContext.prototype.release = function() {
   this.rootCoordinator.release();
 };
 
-module.exports = isomorphicRouteContext;
+module.exports = isomorphicConstructionContext;
