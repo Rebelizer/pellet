@@ -1,3 +1,11 @@
+### 0.0.21 (2014-11-09)
+
+
+#### Bug Fixes
+
+* release script breaks if no git files to stash ([280429bb](https://github.com/Rebelizer/pellet/commit/280429bb83c71610972115e4c4b304fef195caac))
+
+
 ### 0.0.20 (2014-11-09)
 
 
