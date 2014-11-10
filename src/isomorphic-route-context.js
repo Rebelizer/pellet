@@ -168,7 +168,6 @@ isomorphicRouteContext.prototype.setInitialState = function(obj) {
   utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
 };
 
-
 /**
  *
  * @param coordinator
@@ -202,6 +201,20 @@ isomorphicRouteContext.prototype.set = function(key, value) {
   var mergeObj = this.buildMergeObjFromNamespace(value);
   utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
   utils.objectUnion([mergeObj], this.serialize, {deleteUndefined:true});
+};
+
+isomorphicRouteContext.prototype.addChildComponent = function(namespace, component, options, next) {
+  var context = this;
+
+  if(component.__$construction) {
+    if(namespace) {
+      context = this.namespace(namespace);
+    }
+
+    component.__$construction.call(context, options, next);
+  } else {
+    next();
+  }
 };
 
 isomorphicRouteContext.prototype.toJSON = function() {
