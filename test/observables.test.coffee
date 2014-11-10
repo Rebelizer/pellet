@@ -16,6 +16,7 @@ describe "Observables", ->
         autoRelease.on (val)->
           expect(val).to.equal("foobar")
           cbCount++
+        , true
 
         expect(cbCount).to.equal(0)
         autoRelease.emit("foobar")
@@ -32,7 +33,7 @@ describe "Observables", ->
             expect(val).to.equal("foobar")
             cbCount++
           cbArray.push fn
-          autoRelease.on fn
+          autoRelease.on fn, true
 
         autoRelease.emit("foobar")
         expect(cbCount).to.equal(100)
@@ -43,7 +44,7 @@ describe "Observables", ->
 
         i = 50
         while(i--)
-          autoRelease.on cbArray[i]
+          autoRelease.on cbArray[i], true
 
         autoRelease.emit("foobar")
         expect(cbCount).to.equal(150)
@@ -69,7 +70,7 @@ describe "Observables", ->
             expect(val).to.equal("barfoo")
             cbCount_3++
 
-          autoRelease.map(fn2).tap(fn3).on(fn)
+          autoRelease.map(fn2).tap(fn3).on(fn, true)
 
         expect(autoRelease.refValue.length).to.equal(0)
         expect(autoRelease.children.length).to.equal(100)
@@ -94,6 +95,7 @@ describe "Observables", ->
 
         autoRelease.on (val)->
           expect(val).to.deep.equal({sender:"foo owner", event:"foobar"})
+        , true
 
         autoRelease.emit("foobar")
 
@@ -116,7 +118,7 @@ describe "Observables", ->
           expect(val).to.deep.equal({sender:"foo owner", event:"barfoo"})
           cbCount++
 
-        autoRelease.map(fn2).tap(fn3).on(fn)
+        autoRelease.map(fn2).tap(fn3).on(fn, true)
 
         autoRelease.emit("foobar")
         expect(cbCount).to.equal(3)
@@ -130,6 +132,7 @@ describe "Observables", ->
         autoRelease.on (val)->
           expect(val).to.equal("foobar")
           cbCount++
+        , true
 
         fooE.emit("foobar")
         autoRelease.emit("foobar")
@@ -141,6 +144,7 @@ describe "Observables", ->
 
         fooE.onValue (val)->
           expect(val).to.equal("foobar")
+        , true
 
         autoRelease.emit("foobar")
 
@@ -150,5 +154,6 @@ describe "Observables", ->
 
         fooE.onValue (val)->
           expect(val).to.deep.equal({sender:"foo owner", event:"foobar"})
+        , true
 
         autoRelease.emit("foobar")
