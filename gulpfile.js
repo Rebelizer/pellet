@@ -88,7 +88,7 @@ gulp.task('release', function(next) {
   gutil.log('git stash');
   git('stash').then(function(output) {
     var skipStash = false;
-    if(output == 'No local changes to save') {
+    if(/No local changes to save/i.test(output)) {
       skipStash = true;
     }
 
