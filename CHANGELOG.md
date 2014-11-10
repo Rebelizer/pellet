@@ -1,3 +1,35 @@
+### 0.0.18 (2014-11-09)
+
+
+#### Bug Fixes
+
+* merging {foo:null} was not overriding foo with null but with {0:null} this is wr ([d5c99d84](https://github.com/Rebelizer/pellet/commit/d5c99d84462e0e7b27aaa145b7d6220e0336ee98))
+* load order for (code/coordiantor) because pellet.js is required to be last becau ([cdc62d1e](https://github.com/Rebelizer/pellet/commit/cdc62d1e2ed5591d95cd1846e4944344491a0ef5))
+* bugs in react 0.12 upgrade ([aa64c07b](https://github.com/Rebelizer/pellet/commit/aa64c07b7ae08e340c4e469fb59d67b8071dc6a0))
+* gulp release task someone gets no response from github ([52f909ef](https://github.com/Rebelizer/pellet/commit/52f909ef844fcc5186b7a7960aa7ddad5b8e1d47))
+* unit test breaking because file rename ([ad2f9c93](https://github.com/Rebelizer/pellet/commit/ad2f9c93bfb4d3f8275c675a1c7b78a24ac19a35))
+
+
+#### Features
+
+* as a dev I want a easy way to add child component to isomorphic route ([e53758b5](https://github.com/Rebelizer/pellet/commit/e53758b5304a5085fed61c0ed47d0bd3f41b6f31))
+* as a dev I want better way to layout ([b7937cb4](https://github.com/Rebelizer/pellet/commit/b7937cb4b62a628fde3ea6f977e69b54ab445f27))
+* as a dev I want a new system to make messaging between components easier ([b9675410](https://github.com/Rebelizer/pellet/commit/b96754109c694a153f18c43b93f9ea1433a95517))
+* as a dev I want international number and data formatting ([9a01b5b9](https://github.com/Rebelizer/pellet/commit/9a01b5b9c6f68263b466171f7511d882bd5d7b12))
+* as a dev I want to pass options to my registered coordinators ([58831fd1](https://github.com/Rebelizer/pellet/commit/58831fd1ef6c1704f6a937bce73b162f252f5eb0))
+* add support for coordinator to tree link shared contexts i.e. have child coordin ([e752be7d](https://github.com/Rebelizer/pellet/commit/e752be7d4a24a5b3746442a6b091d77c50b6e84a))
+* as a dev I want to have unit tests around core base coordinator logic ([bfcda462](https://github.com/Rebelizer/pellet/commit/bfcda462047dc6d09c67978c31ef6f9e2dd20651))
+* as a dev I want to have some basic unit tests around observables ([191e1be7](https://github.com/Rebelizer/pellet/commit/191e1be7d888959cb7724d7835e3368b63b1ceec))
+* as a dev I want observables to track the owner/sender of the events to help filt ([99159073](https://github.com/Rebelizer/pellet/commit/99159073d257953e967144a4d2ea78b2e80b2eb9))
+* as a dev I want a cleaner api around the isomorphic route ([71750225](https://github.com/Rebelizer/pellet/commit/71750225729e24ce783b12967fa783f11fa1eef7))
+* as a dev I want to setInitialState in the preflight to the get route data ([b4b26744](https://github.com/Rebelizer/pellet/commit/b4b267440e8b5680261d881ed874d429ac2ce1b5))
+* as a dev I want to add coordinators and raw code file into the manifest ([d9c201c5](https://github.com/Rebelizer/pellet/commit/d9c201c53529130bd46d804c4b175417b8c19022))
+* as dev I want jade includes to be watched ([e86d3a0b](https://github.com/Rebelizer/pellet/commit/e86d3a0beb71a319d9d0676f0b19d1928ea8d7ed))
+* as a dev I want !{this....} to get passed at react elements ([be438251](https://github.com/Rebelizer/pellet/commit/be4382518587cb2f82a146864b6ab274d2216b64))
+* as a dev I want jade support to auto load comp and have better lang syntax ([e5fd578d](https://github.com/Rebelizer/pellet/commit/e5fd578d8ce36d21fa4684cfe10f469fd4b0e9a0))
+* upgrade to react 0.12 and fix breaking changes ([3c477f29](https://github.com/Rebelizer/pellet/commit/3c477f2905c506d764c49d2ef68db6659a386a83))
+
+
 ### 0.0.17 (2014-10-30)
 
 
