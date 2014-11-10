@@ -6,7 +6,7 @@ compo = pellet.components
 
 module.exports = <%- name %>Component = pellet.createClass
   ###
-  onRoute: (options, next) ->
+  componentConstruction: (options, next) ->
     @set({val:'val'})      # serialized to the broswer from the server render
     @setProps({val:'val'}) # set props passed to getInitialState
 

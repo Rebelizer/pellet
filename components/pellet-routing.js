@@ -21,6 +21,7 @@ pellet.addComponentRoute = function(route, component, options) {
 
   this.routes.add(route, function() {
     var routeContext = this
+      , _component = component
       , renderOptions = {props:{}};
 
     try {
@@ -41,7 +42,6 @@ pellet.addComponentRoute = function(route, component, options) {
           routeContext.res,
           routeContext.res,
           routeContext.next);
-
       } else {
         // create a isomorphic req/res provider for the isomorphic render
         renderOptions.provider = new isomorphicRouteRequest();
@@ -60,11 +60,21 @@ pellet.addComponentRoute = function(route, component, options) {
       renderOptions.props.query = routeContext.query;
       renderOptions.props.url = routeContext.url;
 
+      // if a layout is defined we swap the component with its layout component
+      // and pass the component to the layout using layoutContent props.
+      // NOTE: _component is needed because the way the addComponentRoute closer
+      //       we do not want to over write component because the next call will
+      //       be wrong!
+      if(_component.__$layout) {
+        renderOptions.props.__layoutContent = _component;
+        _component = pellet.components[_component.__$layout];
+      }
+
       // use pellets default locale lookup function (devs can overwrite this for custom logic)
-      renderOptions.locales = _this.suggestLocales(renderOptions, component, options);
+      renderOptions.locales = _this.suggestLocales(renderOptions, _component, options);
 
       // now render the isomorphic component
-      isomorphicRender.renderComponent(component, renderOptions, function(err, html, ctx) {
+      isomorphicRender.renderComponent(_component, renderOptions, function(err, html, ctx) {
         if(process.env.SERVER_ENV) {
           var markup;
 

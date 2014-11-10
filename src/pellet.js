@@ -38,9 +38,14 @@ pellet.prototype.createClass = function(spec) {
     spec.mixins.push(pelletReactMixin);
   }
 
-  if(spec.onRoute) {
-    var _onRoute = spec.onRoute;
-    delete spec.onRoute;
+  if(spec.componentConstruction) {
+    var _componentConstruction = spec.componentConstruction;
+    delete spec.componentConstruction;
+  }
+
+  if(spec.layoutTemplate) {
+    var _layout = spec.layoutTemplate;
+    delete spec.layoutTemplate;
   }
 
   if(typeof spec.routes !== 'undefined') {
@@ -56,19 +61,25 @@ pellet.prototype.createClass = function(spec) {
   }
 
   var reactClass = react.createClass(spec);
+
+  // make sure we have static version of __$construction
+  // and __$layout
+  if(_componentConstruction) {
+    reactClass.__$construction = _componentConstruction;
+  }
+
+  if(_layout) {
+    reactClass.__$layout = _layout;
+  }
+
   if(allRoutes) {
     for(i in allRoutes) {
       this.addComponentRoute(allRoutes[i], reactClass, {});
     }
   }
 
-  if(_onRoute) {
-    reactClass.__$onRoute = _onRoute;
-  }
-
   return reactClass;
 };
-
 
 pellet.prototype.setLocaleLookupFn = function(lookupFn) {
   this.suggestLocales = lookupFn;

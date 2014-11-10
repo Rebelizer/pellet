@@ -69,7 +69,7 @@ var isomorphicRender = module.exports = {
     var componentWithContext;
 
     // get the serialize state if component has a onRoute function
-    if (component.__$onRoute) {
+    if (component.__$construction) {
 
       try {
         // options.context is the serialized data from the server is any and the
@@ -89,7 +89,7 @@ var isomorphicRender = module.exports = {
         // now run the pre-flight code before asking react to render
         // this allows for async code to be executed and tracks any
         // data that needs to get serialized to the client.
-        component.__$onRoute.call(context, {}, function (err) {
+        component.__$construction.call(context, {}, function (err) {
           if(err) {
             return next(err);
           }
@@ -111,10 +111,10 @@ var isomorphicRender = module.exports = {
 
           // wait a tick so all kefir emit get processed for the
           // context serialization.
-          setTimeout(function() {
+          //setTimeout(function() {
             context.release();
             renderReactComponent(componentWithContext, context);
-          }, 0);
+          //}, 0);
         });
       } catch(ex) {
         console.error('Error in trying to render component because:', ex.message);
