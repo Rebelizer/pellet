@@ -1,7 +1,6 @@
 var React = require("react")
   , <%- name %>Jade = require('./<%- fileName %>.jade')
-  , pellet = require("pellet")
-  , compo = pellet.components;
+  , pellet = require("pellet");
 
 module.exports = <%- name %>Page = pellet.createClass({
   /*
@@ -35,12 +34,9 @@ module.exports = <%- name %>Page = pellet.createClass({
   <% } else { %>
   routes: "/<%- name %>",
   <% } %>
+  // layoutTemplate: "{name_of_your_layout_in_the_manifest}"
 
   render: function() {
     return <%- name %>Jade(this);
-
-    /* ==== OR FOR PAGES with LAYOUTS (update yourLayout with name of your payout)====
-     * return compo.<- yourLayout ->(this.props,  <%- name %>Jade(this)));
-     */
   }
 });

@@ -1,16 +1,29 @@
 var React = require("react")
   , <%- name %>Jade = require('./<%- fileName %>.jade')
-  , pellet = require("pellet")
-  , compo = pellet.components;
+  , pellet = require("pellet");
 
 module.exports = <%- name %>Layout = pellet.createClass({
-  /*
   componentConstruction: function(options, next) {
-    this.set({val:'val'}); // serialized to the broswer from the server render
-    this.setProps({val:'val'}); // set props passed to getInitialState
 
-    next();
+    // if the layout does not have state you skip
+    // creating the namespace
+    var ns = this.namespace("content")
+    ns.setProps({
+        originalUrl: this.props.originalUrl,
+        params: this.props.params,
+        query: this.props.query,
+        url: this.props.url,
+    });
+
+    this.setProps({
+      layoutContent: this.props.__layoutContent
+    });
+
+    // now forward the layout main context's component construction data
+    ns.addChildComponent(false, this.props.__layoutContent, options, next);
   },
+
+  /*
   getInitialState: function() {
     return {};
   },

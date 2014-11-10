@@ -1,7 +1,6 @@
 var React = require("react")
   , <%- name %>Jade = require('./<%- fileName %>.jade')
-  , pellet = require("pellet")
-  , compo = pellet.components;
+  , pellet = require("pellet");
 
 module.exports = <%- name %>Component = pellet.createClass({
   /*
@@ -31,6 +30,8 @@ module.exports = <%- name %>Component = pellet.createClass({
   */
 
   render: function() {
+    // now create the layout context and pass it to the template
+    this.layoutContent = this.props.layoutContent(this.props.content);
     return <%- name %>Jade(this);
   }
 });

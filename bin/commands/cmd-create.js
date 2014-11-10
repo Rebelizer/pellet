@@ -17,14 +17,19 @@ var CREATE_TYPES = ['Component', 'Page', 'Layout', 'Project'];
  */
 function renderFile(outputFiles, outputPath, templatePath, data) {
   outputFiles[outputPath] = function(next) {
-    fs.outputFile(outputPath, ejs.render(fs.readFileSync(templatePath).toString(), data), function(err) {
-      if(err) {
-        console.error('Cannot generate file', outputPath, 'because', err.message);
-        return next(err)
-      }
+    try {
+      fs.outputFile(outputPath, ejs.render(fs.readFileSync(templatePath).toString(), data), function (err) {
+        if (err) {
+          console.error('Cannot generate file', outputPath, 'because', err.message);
+          return next(err)
+        }
 
-      next(null);
-    });
+        next(null);
+      });
+    } catch(ex) {
+      console.error('Cannot generate file', outputPath, 'because and error in', templatePath);
+      next(ex);
+    }
   }
 }
 
@@ -286,17 +291,17 @@ module.exports = function(program, addToReadyQue) {
           if(answer.templateType === 'Jade') {
             templateType = 'jade';
             jadeEP = path.join(baseOutputDir, 'frontend', 'index.jade');
-            renderFile(outputFiles, jadeEP, path.join(options.templateDir, templateType+'-page-react.ejs'), {type:'Page', name:'index', mode:'project'});
+            renderFile(outputFiles, jadeEP, path.join(options.templateDir, templateType+'-page-react.ejs'), {type:'Page', name:'index', mode:'project', fileName:'index'});
           } else if(answer.templateType === 'JSX') {
             templateType = 'jsx';
           }
 
           if (answer.lang === 'JavaScript') {
             componentEP = path.join(baseOutputDir, 'frontend', 'index.js');
-            renderFile(outputFiles, componentEP, path.join(options.templateDir, templateType+'-page-react-js.ejs'), {type:'Page', name:'index', mode:'project'});
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, templateType+'-page-react-js.ejs'), {type:'Page', name:'index', mode:'project', fileName:'index'});
           } else if (answer.lang === 'CoffeeScript') {
             componentEP = path.join(baseOutputDir, 'src', 'index.coffee');
-            renderFile(outputFiles, componentEP, path.join(options.templateDir, templateType+'-page-react-cs.ejs'), {type:'Page', name:'index', mode:'project'});
+            renderFile(outputFiles, componentEP, path.join(options.templateDir, templateType+'-page-react-cs.ejs'), {type:'Page', name:'index', mode:'project', fileName:'index'});
           }
 
           if (answer.assets === 'stylus') {
@@ -380,7 +385,7 @@ module.exports = function(program, addToReadyQue) {
               process.exit(1);
             }
 
-            console.log('\n\nCreated the', answer.type, '(please comeback again WHINER!)');
+            console.log('\n\nCreated the', answer.type, '(please comeback again soon!)');
             console.log('Helpful tips: set PELLET_CONF_DIR environment variable and');
             console.log('add .pellet to your .gitignore file');
 
