@@ -6,7 +6,7 @@ var react = require('react')
 
 var spec = {
   value: react.PropTypes.string,
-  key: react.PropTypes.string,
+  index: react.PropTypes.string,
   missing: react.PropTypes.string
 };
 
@@ -29,13 +29,13 @@ function getTranslation(locales, props) {
 
   if(locales) {
     if(pellet.locales[locales]) {
-      if(props.key && pellet.locales[locales][props.key]) {
+      if(props.index && pellet.locales[locales][props.index]) {
         state.isMissing = false;
         try {
-          state.translation = pellet.locales[locales][props.key](props);
+          state.translation = pellet.locales[locales][props.index](props);
         } catch(ex) {
           console.error('Cannot get translation because:', ex.message);
-          state.translation = '[ERROR:' + locales + ':' + props.key + ']';
+          state.translation = '[ERROR:' + locales + ':' + props.index + ']';
           state.hasErrors = true;
         }
       } else if(props.value) {
@@ -78,6 +78,7 @@ pellet.intl = function(scope, options) {
 }
 
 pellet.intl.formatNumber = function(scope, number) {
+  return number.toString();
   return _intl.NumberFormat(scope.props.locales || scope.context.locales).format(number);
 }
 

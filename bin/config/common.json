@@ -61,7 +61,7 @@
 
   "polyfill": {
     "cache": "#PELLET_PROJECT_PATH#/public/js/polyfill",
-    "include": ["domelements", "dom4", "es5"]
+    "include": ["domelements", "dom4", "es5", "intl"]
   },
 
   "cluster": {
