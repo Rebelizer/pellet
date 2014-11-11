@@ -20,19 +20,19 @@ module.exports = {
   event: function(name) {
     if(!this._$coordinator) {
       console.log('add local coordinator because event:', name);
-      _$coordinator = this.context.rootCoordinator.createChildCoordinator();
+      this._$coordinator = this.context.rootCoordinator.createChildCoordinator();
     }
 
-    return _$coordinator.event(name);
+    return this._$coordinator.event(name);
   },
 
   coordinator: function(name, type) {
     if(!this._$coordinator) {
       console.log('add local coordinator because coordinator:', name, type);
-      _$coordinator = this.context.rootCoordinator.createChildCoordinator();
+      this._$coordinator = this.context.rootCoordinator.createChildCoordinator();
     }
 
-    return _$coordinator.coordinator(name, type);
+    return this._$coordinator.coordinator(name, type);
   },
 
   componentWillUnmount: function() {
