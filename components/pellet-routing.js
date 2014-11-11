@@ -174,7 +174,12 @@ if(process.env.SERVER_ENV) {
           return;
         }
 
-        var match = pellet.routes.parse(node.getAttribute('href'));
+        var href = node.getAttribute('href');
+        if(!href) {
+          return;
+        }
+
+        var match = pellet.routes.parse(href);
         if(!match) {
           return;
         }
