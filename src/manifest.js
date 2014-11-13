@@ -364,9 +364,10 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         return next(err);
       }
 
+      console.info('Use http://webpack.github.io/analyse/ with _PROFILE_*.json in build dir for deep understanding');
+
       // dump the webpack entry points.
-      console.info('Webpack entry points:');
-      console.info(JSON.stringify(ourManifest.webpackEP, null, 2)
+      console.info('Webpack entry points:', JSON.stringify(ourManifest.webpackEP, null, 2)
         .replace(/\s+[{},\]]+/g, "")
         .replace(/[{\[":,]/g, ""));
 
@@ -455,8 +456,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n._);}})();\n';
       }
 
-      console.info('Translations Breakdown:');
-      console.info(JSON.stringify(translationStats, null, 2)
+      console.info('Translations Breakdown:', JSON.stringify(translationStats, null, 2)
         .replace(/\s+[{},\]]+/g, "")
         .replace(/[{\[":,]/g, ""));
 
