@@ -29,12 +29,12 @@ module.exports = <%- name %>Page = pellet.createClass({
   },
   */
 
+// layoutTemplate: "{name_of_your_layout_in_the_manifest}",
   <% if(typeof(mode) !== 'undefined' && mode === 'project') { %>
   routes: ["/", "/<%- name %>"],
   <% } else { %>
   routes: "/<%- name %>",
   <% } %>
-  // layoutTemplate: "{name_of_your_layout_in_the_manifest}"
 
   render: function() {
     return <%- name %>Jade(this);

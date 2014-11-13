@@ -12,7 +12,7 @@ module.exports = <%- name %>Layout = pellet.createClass({
         originalUrl: this.props.originalUrl,
         params: this.props.params,
         query: this.props.query,
-        url: this.props.url,
+        url: this.props.url
     });
 
     this.setProps({
@@ -44,6 +44,7 @@ module.exports = <%- name %>Layout = pellet.createClass({
   */
 
   render: function() {
+    this.layoutContent = React.createElement(this.props.layoutContent, this.props.content);
     return <%- name %>Jade(this);
   }
 });

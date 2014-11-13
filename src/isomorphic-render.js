@@ -102,7 +102,7 @@ var isomorphicRender = module.exports = {
               rootCoordinator: new coordinator(), // we could be smart and only for the client move rootCoordinator from context.rootCoordinator
               locales: options.locales
             }, function () {
-              return component(context.props);
+              return React.createElement(component, context.props);
             });
           } catch(ex) {
             next(ex);
@@ -142,7 +142,7 @@ var isomorphicRender = module.exports = {
             props = options.props;
           }
 
-          return component(props);
+          return React.createElement(component, props);
         });
       } catch(ex) {
         next(ex);

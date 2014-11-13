@@ -1,5 +1,3 @@
-/** @jsx react.DOM */
-
 var react = require('react')
   , cx = react.addons.classSet
   , pellet = require('pellet');

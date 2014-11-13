@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 React = require('react')
 //pellet = require('pellet')
 

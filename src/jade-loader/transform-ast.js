@@ -636,11 +636,21 @@ Rectifier.prototype = {
 
           if (typeof domType === 'string') {
             call.callee = b.identifier(domType);
+          } else if(this.PELLET_COMPONENT.test(domType.name)) {
+            call.callee = b.memberExpression(
+              b.identifier('React'),
+              b.identifier('createElement'), false);
+
+            isCreateElement = b.memberExpression(
+              b.memberExpression(
+                b.identifier('pellet'),
+                b.identifier('components'), false),
+              b.identifier(domType.name.replace(this.PELLET_COMPONENT,'')), false);
           } else if (domType.name in React.DOM) {
             call.callee = b.memberExpression(
               b.identifier('React'),
               b.identifier('createElement'), false);
-            isCreateElement = true;
+            isCreateElement = b.literal(domType.name);
           } else {
             call.callee = domType;
           }
@@ -685,7 +695,7 @@ Rectifier.prototype = {
           if (notNull(attrs) || args.length) args.unshift(attrs);
 
           if(isCreateElement) {
-            args.unshift(b.literal(domType.name));
+            args.unshift(isCreateElement);
           }
 
           // put args back
@@ -757,12 +767,6 @@ Rectifier.prototype = {
       return b.memberExpression(
         b.identifier('pellet'),
         b.identifier('intl'), false)
-    } else if(this.PELLET_COMPONENT.test(id.name)) {
-      return b.memberExpression(
-        b.memberExpression(
-          b.identifier('pellet'),
-          b.identifier('components'), false),
-        b.identifier(id.name.replace(this.PELLET_COMPONENT,'')), false)
     }
 
     return id;
