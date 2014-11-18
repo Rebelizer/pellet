@@ -141,7 +141,7 @@ if(process.env.SERVER_ENV) {
       match.fn.call(match);
     });
 
-    pellet.startInit(window.__pellet__config);
+    pellet.startInit(JSON.parse(window.__pellet__config));
 
     // add a listener to the history statechange and route requests
     window.History.Adapter.bind(window, "statechange", function() {
