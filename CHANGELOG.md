@@ -1,3 +1,20 @@
+### 0.0.22 (2014-11-20)
+
+
+#### Bug Fixes
+
+* Parsing config from string to JSON for client side ([ca42f4b8](https://github.com/Rebelizer/pellet/commit/ca42f4b85e20dd4178549c7ce260e809af242c47))
+* href should be optional and not crash is missing ([3eda85af](https://github.com/Rebelizer/pellet/commit/3eda85af1bcf69108fe62accc76320a3029dcb0f))
+* memory leak in coordinator on unmounted ([5ffc2f41](https://github.com/Rebelizer/pellet/commit/5ffc2f41e7cf97c72561fd6a735613b74829edaf))
+* update the pellet template (out of date and crashes on create project) ([3db31791](https://github.com/Rebelizer/pellet/commit/3db3179127bfcd920e78fe8db1d29d9d5c1093aa))
+
+
+#### Features
+
+* as a dev I want a easy way to register composite event stream to coordinators ([aecfbd05](https://github.com/Rebelizer/pellet/commit/aecfbd05610201c328b3d464681db29dd69830ae))
+* as a dev I want jadex to support react 0.12 createElement ([3a71031d](https://github.com/Rebelizer/pellet/commit/3a71031d3e94c96cb5dfbb3a4b7d2b22976765ea))
+
+
 ### 0.0.21 (2014-11-09)
 
 
