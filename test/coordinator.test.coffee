@@ -24,6 +24,38 @@ describe "Coordinator", ->
           expect(foobarE).to.be.an.instanceof(observables.autoRelease)
           expect(coordinator._releaseList).to.deep.equal({foobar:foobarE})
 
+        it "register bad emitter event", ->
+          coordinator = new isomorphicConstructionContext()
+
+          expect(coordinator.registerEmitter.bind(coordinator, "foobar")).to.throw('Cannot register a non emitter/autorelease')
+          expect(coordinator.registerEmitter.bind(coordinator, "foobar", null)).to.throw('Cannot register a non emitter/autorelease')
+          expect(coordinator.registerEmitter.bind(coordinator, "foobar", "foo")).to.throw('Cannot register a non emitter/autorelease')
+          expect(coordinator.registerEmitter.bind(coordinator, "foobar", {})).to.throw('Cannot register a non emitter/autorelease')
+
+          foobarE = coordinator.event("foobar")
+
+          expect(foobarE).to.be.an.instanceof(observables.autoRelease)
+          expect(coordinator._releaseList).to.deep.equal({foobar:foobarE})
+
+          expect(coordinator.registerEmitter.bind(coordinator, "foobar")).to.throw('Conflict with existing key')
+
+        it "register emitter event", ->
+          coordinator = new isomorphicConstructionContext()
+
+          newEmitter = new observables.emitter()
+          console.log "newEmitter", newEmitter instanceof observables.emitter ? 't':'f'
+          foobarE = coordinator.registerEmitter("foobar", newEmitter)
+
+          expect(foobarE).to.be.an.instanceof(observables.autoRelease)
+          expect(coordinator._releaseList).to.deep.equal({foobar:foobarE})
+
+          coordinator = new isomorphicConstructionContext()
+          newEmitter = new observables.autoRelease(new observables.emitter())
+          foobarE2 = coordinator.registerEmitter("foobar2", newEmitter)
+
+          expect(foobarE2).to.be.an.instanceof(observables.autoRelease)
+          expect(coordinator._releaseList).to.deep.equal({foobar2:foobarE2})
+
         it "getting an event (in a coordinator) always return identical reference", ->
           coordinator = new isomorphicConstructionContext()
 

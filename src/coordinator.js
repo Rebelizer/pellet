@@ -1,4 +1,8 @@
-var observables = require('./observables.js');
+var observables = require('./observables.js')
+  , utils = require('./utils.js');
+
+var emitterConstructor = new observables.emitter()
+  , emitterConstructor = emitterConstructor.constructor;
 
 function coordinator(path, type, id) {
   this._emitters = {};
@@ -46,6 +50,25 @@ coordinator.prototype.event = function(name) {
   this._releaseList[name] = autoRelease;
 
   return autoRelease;
+}
+
+coordinator.prototype.registerEmitter = function(name, emitter) {
+  if(this._releaseList[name]) {
+    // throw because the key already exists
+    throw new Error('Conflict with existing key');
+  }
+
+  if(emitter instanceof observables.autoRelease) {
+    this._emitters[name] = emitter.__obs;
+    this._releaseList[name] = emitter;
+  } else if(emitter instanceof emitterConstructor) {
+    this._emitters[name] = emitter;
+    this._releaseList[name] = emitter = new observables.autoRelease(emitter, this._id);
+  } else {
+    throw new Error('Cannot register a non emitter/autorelease');
+  }
+
+  return emitter;
 }
 
 coordinator.prototype.coordinator = function(name, type) {

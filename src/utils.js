@@ -1,5 +1,7 @@
 
 var exports = module.exports = {
+  noop: function() {},
+
   /**
    *
    * @param input
