@@ -145,15 +145,7 @@ if(process.env.SERVER_ENV) {
 
     // add a listener to the history statechange and route requests
     window.History.Adapter.bind(window, "statechange", function() {
-      var match
-        , state = History.getState();
-
-      if(state && state.route) {
-        match = state.routeMatch;
-      } else {
-        match = pellet.routes.parse(location.pathname + location.search);
-      }
-
+      var match = pellet.routes.parse(location.pathname + location.search);
       if(match) {
         match.fn.call(match);
       } else {
@@ -187,7 +179,7 @@ if(process.env.SERVER_ENV) {
         e.stopPropagation();
         e.preventDefault();
 
-        window.History.pushState({routeMatch:match}, null, node.href);
+        window.History.pushState(null, null, node.href);
       }
 
       node = node.parentNode;
