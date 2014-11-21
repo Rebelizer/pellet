@@ -10,7 +10,7 @@ var spec = {
 
 var _intl;
 if(process.env.SERVER_ENV) {
-  _intl = require('Intl');
+  _intl = require('intl');
 } else {
   _intl = window.Intl;
 }
