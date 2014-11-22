@@ -1,3 +1,12 @@
+### 0.0.23 (2014-11-22)
+
+
+#### Bug Fixes
+
+* wrong require module name "intl" check out webpack config ([72d49d5f](https://github.com/Rebelizer/pellet/commit/72d49d5f87dabe04e90c791db24ed2487554d669))
+* html5 history state is serialized so can not pass route fn ([b6c51463](https://github.com/Rebelizer/pellet/commit/b6c51463b46037beedeeec8874de49d4f4edaf7a))
+
+
 ### 0.0.22 (2014-11-20)
 
 
