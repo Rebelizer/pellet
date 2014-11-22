@@ -1,3 +1,11 @@
+### 0.0.24 (2014-11-22)
+
+
+#### Bug Fixes
+
+* allow both upper and lower case Intl npm packages ([aaf59c5f](https://github.com/Rebelizer/pellet/commit/aaf59c5fde74ace88b23ebbfc302f9855fde2f99))
+
+
 ### 0.0.23 (2014-11-22)
 
 
