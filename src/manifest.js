@@ -541,8 +541,8 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         externals:[{
           React: 'React',
           react: 'React',
-          Intl: 'Intl',
-          intl: 'Intl'
+          Intl: 'intl',
+          intl: 'intl'
         }],
         plugins:[
           new webpack.optimize.DedupePlugin(),
