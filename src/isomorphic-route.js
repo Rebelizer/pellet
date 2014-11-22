@@ -1,7 +1,7 @@
 var pellet = require('pellet')
-  , isomorphicRender = require('../src/isomorphic-render')
-  , isomorphicRouteRequest = require('../src/isomorphic-route-request')
-  , routeTable = require('../src/route-table')
+  , isomorphicRender = require('./isomorphic-render')
+  , isomorphicRouteRequest = require('./isomorphic-route-request')
+  , routeTable = require('./route-table')
 
 pellet.routes = new routeTable(); // TODO: pass in an options for sensitive & strict vi pellet.config
 pellet.skeletonPageRender = false;

@@ -423,7 +423,7 @@ module.exports = function(program, addToReadyQue) {
           // include our core manifest so our webpack will include pellet internal mixin, components, etc.
           // try to make this one of the first manifest so webpack will load it first (some of the core components)
           // augment the pellet class/interface.
-          manifestGlob.unshift(path.resolve(__dirname, '../../components/core.manifest.json'));
+          manifestGlob.unshift(path.resolve(__dirname, '../../src/components/core.manifest.json'));
 
           // todo: if running in the debug load more manifest stuff (i.e. translator tool, preview tool, etc.)
           //}

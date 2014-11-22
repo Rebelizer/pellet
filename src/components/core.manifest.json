@@ -7,13 +7,13 @@
       "./internationalization/internationalization.styl"
     ],
     "code": [
-      "./pellet-routing.js"
+      "../isomorphic-route.js"
     ],
     "client-dependencies": [
       "./history-polyfill.browser.min.js"
     ],
     "server-dependencies": [
-      "./page-render.server.js"
+      "../isomorphic-render-skeleton.js"
     ]
   }
 ]
