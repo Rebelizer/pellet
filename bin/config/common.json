@@ -59,6 +59,18 @@
     }
   },
 
+  // config statsd client
+  "statsd": {
+    "serverConfig": "#PELLET_PROJECT_PATH#/config/statsd.config",
+    "host": "localhost",
+    "port": 8125,
+    "prefix": "",
+    "suffix": "",
+    "globalize": false,
+    "cacheDns": false,
+    "mock": false
+  },
+
   "polyfill": {
     "cache": "#PELLET_PROJECT_PATH#/public/js/polyfill",
     "include": ["domelements", "dom4", "es5", "intl"]

@@ -35,6 +35,18 @@
     "polyfillRebuild": false
   },
 
+  // config statsd client
+  "statsd": {
+    "serverConfig": "#PELLET_PROJECT_PATH#/config/statsd.config",
+    "host": "localhost",
+    "port": 8125,
+    "prefix": "",
+    "suffix": "",
+    "globalize": false,
+    "cacheDns": false,
+    "mock": false
+  },
+
   "webpackConfig": {
     "module":{
       "noParse": ["\\.min\\.js$"],

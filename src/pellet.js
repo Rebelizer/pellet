@@ -33,7 +33,7 @@ function pellet(config) {
     this.logger = config.logger;
     config.logger = void(0);
   } else {
-    config.logger = null; // get a mock logger
+    this.logger = null; // TODO: make a mock logger
   }
 
   this.config = config;
@@ -317,5 +317,5 @@ else if(process.env.BROWSER_ENV) {
   });
 
 } else {
-  module.exports = new pellet();
+  module.exports = new pellet(global.__pellet__ref);
 }

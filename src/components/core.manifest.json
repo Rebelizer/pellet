@@ -7,7 +7,8 @@
       "./internationalization/internationalization.styl"
     ],
     "code": [
-      "../isomorphic-route.js"
+      "../isomorphic-route.js",
+      "../instrumentation.js"
     ],
     "client-dependencies": [
       "./history-polyfill.browser.min.js"
