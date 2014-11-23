@@ -5,12 +5,14 @@ var path = require('path')
   , webpack = require('webpack')
   , glob = require('glob')
   , spdy = require('spdy')
+  , osexec = require('child_process').exec
   , winston = require('winston')
   , winstonMail = require('winston-mail')
   , nconf = require('nconf')
   , cluster = require('cluster-master')
   , polyfill = require('polyfills')
   , react = require('react')
+  , instrumentation = require('../../src/instrumentation')
   , manifest = require('../../src/manifest')
   , utils = require('../utils')
   , pelletUtils = require('../../src/utils');
@@ -86,6 +88,10 @@ module.exports = function(program, addToReadyQue) {
       pelletLogger.extend(console);
       console.log = pelletLogger.info;
 
+      // now setup instrumentation using statsd
+      var instrument = new instrumentation(nconf.get('statsd'));
+      var mesureLaunch = instrument.elapseTimer(null, 'pellet_launch.');
+
       // catch all uncaught exception and try to email them
       if (nconf.get('winston:containers:alert')) {
         var alertLogger = winston.loggers.add('alert', nconf.get('winston:containers:alert'));
@@ -129,6 +135,8 @@ module.exports = function(program, addToReadyQue) {
           }
 
           alertLogger.error(body);
+
+          instrument.increment('uncaughtException');
         }
 
         process.on('uncaughtException', logException);
@@ -155,6 +163,22 @@ module.exports = function(program, addToReadyQue) {
         }
 
         return path.resolve(LAUNCH_CWD, path.normalize(fullpath));
+      }
+
+      // spawn a StatsD server
+      if(options.startStatsD) {
+        options.startStatsD = resolveConfigPaths(nconf.get('statsd').serverConfig||'');
+        statsdCommand = path.join(PELLET_BIN_PATH, '..', 'node_modules','statsd', 'bin', 'statsd') + ' ' + options.startStatsD;;
+
+        console.info('Starting StatsD:', options.startStatsD);
+        console.info('  NOTE: nc 127.0.0.1 8126 (StatsD CLI)');
+        osexec(statsdCommand, function(error, stdout, stderr) {
+          console.error('StatsD stderr: ' + stderr);
+          if (error !== null) {
+            console.error('Can not spawn statsd server becuase:', error);
+            process.exit(1);
+          }
+        });
       }
 
       // add --harmony flag if running in ES6 mode
@@ -185,7 +209,9 @@ module.exports = function(program, addToReadyQue) {
        */
 
       function startServer(componentModule, isManifestFile) {
-        var app, server, pellet;
+        var app, server, pellet, mesureServerLaunch;
+
+        mesureServerLaunch = instrument.elapseTimer(null, 'server_launch.');
 
         if (isManifestFile) {
           try {
@@ -205,20 +231,40 @@ module.exports = function(program, addToReadyQue) {
         var baseServerDir = path.resolve(options.output, componentModule.server.relativePath)
           , componentFile = path.join(baseServerDir, componentModule.server.component);
 
+        mesureServerLaunch.mark('load_manifest');
+
         if (!fs.existsSync(componentFile)) {
           console.error('Cannot find build output. Please build and insure', componentModule, 'exists.');
           process.exit(1);
         }
 
+        var appConfig = nconf.get('applicationConfig');
+        appConfig.skeletonPage = resolveConfigPaths(appConfig.skeletonPage);
+        appConfig.assetFileName = componentModule.browser.assets;
+        appConfig.componentFileName = componentModule.browser.component;
+        appConfig.manifest = componentModule;
+
+        // add the instrumentation and logger to config
+        appConfig.instrumentation = instrument;
+        appConfig.logger = pelletLogger;
+
+        // todo: add flag to track memory
+        //setInterval(function() {
+        //  instrument all the node memory stats!
+        //}, 10000)
+
         try {
           console.log('Loading', componentFile, 'webpack into pellet server.');
           require('source-map-support').install({handleUncaughtExceptions: false});
+          global.__pellet__config = appConfig;
           pellet = require(componentFile);
         } catch (ex) {
           console.error('Cannot load', componentFile, 'because:', ex.message);
           console.error(ex.stack);
           process.exit(1);
         }
+
+        mesureServerLaunch.mark('load_isomorphic_code');
 
         if (componentModule.server.translation) {
           var translationFile = path.join(baseServerDir, componentModule.server.translation);
@@ -233,11 +279,7 @@ module.exports = function(program, addToReadyQue) {
           }
         }
 
-        var appConfig = nconf.get('applicationConfig');
-        appConfig.skeletonPage = resolveConfigPaths(appConfig.skeletonPage);
-        appConfig.assetFileName = componentModule.browser.assets;
-        appConfig.componentFileName = componentModule.browser.component;
-        appConfig.manifest = componentModule;
+        mesureServerLaunch.mark('load_translation');
 
         // using Koa for ES6 mode else express
         if ('function' === typeof Map) {
@@ -262,6 +304,8 @@ module.exports = function(program, addToReadyQue) {
 
           server = require('express');
           app = server();
+
+          mesureServerLaunch.mark('server_container');
 
           if (nconf.get('server:accessLog')) {
             if (nconf.get('server:accessLog:logFile') === 'STDOUT') {
@@ -315,6 +359,8 @@ module.exports = function(program, addToReadyQue) {
 
           });
 
+          mesureServerLaunch.mark('polyfill_db_ready');
+
           // wire up pellet middleware, but first sort the stack
           pellet.middlewareStack = pellet.middlewareStack.sort(function (a, b) {
             return (a.priority || 1000) - (b.priority || 1000)
@@ -349,6 +395,8 @@ module.exports = function(program, addToReadyQue) {
           }
         }
 
+        mesureServerLaunch.mark('middleware_loaded');
+
         if (nconf.get('spdy')) {
           var spdyPath = resolveConfigPaths(nconf.get('spdy'));
           var opt = {
@@ -359,28 +407,35 @@ module.exports = function(program, addToReadyQue) {
             autoSpdy31: false
           };
 
-          pellet.startInit(appConfig);
+          mesureServerLaunch.mark('spdy');
+
+          pellet.startInit();
           pellet.onReady(function (err) {
+            mesureServerLaunch.mark('ready');
+
             if (err) {
               console.error('Error in initializing Pellet:', err.message);
               process.exit(1);
             }
 
             spdy.createServer(opt, app).listen(nconf.get('https:port'), function () {
+              mesureServerLaunch.mark('listening');
               if (!nconf.get('silent')) {
                 console.log('Listen on', nconf.get('https:port'), nconf.get('https:address'));
               }
             });
           });
         } else {
-          pellet.startInit(appConfig);
+          pellet.startInit();
           pellet.onReady(function (err) {
+            mesureServerLaunch.mark('ready');
             if (err) {
               console.error('Error in initializing Pellet:', err.message);
               process.exit(1);
             }
 
             app.listen(nconf.get('http:port'), nconf.get('http:address'), nconf.get('http:max_syn_backlog'), function () {
+              mesureServerLaunch.mark('listening');
               if (!nconf.get('silent')) {
                 console.log('Listen on', nconf.get('http:port'), nconf.get('http:address'));
               }
@@ -400,10 +455,14 @@ module.exports = function(program, addToReadyQue) {
 
       var componentModule = path.join(options.output, '_MANIFEST.json');
 
+      mesureLaunch.mark('config');
+
       if (options.clean) {
         console.log('Cleaning:', options.output);
         fs.deleteSync(options.output);
       }
+
+      mesureLaunch.mark('clean');
 
       // For cluster(master) and standalone we need to build the manifest and load pellet
       // main entry point. For slave processed we DO NOT want to build the manifest
@@ -429,6 +488,8 @@ module.exports = function(program, addToReadyQue) {
           //}
 
           ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
+            mesureLaunch.mark('build_webpack_config');
+
             if (err) {
               console.error('Cannot build Webpack config because:', err.message);
               process.exit(1);
@@ -451,6 +512,8 @@ module.exports = function(program, addToReadyQue) {
               fs.outputFileSync(path.join(options.outputServer, options.translationDetails.server), serverOutput.join('\n'));
             }
 
+            mesureLaunch.mark('build_translation');
+
             // cache to help clean up build files
             var lastManifestDetails = false;
 
@@ -458,6 +521,14 @@ module.exports = function(program, addToReadyQue) {
             // builds the manifest profile and map. This also handles duplicate errors
             var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
               options, function (err, buildManifestMap, browserStats, nodeStats) {
+                if(browserStats) {
+                  instrument.timing('pellet_launch.browser_pack_time', browserStats.time);
+                }
+
+                if(nodeStats) {
+                  instrument.timing('pellet_launch.server_pack_time', nodeStats.time);
+                }
+
                 if (err) {
                   console.error('Cannot build webpack files because:', err.message, err.trace);
                   return;
@@ -546,6 +617,8 @@ module.exports = function(program, addToReadyQue) {
              .replace(/[{\[":,]/g, ""));
              */
 
+            mesureLaunch.mark('custom_webpack_config');
+
             if (options.watch) {
               // build both the server and browser webpack files
               webpack(config.browserConfig).watch(100, doneFn(0));
@@ -605,6 +678,7 @@ module.exports = function(program, addToReadyQue) {
     .option('--pellet:output-browser <dir>', 'Directory browser packed version saved to')
     .option('--pellet:output-server <dir>', 'Directory nodejs packed version saved to')
     .option('--server:webpack-mount-point <path>', 'Path the packed browser assets are served')
+    .option('--startStatsD', 'run local statsd server')
     .option('--watch', 'Watch manifest dependencies and rebuild', false)
     .option('--build', 'Build manifest dependencies and run', false)
     .option('--clean', 'Clean the build dir', false)

@@ -1,4 +1,5 @@
 var react = require('react')
+  , pellet = require('pellet')
   , utils = require('./utils')
   , coordinator = require('./coordinator.js')
   , isomorphicConstructionContext = require('./isomorphic-construction-context.js');
@@ -39,6 +40,10 @@ var isomorphicRender = module.exports = {
       }
     }
 
+    var instrument = pellet.instrumentation.namespace('isorender.');
+    var mesure = instrument.elapseTimer();
+    instrument.increment('isorender.count');
+
     function renderReactComponent(component, ctx) {
       var result;
 
@@ -52,14 +57,17 @@ var isomorphicRender = module.exports = {
           }
 
           react.unmountComponentAtNode(options.targetEl);
+          //mesure.mark('react_unmount');
           result = react.render(component, options.targetEl);
         } else if(options.mode == isomorphicRender.MODE_STRING) {
           result = react.renderToStaticMarkup(component);
         } else if(options.mode == isomorphicRender.MODE_HTML) {
           result = react.renderToString(component);
         }
+        mesure.mark('react_render');
       } catch(ex) {
         next(ex);
+        pellet.instrumentation.increment('isorender.error');
         return;
       }
 
@@ -86,10 +94,14 @@ var isomorphicRender = module.exports = {
           context.setProps(options.props);
         }
 
+        mesure.mark('create_context');
+
         // now run the pre-flight code before asking react to render
         // this allows for async code to be executed and tracks any
         // data that needs to get serialized to the client.
         component.__$construction.call(context, {}, function (err) {
+          mesure.mark('component_construction');
+
           if(err) {
             return next(err);
           }
@@ -113,6 +125,7 @@ var isomorphicRender = module.exports = {
           // context serialization.
           //setTimeout(function() {
             context.release();
+            mesure.mark('release');
             renderReactComponent(componentWithContext, context);
           //}, 0);
         });
