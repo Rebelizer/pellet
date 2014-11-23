@@ -135,14 +135,12 @@ if(process.env.SERVER_ENV) {
   // the page was loaded and replay the events on the server
   // render.
 
-  window.onload = function() {
-    pellet.onReady(function() {
-      var match = pellet.routes.parse(location.pathname + location.search);
-      match.fn.call(match);
-    });
+  pellet.onReady(function() {
+    var match = pellet.routes.parse(location.pathname + location.search);
+    match.fn.call(match);
+  });
 
-    pellet.startInit(JSON.parse(window.__pellet__config));
-
+  pellet.addWindowOnloadEvent(function() {
     // add a listener to the history statechange and route requests
     window.History.Adapter.bind(window, "statechange", function() {
       var match = pellet.routes.parse(location.pathname + location.search);
@@ -152,7 +150,7 @@ if(process.env.SERVER_ENV) {
         console.error('Can not find route for:', location.pathname + location.search);
       }
     });
-  }
+  });
 
   document.addEventListener("click",function(e) {
     var node = e.target;

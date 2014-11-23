@@ -1,14 +1,15 @@
 var react = require('react')
   , utils = require('./utils')
-  , observables = require('./observables.js')
-  , coordinator = require('./coordinator.js')
-  , pelletReactMixin = require('./pellet-react-mixin.js');
+  , observables = require('./observables')
+  , coordinator = require('./coordinator')
+  , instrumentation = require('./instrumentation')
+  , pelletReactMixin = require('./pellet-react-mixin');
 
 /**
  * @class pellet
  *
  */
-function pellet() {
+function pellet(config) {
   this.readyFnQue = [];
   this.initFnQue = [];
   this.coordinators = {};
@@ -17,6 +18,25 @@ function pellet() {
   this.locales = {};
 
   this.middlewareStack = [];
+
+  // now update the config
+  config = Object.create(config);
+
+  if(config.instrumentation) {
+    this.instrumentation = config.instrumentation;
+    config.instrumentation = void(0);
+  } else {
+    this.instrumentation = new instrumentation();
+  }
+
+  if(config.logger) {
+    this.logger = config.logger;
+    config.logger = void(0);
+  } else {
+    config.logger = null; // get a mock logger
+  }
+
+  this.config = config;
 }
 
 /**
@@ -222,12 +242,10 @@ pellet.prototype.registerInitFn = function(fn) {
 /**
  * Called after everyone has register their load functions
  */
-pellet.prototype.startInit = function(config) {
+pellet.prototype.startInit = function() {
   if(typeof(this.readyError) != 'undefined') {
     throw new Error('Cannot reinit because pellet is all ready running.');
   }
-
-  this.config = config;
 
   var cbCount = this.initFnQue.length;
   function done(err) {
@@ -277,10 +295,27 @@ pellet.prototype.suggestLocales = function(renderOptions, component, options) {
 }
 
 if(process.env.SERVER_ENV) {
-  module.exports = global.__pellet__ref = new pellet();
+  module.exports = global.__pellet__ref = new pellet(global.__pellet__config);
 }
 else if(process.env.BROWSER_ENV) {
-  module.exports = window.__pellet__ref = new pellet();
+  module.exports = window.__pellet__ref = new pellet(JSON.parse(window.__pellet__config));
+
+  module.exports.addWindowOnloadEvent = function(fn) {
+    var _onload = window.onload;
+    if (typeof window.onload != 'function') {
+      window.onload = fn;
+    } else {
+      window.onload = function() {
+        if (_onload) {_onload();}
+        fn();
+      }
+    }
+  }
+
+  module.exports.addWindowOnloadEvent(function() {
+    window.__pellet__ref.startInit();
+  });
+
 } else {
   module.exports = new pellet();
 }

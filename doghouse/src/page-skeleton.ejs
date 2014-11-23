@@ -31,14 +31,13 @@
         </div>
 
         <script src="<%- config.reactCDNUrl -%>"></script>
-
+        <script>window.__pellet__config = '<%- JSON.stringify(config.__publicCommonConfig) %>';</script>
         <script src="<%- config.jsMountPoint + config.componentFileName %>"></script>
         <script src="<%- config.jsMountPoint + (options.locales || config.locales || 'en') + '.js' %>"></script>
 
         <% if(ctx) {%>
         <script>window.__pellet__ctx = <%- ctx %>;</script>
         <% } %>
-        <script>window.__pellet__config = '<%- JSON.stringify(config.__publicCommonConfig) %>';</script>
 
         <!-- Google Analytics: change <%- config.googleTrackID %> to be your site's ID. -->
         <script>
