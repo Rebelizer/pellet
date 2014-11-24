@@ -19,24 +19,28 @@ function pellet(config) {
 
   this.middlewareStack = [];
 
-  // now update the config
-  config = Object.create(config);
+  if(config) {
+    // now update the config
+    config = Object.create(config);
 
-  if(config.instrumentation) {
-    this.instrumentation = config.instrumentation;
-    config.instrumentation = void(0);
+    if (config.instrumentation) {
+      this.instrumentation = config.instrumentation;
+      config.instrumentation = void(0);
+    } else {
+      this.instrumentation = new instrumentation();
+    }
+
+    if (config.logger) {
+      this.logger = config.logger;
+      config.logger = void(0);
+    } else {
+      this.logger = null; // TODO: make a mock logger
+    }
+
+    this.config = config;
   } else {
-    this.instrumentation = new instrumentation();
+    this.config = {};
   }
-
-  if(config.logger) {
-    this.logger = config.logger;
-    config.logger = void(0);
-  } else {
-    this.logger = null; // TODO: make a mock logger
-  }
-
-  this.config = config;
 }
 
 /**
