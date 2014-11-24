@@ -39,7 +39,10 @@ function pellet(config) {
 
     this.config = config;
   } else {
-    this.config = {};
+    this.config = {
+      instrumentation: new instrumentation(),
+      logger: null
+    };
   }
 }
 
