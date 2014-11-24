@@ -1,3 +1,19 @@
+### 0.0.26 (2014-11-23)
+
+
+#### Bug Fixes
+
+* allow pellet to get initialized with out args ([e7862ede](https://github.com/Rebelizer/pellet/commit/e7862eded9055d4519bd272b77c5369ed6e8a0f0))
+* remove the cap Intl from webpack not needed ([8fb9b015](https://github.com/Rebelizer/pellet/commit/8fb9b015ba83714f211b383fc51c67474d5b1a87))
+
+
+#### Features
+
+* as a dev I want basic stats around rendering, request, boot times ([a04e14b6](https://github.com/Rebelizer/pellet/commit/a04e14b65aa0ea6a9a0f7f72b1743592d29aeb8c))
+* as a dev I want to instrument my code using StatsD ([db27a919](https://github.com/Rebelizer/pellet/commit/db27a91990658576b2dcb16665d7ff920caffa99))
+* as a dev I want access to pallet config before startInit is called ([70bb4881](https://github.com/Rebelizer/pellet/commit/70bb48810dca2fc8f18f2b8cbb0edbf3a25b2931))
+
+
 ### 0.0.25 (2014-11-22)
 
 
