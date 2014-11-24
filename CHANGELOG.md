@@ -1,3 +1,11 @@
+### 0.0.27 (2014-11-24)
+
+
+#### Bug Fixes
+
+* when pellet inits with out config we need default that will not crash pellet ([c825a047](https://github.com/Rebelizer/pellet/commit/c825a0472bb615625f68bf1fe1975a8cc443ae3a))
+
+
 ### 0.0.26 (2014-11-23)
 
 
