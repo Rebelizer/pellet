@@ -1,5 +1,5 @@
 var react = require('react')
-  , pellet = require('pellet')
+  , pellet = require('./pellet')
   , utils = require('./utils')
   , coordinator = require('./coordinator.js')
   , isomorphicConstructionContext = require('./isomorphic-construction-context.js');

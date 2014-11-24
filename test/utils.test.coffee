@@ -399,7 +399,7 @@ describe "Utils", ->
         utils.objectUnion([a, b, c], out)
 
       elapse = new Date() - start
-      expect(elapse).to.be.at.most(800)
+      expect(elapse).to.be.at.most(1000)
 
     it "should be fast (refCopy)", ->
       count = 100000
@@ -412,7 +412,7 @@ describe "Utils", ->
         utils.objectUnion([a, b, c], out, {refCopy:true})
 
       elapse = new Date() - start
-      expect(elapse).to.be.at.most(500)
+      expect(elapse).to.be.at.most(700)
 
     it "should be fast (with Array)", ->
       count = 100000
@@ -425,4 +425,4 @@ describe "Utils", ->
         utils.objectUnion([a, b, c], out, {arrayCopyMode:2, refCopy:true})
 
       elapse = new Date() - start
-      expect(elapse).to.be.at.most(500)
+      expect(elapse).to.be.at.most(700)
