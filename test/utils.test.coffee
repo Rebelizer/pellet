@@ -399,7 +399,7 @@ describe "Utils", ->
         utils.objectUnion([a, b, c], out)
 
       elapse = new Date() - start
-      expect(elapse).to.be.at.most(1000)
+      expect(elapse).to.be.at.most(1300)
 
     it "should be fast (refCopy)", ->
       count = 100000
