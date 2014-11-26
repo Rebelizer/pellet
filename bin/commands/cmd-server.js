@@ -80,8 +80,8 @@ module.exports = function(program, addToReadyQue) {
         nconf.set('winston:containers:console:console:level', nconf.get('verbose'));
       }
 
-      // merge in the mount point to pellet can render the correct js directory
-      nconf.set('applicationConfig:jsMountPoint', nconf.get('server:webpackMountPoint'));
+      // merge in the mount point for pellet so we can render the correct js directory
+      nconf.set('application:options:jsMountPoint', nconf.get('server:webpackMountPoint'));
 
       // setup the apps default logger and overwrite the javascript console to use our logger
       var pelletLogger = winston.loggers.add('pellet', nconf.get('winston:containers:console'));
@@ -238,15 +238,16 @@ module.exports = function(program, addToReadyQue) {
           process.exit(1);
         }
 
-        var appConfig = nconf.get('applicationConfig');
-        appConfig.skeletonPage = resolveConfigPaths(appConfig.skeletonPage);
-        appConfig.assetFileName = componentModule.browser.assets;
-        appConfig.componentFileName = componentModule.browser.component;
-        appConfig.manifest = componentModule;
+        var appConfig = nconf.get('application:config');
+        var appOptions = nconf.get('application:options');
+        appOptions.skeletonPage = resolveConfigPaths(appOptions.skeletonPage);
+        appOptions.assetFileName = componentModule.browser.assets;
+        appOptions.componentFileName = componentModule.browser.component;
+        appOptions.manifest = componentModule;
 
         // add the instrumentation and logger to config
-        appConfig.instrumentation = instrument;
-        appConfig.logger = pelletLogger;
+        appOptions.instrumentation = instrument;
+        appOptions.logger = pelletLogger;
 
         // todo: add flag to track memory
         //setInterval(function() {
@@ -256,7 +257,7 @@ module.exports = function(program, addToReadyQue) {
         try {
           console.log('Loading', componentFile, 'webpack into pellet server.');
           require('source-map-support').install({handleUncaughtExceptions: false});
-          global.__pellet__config = appConfig;
+          global.__pellet__bootstrap = {config:appConfig, options:appOptions};
           pellet = require(componentFile);
         } catch (ex) {
           console.error('Cannot load', componentFile, 'because:', ex.message);
@@ -379,21 +380,21 @@ module.exports = function(program, addToReadyQue) {
             }
           }
 
-          if (appConfig.missingPage) {
-            appConfig.missingPage = resolveConfigPaths(appConfig.missingPage);
-            appConfig.missingPage = ejs.compile(fs.readFileSync(appConfig.missingPage).toString());
+          if (appOptions.missingPage) {
+            appOptions.missingPage = resolveConfigPaths(appOptions.missingPage);
+            appOptions.missingPage = ejs.compile(fs.readFileSync(appOptions.missingPage).toString());
             app.use(function (req, res, next) {
-              res.status(404).send(appConfig.missingPage({config: appConfig, req: req, res: res}));
+              res.status(404).send(appOptions.missingPage({config: appOptions, req: req, res: res}));
 
               // todo: load the 404 to a custom logger
             });
           }
 
-          if (appConfig.errorPage) {
-            appConfig.errorPage = resolveConfigPaths(appConfig.errorPage);
-            appConfig.errorPage = ejs.compile(fs.readFileSync(appConfig.errorPage).toString());
+          if (appOptions.errorPage) {
+            appOptions.errorPage = resolveConfigPaths(appOptions.errorPage);
+            appOptions.errorPage = ejs.compile(fs.readFileSync(appOptions.errorPage).toString());
             app.use(function (err, req, res, next) {
-              res.status(500).send(appConfig.errorPage({config: appConfig, req: req, res: res, err: err}));
+              res.status(500).send(appOptions.errorPage({config: appOptions, req: req, res: res, err: err}));
 
               console.error('Error rendering page:', err);
               if (logException) {

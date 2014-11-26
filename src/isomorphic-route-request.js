@@ -1,7 +1,6 @@
 var browserCookie;
 if(process.env.BROWSER_ENV) {
   browserCookie = require('./isomorphic-cookie');
-  console.log("LOADED!")
 }
 
 function isomorphicRouteRequest (request, respose, next) {

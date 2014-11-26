@@ -31,7 +31,7 @@
         </div>
 
         <script src="<%- config.reactCDNUrl -%>"></script>
-        <script>window.__pellet__config = '<%- JSON.stringify(config.__publicCommonConfig) %>';</script>
+        <script>window.__pellet__config = '<%- JSON.stringify(isomorphicSharedConfig) %>';</script>
         <script src="<%- config.jsMountPoint + config.componentFileName %>"></script>
         <script src="<%- config.jsMountPoint + (options.locales || config.locales || 'en') + '.js' %>"></script>
 

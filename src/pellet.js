@@ -9,7 +9,7 @@ var react = require('react')
  * @class pellet
  *
  */
-function pellet(config) {
+function pellet(config, options) {
   this.readyFnQue = [];
   this.initFnQue = [];
   this.coordinators = {};
@@ -18,31 +18,19 @@ function pellet(config) {
   this.locales = {};
 
   this.middlewareStack = [];
+  this.config = config || {};
+  this.options = options || {};
 
-  if(config) {
-    // now update the config
-    config = Object.create(config);
-
-    if (config.instrumentation) {
-      this.instrumentation = config.instrumentation;
-      config.instrumentation = void(0);
-    } else {
-      this.instrumentation = new instrumentation();
-    }
-
-    if (config.logger) {
-      this.logger = config.logger;
-      config.logger = void(0);
-    } else {
-      this.logger = null; // TODO: make a mock logger
-    }
-
-    this.config = config;
+  if (this.options.instrumentation) {
+    this.instrumentation = this.options.instrumentation;
   } else {
-    this.config = {
-      instrumentation: new instrumentation(),
-      logger: null
-    };
+    this.instrumentation = new instrumentation();
+  }
+
+  if (this.options.logger) {
+    this.logger = this.options.logger;
+  } else {
+    this.logger = null; // TODO: make a mock logger
   }
 }
 
@@ -302,10 +290,9 @@ pellet.prototype.suggestLocales = function(renderOptions, component, options) {
 }
 
 if(process.env.SERVER_ENV) {
-  module.exports = global.__pellet__ref = new pellet(global.__pellet__config);
-}
-else if(process.env.BROWSER_ENV) {
-  module.exports = window.__pellet__ref = new pellet(JSON.parse(window.__pellet__config));
+  module.exports = global.__pellet__ref = new pellet(global.__pellet__bootstrap.config, global.__pellet__bootstrap.options);
+} else if(process.env.BROWSER_ENV) {
+  module.exports = window.__pellet__ref = new pellet(window.__pellet__config);
 
   module.exports.addWindowOnloadEvent = function(fn) {
     var _onload = window.onload;
@@ -322,7 +309,6 @@ else if(process.env.BROWSER_ENV) {
   module.exports.addWindowOnloadEvent(function() {
     window.__pellet__ref.startInit();
   });
-
 } else {
-  module.exports = new pellet(global.__pellet__ref);
+  module.exports = new pellet();
 }
