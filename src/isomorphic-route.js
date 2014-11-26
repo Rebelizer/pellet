@@ -39,8 +39,8 @@ pellet.addComponentRoute = function(route, component, options) {
 
         // create a isomorphic req/res provider for the isomorphic render
         renderOptions.provider = new isomorphicRouteRequest(
-          routeContext.res,
-          routeContext.res,
+          routeContext.request,
+          routeContext.respose,
           routeContext.next);
       } else {
         // create a isomorphic req/res provider for the isomorphic render

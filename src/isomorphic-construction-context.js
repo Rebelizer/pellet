@@ -72,6 +72,10 @@ isomorphicConstructionContext.prototype.setCanonical = function(url) {
   this.provider.addToHead(this.LINK, {rel:'canonical', href:url});
 };
 
+isomorphicConstructionContext.prototype.cookie = function() {
+  return this.provider.cookie.apply(this.provider, Array.prototype.slice.apply(arguments));
+};
+
 // HELPER FUNCTIONS - wrappers around coordinator
 isomorphicConstructionContext.prototype.event = function(name) {
   return this.rootCoordinator.event(name);

@@ -361,6 +361,9 @@ module.exports = function(program, addToReadyQue) {
 
           mesureServerLaunch.mark('polyfill_db_ready');
 
+          // add the express cookie parser
+          app.use(require('cookie-parser')());
+
           // wire up pellet middleware, but first sort the stack
           pellet.middlewareStack = pellet.middlewareStack.sort(function (a, b) {
             return (a.priority || 1000) - (b.priority || 1000)

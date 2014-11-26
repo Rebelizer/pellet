@@ -1,6 +1,12 @@
-function isomorphicRouteRequest (req, res, next) {
-  this.req = req;
-  this.res = res;
+var browserCookie;
+if(process.env.BROWSER_ENV) {
+  browserCookie = require('./isomorphic-cookie');
+  console.log("LOADED!")
+}
+
+function isomorphicRouteRequest (request, respose, next) {
+  this.request = request;
+  this.respose = respose;
   this.next = next;
 
   this.headTags = [];
@@ -12,7 +18,7 @@ isomorphicRouteRequest.prototype = {
       return;
     }
 
-    this.res.status(code);
+    this.respose.status(code);
   },
 
   header: function(field, val) {
@@ -27,7 +33,8 @@ isomorphicRouteRequest.prototype = {
         val = String(val);
       }
 
-      this.res.setHeader(field, val);
+      // setHeader = res.set ? http.OutgoingMessage.prototype.setHeader : res.setHeader
+      this.respose.setHeader(field, val);
     } else {
       for (var key in field) {
         this.set(key, field[key]);
@@ -40,7 +47,7 @@ isomorphicRouteRequest.prototype = {
       return;
     }
 
-    this.res.type(type);
+    this.respose.type(type);
   },
 
   redirect: function(url) {
@@ -49,7 +56,7 @@ isomorphicRouteRequest.prototype = {
       return;
     }
 
-    this.res.redirect(url);
+    this.respose.redirect(url);
   },
 
   addToHead: function(type, fields) {
@@ -144,6 +151,41 @@ isomorphicRouteRequest.prototype = {
     }
 
     this.headTags.push(newLine);
+  },
+
+  /**
+   *
+   * @param name
+   * @param value
+   * @param options
+   *   path
+   *   domain
+   *   expires
+   *   secure
+   *     - server side only
+   *   httpOnly
+   *   maxAge
+   *
+   * @returns {*}
+   */
+  cookie: function(name, value, options) {
+    if(typeof value === 'undefined' && typeof options === 'undefined') {
+      if(process.env.BROWSER_ENV) {
+        return browserCookie.get(name);
+      } else if(process.env.SERVER_ENV) {
+        return this.request.cookies && this.request.cookies[name];
+      }
+    } else {
+      if(process.env.BROWSER_ENV) {
+        if(options && (options.httpOnly || options.maxAge)) {
+          throw new Error('Can not set httpOnly or maxAge on the browser');
+        }
+
+        browserCookie.set(name, value, options);
+      } else if(process.env.SERVER_ENV) {
+        this.respose.cookie(name, value, options);
+      }
+    }
   }
 };
 
