@@ -364,6 +364,11 @@ module.exports = function(program, addToReadyQue) {
           // add the express cookie parser
           app.use(require('cookie-parser')());
 
+          // add the express body parser
+          var bodyParser = require('body-parser');
+          app.use(bodyParser.urlencoded({ extended: false }));
+          app.use(bodyParser.json());
+
           // wire up pellet middleware, but first sort the stack
           pellet.middlewareStack = pellet.middlewareStack.sort(function (a, b) {
             return (a.priority || 1000) - (b.priority || 1000)
