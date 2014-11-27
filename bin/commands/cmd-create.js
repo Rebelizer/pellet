@@ -400,7 +400,11 @@ module.exports = function(program, addToReadyQue) {
 
               console.log('\nIf you want to use pellet standalone you will need');
               console.log('to set useInternalDependencies=false in your config');
-              console.log('and "npm install pellet --save"');
+              console.log('and "npm install pellet --save"\n\n');
+
+              console.log('To start pellet run:');
+              console.log('$ pellet run --watch --clean');
+
             }
           });
         }
