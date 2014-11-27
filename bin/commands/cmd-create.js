@@ -385,16 +385,22 @@ module.exports = function(program, addToReadyQue) {
               process.exit(1);
             }
 
-            console.log('\n\nCreated the', answer.type, '(please comeback again soon!)');
-            console.log('Helpful tips: set PELLET_CONF_DIR environment variable and');
-            console.log('add .pellet to your .gitignore file');
-
+            console.log('\n\n');
             if(answer.type === 'Project') {
               console.log('#### IMPORTANT');
-              console.log('Install pellet via "npm install pellet --save" in this directory or');
-              console.log('you will need to update config/common.json and set useInternalDependencies');
-              console.log('to to true and add install react & ejs via npm.');
-              console.log('\nIf not you will get errors running "pellet run --build"');
+              console.log('The default configuration of pellet requires react,');
+              console.log('ejs, and intl installed.\n\nPlease run:\n');
+
+              if(!fs.existsSync(path.join(options.output, 'package.json'))) {
+                console.log('$ npm init')
+                console.log('$ npm install react ejs intl --save')
+              } else {
+                console.log('$ npm install react ejs intl --save')
+              }
+
+              console.log('\nIf you want to use pellet standalone you will need');
+              console.log('to set useInternalDependencies=false in your config');
+              console.log('and "npm install pellet --save"');
             }
           });
         }
