@@ -456,9 +456,13 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n._);}})();\n';
       }
 
-      console.info('Translations Breakdown:', JSON.stringify(translationStats, null, 2)
-        .replace(/\s+[{},\]]+/g, "")
-        .replace(/[{\[":,]/g, ""));
+      if(Object.keys(translationStats).length == 0) {
+        console.info('No Translations');
+      } else {
+        console.info('Translations Breakdown:', JSON.stringify(translationStats, null, 2)
+          .replace(/\s+[{},\]]+/g, "")
+          .replace(/[{\[":,]/g, ""));
+      }
 
       // merge in pellet into the components so its loaded and can bootstrap environment
       var pelletEntryPointPath = path.resolve(__dirname, './pellet.js');
