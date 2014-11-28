@@ -252,7 +252,7 @@ module.exports = function(program, addToReadyQue) {
             fs.copy(path.resolve(__dirname, '..', 'config'), configDir, function(err) {
               // hack to repalce the common.json PELLET_BIN_DIR to use PELLET_PROJECT_PATH
               var updateFile = path.resolve(__dirname, '..', 'config', 'common.json');
-              fs.writeFileSync(updateFile, fs.readFileSync(updateFile).toString().replace(/#PELLET_BIN_DIR#/gm, '#PELLET_PROJECT_PATH#'));
+              fs.writeFileSync(path.join(configDir, 'common.json'), fs.readFileSync(updateFile).toString().replace(/#PELLET_BIN_DIR#/gm, '#PELLET_PROJECT_PATH#'));
               next(null);
             });
           };
@@ -391,7 +391,7 @@ module.exports = function(program, addToReadyQue) {
               console.log('The default configuration of pellet requires react,');
               console.log('ejs, and intl installed.\n\nPlease run:\n');
 
-              if(!fs.existsSync(path.join(options.output, 'package.json'))) {
+              if(!fs.existsSync(path.join(answer.output, 'package.json'))) {
                 console.log('$ npm init')
                 console.log('$ npm install react ejs intl --save')
               } else {
