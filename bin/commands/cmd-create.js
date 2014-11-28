@@ -391,7 +391,7 @@ module.exports = function(program, addToReadyQue) {
               console.log('The default configuration of pellet requires react,');
               console.log('ejs, and intl installed.\n\nPlease run:\n');
 
-              if(!fs.existsSync(path.join(answer.output, 'package.json'))) {
+              if(!fs.existsSync(path.join(options.output, 'package.json'))) {
                 console.log('$ npm init')
                 console.log('$ npm install react ejs intl --save')
               } else {
