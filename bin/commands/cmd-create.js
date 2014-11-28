@@ -387,9 +387,11 @@ module.exports = function(program, addToReadyQue) {
 
             console.log('\n\n');
             if(answer.type === 'Project') {
-              console.log('#### IMPORTANT');
+              console.log('#### IMPORTANT ####');
               console.log('The default configuration of pellet requires react,');
               console.log('ejs, and intl installed.\n\nPlease run:\n');
+
+              console.log('$ cd', options.output);
 
               if(!fs.existsSync(path.join(options.output, 'package.json'))) {
                 console.log('$ npm init')

@@ -28,7 +28,7 @@ coordinator.prototype.createChildCoordinator = function() {
   return proxy;
 }
 
-coordinator.prototype.event = function(name) {
+coordinator.prototype.event = function(name, isolate) {
   var emitter, autoRelease;
 
   if(autoRelease = this._releaseList[name]) {
@@ -48,6 +48,10 @@ coordinator.prototype.event = function(name) {
 
   autoRelease = new observables.autoRelease(emitter, this._id);
   this._releaseList[name] = autoRelease;
+
+  if(isolate) {
+    autoRelease. isolate
+  }
 
   return autoRelease;
 }
@@ -90,6 +94,9 @@ coordinator.prototype.coordinator = function(name, type) {
   this._releaseList[name] = instance = instance.createChildCoordinator();
 
   return instance;
+}
+
+coordinator.prototype.only = function() {
 }
 
 /**
