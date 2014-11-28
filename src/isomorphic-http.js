@@ -3,7 +3,7 @@ if(process.env.BROWSER_ENV) {
   browserCookie = require('./isomorphic-cookie');
 }
 
-function isomorphicRouteRequest (request, respose, next) {
+function isomorphicHttp (request, respose, next) {
   this.request = request;
   this.respose = respose;
   this.next = next;
@@ -11,7 +11,7 @@ function isomorphicRouteRequest (request, respose, next) {
   this.headTags = [];
 }
 
-isomorphicRouteRequest.prototype = {
+isomorphicHttp.prototype = {
   status: function(code) {
     if(process.env.BROWSER_ENV) {
       return;
@@ -188,4 +188,4 @@ isomorphicRouteRequest.prototype = {
   }
 };
 
-module.exports = isomorphicRouteRequest;
+module.exports = isomorphicHttp;

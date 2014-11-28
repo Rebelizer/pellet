@@ -52,7 +52,7 @@ function defaultRender(html, ctx, renderOptions) {
       '<meta name="viewport" content="width=device-width, initial-scale=1">'+
       '<script src="' + pellet.options.polyfillPath + '"></script>'+
       '<script src="' + assetPath + '"></script>'+
-      renderOptions.provider.headTags.join(' ')+
+      renderOptions.http.headTags.join(' ')+
     '</head>'+
     '<body>'+
       '<!--[if lt IE 7]>\n'+

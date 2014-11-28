@@ -81,11 +81,11 @@ var isomorphicRender = module.exports = {
 
       try {
         // options.context is the serialized data from the server is any and the
-        // options.provider is isomorphic req/res to let http status, etc get set
+        // options.http is isomorphic req/res to let http status, etc get set
 
         // create a context/coordinator to run the render throw. its a coordinator because
         // it makes is easy to track and auto release all event emitters
-        var context = new isomorphicConstructionContext(options.context, options.provider);
+        var context = new isomorphicConstructionContext(options.context, options.http);
 
         // update the context props because we got them in our options
         // the route function sets things like originalUrl, params, etc.

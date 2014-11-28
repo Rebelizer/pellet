@@ -7,10 +7,10 @@ var pellet
  *
  * @class
  * @param initData
- * @param provider
+ * @param http
  */
-function isomorphicConstructionContext(initData, provider) {
-  this.provider = provider;
+function isomorphicConstructionContext(initData, http) {
+  this.http = http;
   this.serialize = {};
   this.props = {};
   this.rootCoordinator = new coordinator();
@@ -61,19 +61,19 @@ isomorphicConstructionContext.prototype.META = 'meta';
 isomorphicConstructionContext.prototype.TITLE = 'title';
 
 isomorphicConstructionContext.prototype.addToHead = function(field, val) {
-  this.provider.addToHead(field, val);
+  this.http.addToHead(field, val);
 };
 
 isomorphicConstructionContext.prototype.setTitle = function(title) {
-  this.provider.addToHead(this.TITLE, title);
+  this.http.addToHead(this.TITLE, title);
 };
 
 isomorphicConstructionContext.prototype.setCanonical = function(url) {
-  this.provider.addToHead(this.LINK, {rel:'canonical', href:url});
+  this.http.addToHead(this.LINK, {rel:'canonical', href:url});
 };
 
 isomorphicConstructionContext.prototype.cookie = function() {
-  return this.provider.cookie.apply(this.provider, Array.prototype.slice.apply(arguments));
+  return this.http.cookie.apply(this.http, Array.prototype.slice.apply(arguments));
 };
 
 // HELPER FUNCTIONS - wrappers around coordinator
