@@ -1,3 +1,20 @@
+### 0.0.28 (2014-11-28)
+
+
+#### Bug Fixes
+
+* when pellet creates a new project it overwrites the wrong file ([019aad31](https://github.com/Rebelizer/pellet/commit/019aad3147e1c4090a6bbf4ce6ed1386e3ae0dae))
+* when no translations show a useful message not "Translations Breakdown: {" ([4fa11970](https://github.com/Rebelizer/pellet/commit/4fa119701ab6a82d6726440c3cdfb37204ae7698))
+* as a dev I want a more declarative pellet config session ([6dff57c9](https://github.com/Rebelizer/pellet/commit/6dff57c9f4d3dcfaca9d1a4b0c467b139bea24e5))
+
+
+#### Features
+
+* as a dev I want the first time experience of pellet to be easy ([2273e87b](https://github.com/Rebelizer/pellet/commit/2273e87bc29238f8c82fcf16f8fda867dfa1ce5e))
+* as a dev I want pellet to decode son body (POST) automatically ([2dd23615](https://github.com/Rebelizer/pellet/commit/2dd23615b4226100e87e78c815e6019725f1ec22))
+* as a dev I want to support isomorphic cookie (to allow client/server cookie acce ([e3d566cc](https://github.com/Rebelizer/pellet/commit/e3d566cc9b32676187ca04a06650b4c970931233))
+
+
 ### 0.0.27 (2014-11-24)
 
 
