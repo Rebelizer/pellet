@@ -8,6 +8,7 @@ var path = require('path')
   , osexec = require('child_process').exec
   , winston = require('winston')
   , winstonMail = require('winston-mail')
+  , progressBar = require('progress')
   , nconf = require('nconf')
   , cluster = require('cluster-master')
   , polyfill = require('polyfills')
@@ -627,6 +628,15 @@ module.exports = function(program, addToReadyQue) {
              */
 
             mesureLaunch.mark('custom_webpack_config');
+
+            var bar = new progressBar('build [:bar] :percent', {complete: '=', incomplete: ' ', width: 30, total: 100});
+            config.browserConfig.plugins = config.browserConfig.plugins.concat(new webpack.ProgressPlugin(function(percentage) {
+              if(bar.complete || bar.skip) {
+                bar.skip = true;
+                return;
+              }
+              bar.update(percentage);
+            }));
 
             if (options.watch) {
               // build both the server and browser webpack files
