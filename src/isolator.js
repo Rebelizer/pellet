@@ -4,7 +4,7 @@ var observables = require('./observables.js')
 var emitterConstructor = new observables.emitter()
   , emitterConstructor = emitterConstructor.constructor;
 
-function coordinator(path, type, id) {
+function isolator(path, type, id) {
   this._emitters = {};
   this._releaseList = {};
 
@@ -18,7 +18,7 @@ function coordinator(path, type, id) {
   }
 }
 
-coordinator.prototype.createChildCoordinator = function() {
+isolator.prototype.createChildCoordinator = function() {
   var proxy = Object.create(this);
   proxy._releaseList = {};
   this._releaseList['_$' + Object.keys(this._releaseList).length] = proxy;
@@ -28,7 +28,7 @@ coordinator.prototype.createChildCoordinator = function() {
   return proxy;
 }
 
-coordinator.prototype.event = function(name, isolate) {
+isolator.prototype.event = function(name, isolate) {
   var emitter, autoRelease;
 
   if(autoRelease = this._releaseList[name]) {
@@ -49,14 +49,10 @@ coordinator.prototype.event = function(name, isolate) {
   autoRelease = new observables.autoRelease(emitter, this._id);
   this._releaseList[name] = autoRelease;
 
-  if(isolate) {
-    autoRelease. isolate
-  }
-
   return autoRelease;
 }
 
-coordinator.prototype.registerEmitter = function(name, emitter) {
+isolator.prototype.registerEmitter = function(name, emitter) {
   if(this._releaseList[name]) {
     // throw because the key already exists
     throw new Error('Conflict with existing key');
@@ -75,7 +71,7 @@ coordinator.prototype.registerEmitter = function(name, emitter) {
   return emitter;
 }
 
-coordinator.prototype.coordinator = function(name, type) {
+isolator.prototype.coordinator = function(name, type) {
   var instance = this._releaseList[name];
   if(instance) {
     if(instance instanceof coordinator) {
@@ -96,13 +92,13 @@ coordinator.prototype.coordinator = function(name, type) {
   return instance;
 }
 
-coordinator.prototype.only = function() {
+isolator.prototype.only = function() {
 }
 
 /**
  * release only the observables but the emit will remain
  */
-coordinator.prototype.release = function() {
+isolator.prototype.release = function() {
   for(var i in this._releaseList) {
     this._releaseList[i].release();
   }
@@ -110,4 +106,4 @@ coordinator.prototype.release = function() {
   this._releaseList = {};
 }
 
-module.exports = coordinator;
+module.exports = isolator;

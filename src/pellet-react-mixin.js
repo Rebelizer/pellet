@@ -1,8 +1,8 @@
 var react = require('react')
-  , coordinator = require('./coordinator');
+  , isolator = require('./isolator');
 
 var spec = {
-  rootCoordinator: react.PropTypes.instanceOf(coordinator),
+  rootIsolator: react.PropTypes.instanceOf(isolator),
   locales: react.PropTypes.oneOfType([
     react.PropTypes.string,
     react.PropTypes.array
@@ -18,39 +18,39 @@ module.exports = {
   },
 
   event: function(name) {
-    if(!this._$coordinator) {
-      console.log('add local coordinator because event:', name);
-      this._$coordinator = this.context.rootCoordinator.createChildCoordinator();
+    if(!this._$isolator) {
+      console.log('add local isolator because event:', name);
+      this._$isolator = this.context.rootIsolator.createChildCoordinator();
     }
 
-    return this._$coordinator.event(name);
+    return this._$isolator.event(name);
   },
 
   coordinator: function(name, type) {
-    if(!this._$coordinator) {
-      console.log('add local coordinator because coordinator:', name, type);
-      this._$coordinator = this.context.rootCoordinator.createChildCoordinator();
+    if(!this._$isolator) {
+      console.log('add local isolator because isolator:', name, type);
+      this._$isolator = this.context.rootIsolator.createChildCoordinator();
     }
 
-    return this._$coordinator.coordinator(name, type);
+    return this._$isolator.coordinator(name, type);
   },
 
   componentWillUnmount: function() {
     // release everything if root element unmounting
-    // else check if local coordinator that we need to
+    // else check if local isolator that we need to
     // release.
     if(!this._owner) {
-      console.log('release rootCoordinator');
-      this.context.rootCoordinator.release();
-    } else if(this._$coordinator) {
-      console.log('release local coordinator');
-      this._$coordinator.release();
+      console.log('release rootIsolator');
+      this.context.rootIsolator.release();
+    } else if(this._$isolator) {
+      console.log('release local isolator');
+      this._$isolator.release();
     }
   },
 
   getChildContext: function () {
     return {
-      rootCoordinator: this.context.rootCoordinator,
+      rootIsolator: this.context.rootIsolator,
       locales: this.props.locales || this.context.locales
     };
   }

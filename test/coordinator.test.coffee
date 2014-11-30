@@ -4,7 +4,7 @@ chai = require "chai"
 chai.should()
 expect = chai.expect
 
-isomorphicConstructionContext = require "../src/coordinator.js"
+isomorphicConstructionContext = require "../src/isolator.js"
 observables = require "../src/observables.js"
 pellet = require "../src/pellet.js"
 

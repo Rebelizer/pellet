@@ -1,7 +1,7 @@
 var react = require('react')
   , pellet = require('./pellet')
   , utils = require('./utils')
-  , coordinator = require('./coordinator.js')
+  , isolator = require('./isolator.js')
   , isomorphicConstructionContext = require('./isomorphic-construction-context.js');
 
 // options.context options.mode=MODE_HTML, options.dom =
@@ -83,8 +83,7 @@ var isomorphicRender = module.exports = {
         // options.context is the serialized data from the server is any and the
         // options.http is isomorphic req/res to let http status, etc get set
 
-        // create a context/coordinator to run the render throw. its a coordinator because
-        // it makes is easy to track and auto release all event emitters
+        // create a isolator to run the render throw. it makes is easy to track and auto release all event emitters
         var context = new isomorphicConstructionContext(options.context, options.http);
 
         // update the context props because we got them in our options
@@ -111,7 +110,7 @@ var isomorphicRender = module.exports = {
           // props from the __$onRoute.
           try {
             componentWithContext = react.withContext({
-              rootCoordinator: new coordinator(), // we could be smart and only for the client move rootCoordinator from context.rootCoordinator
+              rootIsolator: new isolator(), // we could be smart and only for the client move rootIsolator from context.rootIsolator
               locales: options.locales
             }, function () {
               return React.createElement(component, context.props);
@@ -139,7 +138,7 @@ var isomorphicRender = module.exports = {
 
       try {
         componentWithContext = react.withContext({
-          rootCoordinator: new coordinator(),
+          rootIsolator: new isolator(),
           locales: options.locales
         }, function () {
           var props;

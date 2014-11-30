@@ -1,5 +1,5 @@
 var pellet
-  , coordinator = require('./coordinator')
+  , isolator = require('./isolator')
   , utils = require('./utils');
 
 /**
@@ -13,7 +13,7 @@ function isomorphicConstructionContext(initData, http) {
   this.http = http;
   this.serialize = {};
   this.props = {};
-  this.rootCoordinator = new coordinator();
+  this.rootIsolator = new isolator();
   this.coordinatorNameTypeMap = {};
 
   // use the require('pellet') to fix a webpack bug
@@ -78,12 +78,12 @@ isomorphicConstructionContext.prototype.cookie = function() {
 
 // HELPER FUNCTIONS - wrappers around coordinator
 isomorphicConstructionContext.prototype.event = function(name) {
-  return this.rootCoordinator.event(name);
+  return this.rootIsolator.event(name);
 }
 
 isomorphicConstructionContext.prototype.coordinator = function(name, type, serializeEventName) {
   this.coordinatorNameTypeMap[name] = type;
-  var coordinator = this.rootCoordinator.coordinator(name, type);
+  var coordinator = this.rootIsolator.coordinator(name, type);
 
   if(serializeEventName && process.env.SERVER_ENV) {
     var _this = this;
@@ -234,7 +234,7 @@ isomorphicConstructionContext.prototype.toJSON = function() {
 };
 
 isomorphicConstructionContext.prototype.release = function() {
-  this.rootCoordinator.release();
+  this.rootIsolator.release();
 };
 
 module.exports = isomorphicConstructionContext;

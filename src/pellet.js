@@ -1,7 +1,7 @@
 var react = require('react')
   , utils = require('./utils')
   , observables = require('./observables')
-  , coordinator = require('./coordinator')
+  , isolator = require('./isolator')
   , instrumentation = require('./instrumentation')
   , pelletReactMixin = require('./pellet-react-mixin');
 
@@ -182,7 +182,7 @@ pellet.prototype.createCoordinator = function(type) {
     throw new Error('Cannot find ' + type + ' coordinator spec');
   }
 
-  var instance = new coordinator();
+  var instance = new isolator();
   utils.mixInto(instance, this.coordinatorSpecs[type], false, ['initialize', 'load', 'release']);
   instance.initialize();
 
