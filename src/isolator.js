@@ -74,7 +74,7 @@ isolator.prototype.registerEmitter = function(name, emitter) {
 isolator.prototype.coordinator = function(name, type) {
   var instance = this._releaseList[name];
   if(instance) {
-    if(instance instanceof coordinator) {
+    if(instance instanceof isolator) {
       return instance;
     }
 
