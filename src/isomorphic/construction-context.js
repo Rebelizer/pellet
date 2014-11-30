@@ -1,6 +1,6 @@
 var pellet
-  , isolator = require('./isolator')
-  , utils = require('./utils');
+  , isolator = require('./../isolator')
+  , utils = require('./../utils');
 
 /**
  * context to merge the two environments
@@ -19,7 +19,7 @@ function isomorphicConstructionContext(initData, http) {
   // use the require('pellet') to fix a webpack bug
   // if we require at head of this files pellet is not
   // defined because the load order is wrong :(
-  if(!pellet) {pellet = require('./pellet');}
+  if(!pellet) {pellet = require('./../pellet');}
 
   if(initData) {
     if(typeof(initData) === 'string') {

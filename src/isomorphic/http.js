@@ -1,6 +1,6 @@
 var browserCookie;
 if(process.env.BROWSER_ENV) {
-  browserCookie = require('./isomorphic-cookie');
+  browserCookie = require('./cookie');
 }
 
 function isomorphicHttp (request, respose, next) {

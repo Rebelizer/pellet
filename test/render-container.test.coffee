@@ -4,7 +4,7 @@ chai = require "chai"
 chai.should()
 expect = chai.expect
 
-isomorphicConstructionContext = require "../src/isomorphic-construction-context.js"
+isomorphicConstructionContext = require "../src/isomorphic/construction-context.js"
 
 describe "Isomorphic Context", ->
     describe "namespace", ->

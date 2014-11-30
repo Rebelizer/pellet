@@ -1,8 +1,8 @@
 var react = require('react')
-  , pellet = require('./pellet')
-  , utils = require('./utils')
-  , isolator = require('./isolator.js')
-  , isomorphicConstructionContext = require('./isomorphic-construction-context.js');
+  , pellet = require('./../pellet')
+  , utils = require('./../utils')
+  , isolator = require('./../isolator.js')
+  , isomorphicConstructionContext = require('./construction-context.js');
 
 // options.context options.mode=MODE_HTML, options.dom =
 
