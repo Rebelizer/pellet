@@ -2,7 +2,7 @@ var react = require('react')
   , pellet = require('./../pellet')
   , utils = require('./../utils')
   , isolator = require('./../isolator.js')
-  , isomorphicConstructionContext = require('./construction-context.js');
+  , pipeline = require('./pipeline.js');
 
 // options.context options.mode=MODE_HTML, options.dom =
 
@@ -84,21 +84,21 @@ var isomorphicRender = module.exports = {
         // options.http is isomorphic req/res to let http status, etc get set
 
         // create a isolator to run the render throw. it makes is easy to track and auto release all event emitters
-        var context = new isomorphicConstructionContext(options.context, options.http);
+        var pipe = new pipeline(options.context, options.http);
 
-        // update the context props because we got them in our options
+        // update the pipe props because we got them in our options
         // the route function sets things like originalUrl, params, etc.
         // so the __$onRoute can know about the route that was triggered
         if(options.props) {
-          context.setProps(options.props);
+          pipe.setProps(options.props);
         }
 
-        mesure.mark('create_context');
+        mesure.mark('create_pipeline');
 
         // now run the pre-flight code before asking react to render
         // this allows for async code to be executed and tracks any
         // data that needs to get serialized to the client.
-        component.__$construction.call(context, {}, function (err) {
+        component.__$construction.call(pipe, {}, function (err) {
           mesure.mark('component_construction');
 
           if(err) {
@@ -110,10 +110,10 @@ var isomorphicRender = module.exports = {
           // props from the __$onRoute.
           try {
             componentWithContext = react.withContext({
-              rootIsolator: new isolator(), // we could be smart and only for the client move rootIsolator from context.rootIsolator
+              rootIsolator: new isolator(),
               locales: options.locales
             }, function () {
-              return React.createElement(component, context.props);
+              return React.createElement(component, pipe.props);
             });
           } catch(ex) {
             next(ex);
@@ -121,17 +121,17 @@ var isomorphicRender = module.exports = {
           }
 
           // wait a tick so all kefir emit get processed for the
-          // context serialization.
+          // pipe serialization.
           //setTimeout(function() {
-            context.release();
+            pipe.release();
             mesure.mark('release');
-            renderReactComponent(componentWithContext, context);
+            renderReactComponent(componentWithContext, pipe);
           //}, 0);
         });
       } catch(ex) {
         console.error('Error in trying to render component because:', ex.message);
 
-        context.release();
+        pipe.release();
         next(ex);
       }
     } else {

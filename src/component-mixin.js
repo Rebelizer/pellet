@@ -20,7 +20,7 @@ module.exports = {
   event: function(name) {
     if(!this._$isolator) {
       console.log('add local isolator because event:', name);
-      this._$isolator = this.context.rootIsolator.createChildCoordinator();
+      this._$isolator = this.context.rootIsolator.createChild();
     }
 
     return this._$isolator.event(name);
@@ -29,7 +29,7 @@ module.exports = {
   coordinator: function(name, type) {
     if(!this._$isolator) {
       console.log('add local isolator because isolator:', name, type);
-      this._$isolator = this.context.rootIsolator.createChildCoordinator();
+      this._$isolator = this.context.rootIsolator.createChild();
     }
 
     return this._$isolator.coordinator(name, type);

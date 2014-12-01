@@ -9,7 +9,7 @@ var pellet
  * @param initData
  * @param http
  */
-function isomorphicConstructionContext(initData, http) {
+function pipeline(initData, http) {
   this.http = http;
   this.serialize = {};
   this.props = {};
@@ -56,32 +56,31 @@ function isomorphicConstructionContext(initData, http) {
 }
 
 // HELPER FUNCTIONS - wrappers around
-isomorphicConstructionContext.prototype.LINK = 'link';
-isomorphicConstructionContext.prototype.META = 'meta';
-isomorphicConstructionContext.prototype.TITLE = 'title';
+pipeline.prototype.LINK = 'link';
+pipeline.prototype.META = 'meta';
+pipeline.prototype.TITLE = 'title';
 
-isomorphicConstructionContext.prototype.addToHead = function(field, val) {
+pipeline.prototype.addToHead = function(field, val) {
   this.http.addToHead(field, val);
 };
 
-isomorphicConstructionContext.prototype.setTitle = function(title) {
+pipeline.prototype.setTitle = function(title) {
   this.http.addToHead(this.TITLE, title);
 };
 
-isomorphicConstructionContext.prototype.setCanonical = function(url) {
+pipeline.prototype.setCanonical = function(url) {
   this.http.addToHead(this.LINK, {rel:'canonical', href:url});
 };
 
-isomorphicConstructionContext.prototype.cookie = function() {
+pipeline.prototype.cookie = function() {
   return this.http.cookie.apply(this.http, Array.prototype.slice.apply(arguments));
 };
 
-// HELPER FUNCTIONS - wrappers around coordinator
-isomorphicConstructionContext.prototype.event = function(name) {
+pipeline.prototype.event = function(name) {
   return this.rootIsolator.event(name);
 }
 
-isomorphicConstructionContext.prototype.coordinator = function(name, type, serializeEventName) {
+pipeline.prototype.coordinator = function(name, type, serializeEventName) {
   this.coordinatorNameTypeMap[name] = type;
   var coordinator = this.rootIsolator.coordinator(name, type);
 
@@ -104,7 +103,7 @@ isomorphicConstructionContext.prototype.coordinator = function(name, type, seria
  * @param fromRoot
  * @returns {*}
  */
-isomorphicConstructionContext.prototype.namespace = function(namespace, fromRoot) {
+pipeline.prototype.namespace = function(namespace, fromRoot) {
   // ignore if no change in namespace
   if(!namespace && !fromRoot) {
     return this;
@@ -143,7 +142,7 @@ isomorphicConstructionContext.prototype.namespace = function(namespace, fromRoot
  * @param obj
  * @returns {*}
  */
-isomorphicConstructionContext.prototype.buildMergeObjFromNamespace = function(obj) {
+pipeline.prototype.buildMergeObjFromNamespace = function(obj) {
   if(!this.insertNode.key) {
     return obj;
   }
@@ -152,7 +151,7 @@ isomorphicConstructionContext.prototype.buildMergeObjFromNamespace = function(ob
   return this.insertNode.root;
 };
 
-isomorphicConstructionContext.prototype.setProps = function(obj) {
+pipeline.prototype.setProps = function(obj) {
   if(this.insertNode.key === false && typeof obj !== 'object') {
     throw new Error('Cannot merge non objects to root namespace')
   }
@@ -163,7 +162,7 @@ isomorphicConstructionContext.prototype.setProps = function(obj) {
   utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
 };
 
-isomorphicConstructionContext.prototype.setState = function(obj) {
+pipeline.prototype.setState = function(obj) {
   if(typeof obj !== 'object') {
     throw new Error('Cannot merge non objects to context state')
   }
@@ -177,7 +176,7 @@ isomorphicConstructionContext.prototype.setState = function(obj) {
  * @param coordinator
  * @param obj
  */
-isomorphicConstructionContext.prototype.set = function(key, value) {
+pipeline.prototype.set = function(key, value) {
 
   // check if we are serialize data for a coordinator (need to make sure its one of our coordinators)
   if(typeof value !== 'undefined' && typeof(key) === 'string' && this.coordinatorNameTypeMap[key]) {
@@ -207,7 +206,7 @@ isomorphicConstructionContext.prototype.set = function(key, value) {
   utils.objectUnion([mergeObj], this.serialize, {deleteUndefined:true});
 };
 
-isomorphicConstructionContext.prototype.addChildComponent = function(namespace, component, options, next) {
+pipeline.prototype.addChildComponent = function(namespace, component, options, next) {
   var context = this;
 
   if(component.__$construction) {
@@ -221,7 +220,7 @@ isomorphicConstructionContext.prototype.addChildComponent = function(namespace, 
   }
 };
 
-isomorphicConstructionContext.prototype.toJSON = function() {
+pipeline.prototype.toJSON = function() {
   try {
     return JSON.stringify({
       props: this.serialize,
@@ -233,8 +232,8 @@ isomorphicConstructionContext.prototype.toJSON = function() {
   }
 };
 
-isomorphicConstructionContext.prototype.release = function() {
+pipeline.prototype.release = function() {
   this.rootIsolator.release();
 };
 
-module.exports = isomorphicConstructionContext;
+module.exports = pipeline;

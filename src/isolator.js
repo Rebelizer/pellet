@@ -18,7 +18,7 @@ function isolator(path, type, id) {
   }
 }
 
-isolator.prototype.createChildCoordinator = function() {
+isolator.prototype.createChild = function() {
   var proxy = Object.create(this);
   proxy._releaseList = {};
   this._releaseList['_$' + Object.keys(this._releaseList).length] = proxy;
@@ -87,12 +87,9 @@ isolator.prototype.coordinator = function(name, type) {
   // pellet.js loads this file so we need to lazy get pellet to have full init
   // version.
   instance = require('./pellet').getCoordinator(name, type);
-  this._releaseList[name] = instance = instance.createChildCoordinator();
+  this._releaseList[name] = instance = instance.createChild();
 
   return instance;
-}
-
-isolator.prototype.only = function() {
 }
 
 /**
