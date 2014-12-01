@@ -77,7 +77,7 @@ var isomorphicRender = module.exports = {
     var componentWithContext;
 
     // get the serialize state if component has a onRoute function
-    if (component.__$construction) {
+    if (component._$construction) {
 
       try {
         // options.context is the serialized data from the server is any and the
@@ -98,7 +98,7 @@ var isomorphicRender = module.exports = {
         // now run the pre-flight code before asking react to render
         // this allows for async code to be executed and tracks any
         // data that needs to get serialized to the client.
-        component.__$construction.call(pipe, {}, function (err) {
+        component._$construction.call(pipe, {}, function (err) {
           mesure.mark('component_construction');
 
           if(err) {

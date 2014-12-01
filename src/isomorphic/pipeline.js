@@ -209,12 +209,12 @@ pipeline.prototype.set = function(key, value) {
 pipeline.prototype.addChildComponent = function(namespace, component, options, next) {
   var context = this;
 
-  if(component.__$construction) {
+  if(component._$construction) {
     if(namespace) {
       context = this.namespace(namespace);
     }
 
-    component.__$construction.call(context, options, next);
+    component._$construction.call(context, options, next);
   } else {
     next();
   }

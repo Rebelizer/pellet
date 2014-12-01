@@ -77,10 +77,10 @@ pellet.prototype.createClass = function(spec) {
 
   var reactClass = react.createClass(spec);
 
-  // make sure we have static version of __$construction
+  // make sure we have static version of _$construction
   // and __$layout
   if(_componentConstruction) {
-    reactClass.__$construction = _componentConstruction;
+    reactClass._$construction = _componentConstruction;
   }
 
   if(_layout) {
