@@ -3,7 +3,7 @@ var react = require('react')
   , observables = require('./observables')
   , isolator = require('./isolator')
   , instrumentation = require('./instrumentation')
-  , pelletReactMixin = require('./pellet-react-mixin');
+  , pelletReactMixin = require('./component-mixin');
 
 /**
  * @class pellet
