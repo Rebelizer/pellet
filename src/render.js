@@ -1,12 +1,12 @@
 var react = require('react')
-  , pellet = require('./../pellet')
-  , utils = require('./../utils')
-  , isolator = require('./../isolator.js')
-  , pipeline = require('./pipeline.js');
+  , pellet = require('./pellet')
+  , utils = require('./utils')
+  , isolator = require('./isolator')
+  , pipeline = require('./isomorphic/pipeline');
 
 // options.context options.mode=MODE_HTML, options.dom =
 
-var isomorphicRender = module.exports = {
+var pelletRender = module.exports = {
   MODE_STRING: 'static',
   MODE_HTML: 'markup',
   MODE_DOM: 'dom',
@@ -34,9 +34,9 @@ var isomorphicRender = module.exports = {
     // DOM render else render full html with react-ids
     if(!options.mode) {
       if(process.env.BROWSER_ENV) {
-        options.mode = isomorphicRender.MODE_DOM;
+        options.mode = pelletRender.MODE_DOM;
       } else {
-        options.mode = isomorphicRender.MODE_HTML;
+        options.mode = pelletRender.MODE_HTML;
       }
     }
 
@@ -48,7 +48,7 @@ var isomorphicRender = module.exports = {
       var result;
 
       try {
-        if(options.mode == isomorphicRender.MODE_DOM && process.env.BROWSER_ENV) {
+        if(options.mode == pelletRender.MODE_DOM && process.env.BROWSER_ENV) {
           if(!options.targetEl) {
             options.targetEl = document.getElementById('__PELLET__');
             if(!options.targetEl) {
@@ -59,9 +59,9 @@ var isomorphicRender = module.exports = {
           react.unmountComponentAtNode(options.targetEl);
           //mesure.mark('react_unmount');
           result = react.render(component, options.targetEl);
-        } else if(options.mode == isomorphicRender.MODE_STRING) {
+        } else if(options.mode == pelletRender.MODE_STRING) {
           result = react.renderToStaticMarkup(component);
-        } else if(options.mode == isomorphicRender.MODE_HTML) {
+        } else if(options.mode == pelletRender.MODE_HTML) {
           result = react.renderToString(component);
         }
         mesure.mark('react_render');
@@ -80,10 +80,9 @@ var isomorphicRender = module.exports = {
     if (component._$construction) {
 
       try {
-        // options.context is the serialized data from the server is any and the
-        // options.http is isomorphic req/res to let http status, etc get set
-
-        // create a isolator to run the render throw. it makes is easy to track and auto release all event emitters
+        // create a pipeline to render the component and track its state.
+        // options.context is the serialized data from the server
+        // options.http is isomorphic req/res to
         var pipe = new pipeline(options.context, options.http);
 
         // update the pipe props because we got them in our options

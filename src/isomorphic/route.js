@@ -1,5 +1,5 @@
 var pellet = require('pellet')
-  , isomorphicRender = require('./render')
+  , pelletRender = require('./../render')
   , isomorphicHttp = require('./http')
   , routeTable = require('./../route-table')
 
@@ -32,7 +32,7 @@ pellet.addComponentRoute = function(route, component, options) {
           //just for bots do not return react-id version (the routeContext.request comes from pellet middleware passing in the express request
           //if (!options.mode && routeContext.request) {
           //  if (/googlebot|gurujibot|twitterbot|yandexbot|slurp|msnbot|bingbot|rogerbot|facebookexternalhit/i.test(routeContext.request.headers['user-agent'] || '')) {
-          //    options.mode = isomorphicRender.MODE_STRING;
+          //    options.mode = pelletRender.MODE_STRING;
           //  }
           //}
         }
@@ -73,20 +73,14 @@ pellet.addComponentRoute = function(route, component, options) {
       // use pellets default locale lookup function (devs can overwrite this for custom logic)
       renderOptions.locales = _this.suggestLocales(renderOptions, _component, options);
 
-      // now render the isomorphic component
-      isomorphicRender.renderComponent(_component, renderOptions, function(err, html, ctx) {
+      // now render the component (using isomorphic render)
+      pelletRender.renderComponent(_component, renderOptions, function(err, html, ctx) {
         if(process.env.SERVER_ENV) {
           var markup;
 
           if(err) {
             console.error('Error rendering component because:', err.message);
             routeContext.next(err);
-            return;
-          }
-
-          if(!routeContext) {
-            console.error('DIE because we have to have the routeContext');
-            routeContext.next(new Error('NULL routeContext!'));
             return;
           }
 

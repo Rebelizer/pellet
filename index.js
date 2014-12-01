@@ -2,5 +2,5 @@
 
 module.exports = {
   pelletMixin: require('./src/component-mixin.js'),
-  isomorphicRender: require('./src/isomorphic/render.js')
+  pelletRender: require('./src/render.js')
 };
