@@ -346,7 +346,9 @@ module.exports = function(program, addToReadyQue) {
               res.setHeader('Content-Length', data.length['.min.js.gz']);
               res.setHeader('Content-Type', 'application/javascript');
               res.setHeader('ETag', '"' + data.hash + '"');
-              res.setHeader('Last-Modified', data.date.toUTCString());
+              if(data.date) {
+                res.setHeader('Last-Modified', data.date.toUTCString());
+              }
 
               if (req.fresh) {
                 res.statusCode = 304;
