@@ -1,5 +1,5 @@
-var observables = require('./observables.js')
-  , utils = require('./utils.js');
+var observables = require('./observables')
+  , utils = require('./utils');
 
 var emitterConstructor = new observables.emitter()
   , emitterConstructor = emitterConstructor.constructor;
