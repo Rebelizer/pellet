@@ -1,4 +1,4 @@
-var pellet
+var pellet = require('./../pellet')
   , isolator = require('./../isolator')
   , utils = require('./../utils');
 
@@ -15,11 +15,6 @@ function pipeline(initData, http) {
   this.props = {};
   this.rootIsolator = new isolator();
   this.coordinatorNameTypeMap = {};
-
-  // use the require('pellet') to fix a webpack bug
-  // if we require at head of this files pellet is not
-  // defined because the load order is wrong :(
-  if(!pellet) {pellet = require('./../pellet');}
 
   if(initData) {
     if(typeof(initData) === 'string') {
