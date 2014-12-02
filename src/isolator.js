@@ -20,7 +20,6 @@ function isolator(path, type, id, isolatedConfig) {
 }
 
 isolator.prototype.updateIsolatedConfig = function(config) {
-  console.log('->>isolator.updateIsolatedConfig', JSON.stringify(config,null,2), JSON.stringify(this.isolatedConfig,null,2), this)
   utils.objectUnion([config], this.isolatedConfig); //todo: need to set options!
 }
 
@@ -28,8 +27,6 @@ isolator.prototype.createChild = function(isolatedConfig) {
   var proxy = Object.create(this);
   proxy._releaseList = {};
   this._releaseList['_$' + Object.keys(this._releaseList).length] = proxy;
-
-  console.log('->>isolator.createChild', JSON.stringify(isolatedConfig,null,2))
 
   if(isolatedConfig) {
     // ??? if we merge in the values
@@ -85,7 +82,6 @@ isolator.prototype.registerEmitter = function(name, emitter) {
 }
 
 isolator.prototype.coordinator = function(name, type) {
-  console.log('->>isolator.coordinator', name, type);
   var instance = this._releaseList[name];
   if(instance) {
     if(instance instanceof isolator) {
@@ -96,8 +92,6 @@ isolator.prototype.coordinator = function(name, type) {
     // likely because we have a event with that name or name is _$..
     throw new Error('Conflict with existing key');
   }
-
-  console.log('->>isolator.coordinator now get from pellet and pass:', JSON.stringify(this.isolatedConfig, null,2));
 
   // NOTE: require('./pellet') is required to work around a webpack load order
   // pellet.js loads this file so we need to lazy get pellet to have full init

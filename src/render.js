@@ -109,7 +109,7 @@ var pelletRender = module.exports = {
           // props from the __$onRoute.
           try {
             componentWithContext = react.withContext({
-              rootIsolator: new isolator(),
+              rootIsolator: new isolator(null, null, null, pipe.rootIsolator.isolatedConfig),
               locales: options.locales
             }, function () {
               return React.createElement(component, pipe.props);
