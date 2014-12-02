@@ -183,7 +183,7 @@ pellet.prototype.createCoordinator = function(type) {
   }
 
   var instance = new isolator();
-  utils.mixInto(instance, this.coordinatorSpecs[type], false, ['initialize', 'load', 'release']);
+  utils.mixInto(instance, this.coordinatorSpecs[type], ['_emitters', '_releaseList', '_id', 'isolatedConfig'], ['initialize', 'load', 'release']);
   instance.initialize();
 
   return instance;
@@ -204,6 +204,11 @@ pellet.prototype.registerCoordinatorSpec = function(name, spec) {
   if(this.coordinatorSpecs[name]) {
     console.error('Error duplicate store specs:', name);
     throw new Error('Cannot have duplicate store specs');
+  }
+
+  if(spec._emitters || spec._releaseList || spec._id || this.isolatedConfig) {
+    console.error('Error invalided fields specs:', name);
+    throw new Error('_emitters, _releaseList, _id, isolatedConfig are reserved fields');
   }
 
   this.coordinatorSpecs[name] = spec;

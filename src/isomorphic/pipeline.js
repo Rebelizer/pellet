@@ -75,6 +75,10 @@ pipeline.prototype.event = function(name) {
   return this.rootIsolator.event(name);
 }
 
+pipeline.prototype.updateIsolatedConfig = function(config) {
+  return this.rootIsolator.updateIsolatedConfig(config);
+}
+
 pipeline.prototype.coordinator = function(name, type, serializeEventName) {
   this.coordinatorNameTypeMap[name] = type;
   var coordinator = this.rootIsolator.coordinator(name, type);
