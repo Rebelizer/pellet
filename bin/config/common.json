@@ -7,7 +7,7 @@
       // shared config for both client and server (do not include secrets this is public!)
     },
     "options": {
-      "locales": "en",
+      "locales": "en-US",
       "assetFileName": "assets.js",
       "componentFileName": "component.js",
       "polyfillPath": "/js/polyfills.js",

@@ -291,7 +291,7 @@ pellet.prototype.suggestLocales = function(renderOptions, component, options) {
   // todo: if broswer we can use navigator.language etc.
   // final this can be overwrite by a cookie or by url/host
 
-  return module.exports.config.locales || 'en';
+  return module.exports.config.locales || 'en-US';
 }
 
 if(process.env.SERVER_ENV) {

@@ -13,11 +13,11 @@
   "installs_allowed_from": [
     "*"
   ],
-  "default_locale": "en",
+  "default_locale": "en-US",
   "permissions": {
   },
   "locales": {
-    "en": {
+    "en-US": {
       "name": "pelletjs-demo",
       "description": "A front-end template for modern mobile web apps."
     }
