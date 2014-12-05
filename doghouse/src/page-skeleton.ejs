@@ -1,4 +1,4 @@
-<% var _lang = (options.locales || config.locales || 'en') %>
+<% var _lang = (options.locales || config.locales || 'en-US').substring(0,2) %>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="<%- _lang %>"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="<%- _lang %>"> <![endif]-->
@@ -33,7 +33,7 @@
         <script src="<%- config.reactCDNUrl -%>"></script>
         <script>window.__pellet__config = '<%- JSON.stringify(isomorphicSharedConfig) %>';</script>
         <script src="<%- config.jsMountPoint + config.componentFileName %>"></script>
-        <script src="<%- config.jsMountPoint + (options.locales || config.locales || 'en') + '.js' %>"></script>
+        <script src="<%- config.jsMountPoint + (options.locales || config.locales || 'en-US') + '.js' %>"></script>
 
         <% if(ctx) {%>
         <script>window.__pellet__ctx = <%- ctx %>;</script>
