@@ -83,7 +83,7 @@ module.exports = function(program, addToReadyQue) {
 
       // merge in the mount point for pellet so we can render the correct js directory
       nconf.set('application:options:jsMountPoint', nconf.get('server:webpackMountPoint'));
-      nconf.set('application:config:languageBaseUrl', nconf.get('server:webpackMountPoint'));
+      nconf.set('application:config:language', nconf.get('server:webpackMountPoint'));
 
       // setup the apps default logger and overwrite the javascript console to use our logger
       var pelletLogger = winston.loggers.add('pellet', nconf.get('winston:containers:console'));
@@ -516,9 +516,11 @@ module.exports = function(program, addToReadyQue) {
 
               var serverOutput = [];
               for (var i in config.translationDictionary) {
+                serverOutput.push(config.translationDictionary[i].i18n);
+
                 options.translationDetails.browser.push(i + '.js');
-                fs.outputFileSync(path.join(options.outputBrowser, i + '.js'), config.translationDictionary[i]);
-                serverOutput.push(config.translationDictionary[i]);
+                fs.outputFileSync(path.join(options.outputBrowser, i + '.js'),
+                  config.translationDictionary[i].i18n + config.translationDictionary[i].localeData);
               }
 
               options.translationDetails.server = 'all-translations.js';
