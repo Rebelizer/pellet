@@ -84,22 +84,42 @@ pellet.intl.formatDateTime = function(scope, options) {
   return _intl.DateTimeFormat(scope.props.locales || scope.context.locales).format(options);
 }
 
+pellet.intl.load = function(locales, next) {
+  if(pellet.locales[locales]) {
+    if(next) {
+      next();
+      return;
+    }
+  }
+
+  var src = (pellet.config.languageBaseUrl || '/js/') + locales + '.js';
+  var head = document.getElementsByTagName('head')[0];
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = src;
+
+  if(next) {
+    script.onreadystatechange = next;
+    script.onload = next;
+  }
+
+  head.appendChild(script);
+}
+
 module.exports = pellet.createClass({
   propsTypes: spec,
 
-  getInitialState: function() {
-    return getTranslation(this.props.locales || this.context.locales, this.props);
-  },
-
   render: function() {
 
+    var translation = getTranslation(this.props.locales || this.context.locales, this.props);
+
     var classes = cx({
-      'translation-missing': this.state.isMissing,
-      'translation-error': this.state.hasErrors
+      'translation-missing': translation.isMissing,
+      'translation-error': translation.hasErrors
     });
 
     return (
-      <span className={classes}>{this.state.translation}</span>
+      <span className={classes}>{translation.translation}</span>
     );
   }
 });
