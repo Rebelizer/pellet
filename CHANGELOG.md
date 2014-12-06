@@ -1,3 +1,41 @@
+### 0.0.29 (2014-12-06)
+
+
+#### Bug Fixes
+
+* change the default lang to "en-US" from "en" ([08e260ff](https://github.com/Rebelizer/pellet/commit/08e260ffbcb09248e8adb6cc175a1b8705f2fb33))
+* html lang attribute should only be 2 chars and the default lang should be "en-US ([b5abd781](https://github.com/Rebelizer/pellet/commit/b5abd781bd5bf75c8559da9ea093c9e56084317f))
+* as I dev I need access to base url that I can find locale files in the broswer ([dd400bff](https://github.com/Rebelizer/pellet/commit/dd400bff5ec6d966d310fd72f18ce882f7c6a3aa))
+* caching API call using cache prefix ([2200ccad](https://github.com/Rebelizer/pellet/commit/2200ccadb9a6e25238354471ee61b41c1c4fc30a))
+* pass the isolatedConfig so mount componented can shae the config ([89c80607](https://github.com/Rebelizer/pellet/commit/89c8060754db977eccce50921a8feb3ed40bff62))
+* refactor our private react preflite function referance to a standare _$ not __$ ([032c899b](https://github.com/Rebelizer/pellet/commit/032c899bc613476b335132cc13c22396910f8c80))
+* refactor coordinator ([9100517d](https://github.com/Rebelizer/pellet/commit/9100517d7e3d91075a1b4a06e77ea25cd579ab70))
+* the first time polyfill build it does not have a last modified date ([bfad959e](https://github.com/Rebelizer/pellet/commit/bfad959e197d8265dd4ab829c572124bd296236d))
+* in production mode hide the progress bar because it fills the log with junk ([5b922824](https://github.com/Rebelizer/pellet/commit/5b922824249d13bd635e313d079dcbb0abc5f035))
+* when refactoring coordinator I missed upgrade coordinator (good thing the unit t ([711f3820](https://github.com/Rebelizer/pellet/commit/711f382003d3efb1b1c3c22860fe270147ef8067))
+* add missing npm package ([79f3c405](https://github.com/Rebelizer/pellet/commit/79f3c405a38e106929151757ac9ddf219a700407))
+
+
+#### Features
+
+* as a dev I want to include unicode CLDR data into translation file to support nu ([5b304c52](https://github.com/Rebelizer/pellet/commit/5b304c52a9edf18c7cdc7d9320be4b4969bf9017))
+* as a dev I want a way to load translation file dynalicly ([f98c6c92](https://github.com/Rebelizer/pellet/commit/f98c6c928f350a3bace2ef6d176b858bcecfea99))
+* as a dev I want isolated config per request/pipeline ([3604866d](https://github.com/Rebelizer/pellet/commit/3604866d71e359a684f881ff3f0390f3669b2ab2))
+* as a dev I want a better core organization ([29798771](https://github.com/Rebelizer/pellet/commit/2979877176d897f24c740fed53ff299492ff0a9b))
+* as a dev I want to refactor coordinators into a isolator and coordinator classes ([7d24d22d](https://github.com/Rebelizer/pellet/commit/7d24d22d8d9d44f59b60ae804ccc43d5c3e2da12))
+* add better instructions to creating a project ([8573a926](https://github.com/Rebelizer/pellet/commit/8573a9261f4fcebd9ed1286ca90d4475b8128624))
+
+
+#### Breaking Changes
+
+* changed __$construction to _$construction
+
+ ([032c899b](https://github.com/Rebelizer/pellet/commit/032c899bc613476b335132cc13c22396910f8c80))
+* We rename and broke up coordinator's into isolator and pipelines
+
+ ([9100517d](https://github.com/Rebelizer/pellet/commit/9100517d7e3d91075a1b4a06e77ea25cd579ab70))
+
+
 ### 0.0.28 (2014-11-28)
 
 
