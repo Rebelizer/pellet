@@ -395,9 +395,9 @@ module.exports = function(program, addToReadyQue) {
 
               if(!fs.existsSync(path.join(options.output, 'package.json'))) {
                 console.log('$ npm init')
-                console.log('$ npm install react ejs intl --save')
+                console.log('$ npm install react ejs intl messageformat --save')
               } else {
-                console.log('$ npm install react ejs intl --save')
+                console.log('$ npm install react ejs intl messageformat --save')
               }
 
               console.log('\nIf you want to use pellet standalone you will need');
