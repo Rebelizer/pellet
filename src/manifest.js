@@ -458,7 +458,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         };
 
         translationDictionary[j].localeData = 'if(Intl.__addLocaleData) {Intl.__addLocaleData(' +
-          fs.readFileSync(require.resolve('Intl/locale-data/json/' + j + '.json')).toString() + ');}';
+          fs.readFileSync(require.resolve('intl/locale-data/json/' + j + '.json')).toString() + ');}';
       }
 
       if(Object.keys(translationStats).length == 0) {
