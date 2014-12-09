@@ -5,6 +5,7 @@ var react = require('react')
 var spec = {
   value: react.PropTypes.string,
   index: react.PropTypes.string,
+  fuzzy: react.PropTypes.boolean,
   missing: react.PropTypes.string
 };
 
@@ -17,6 +18,8 @@ if(process.env.SERVER_ENV) {
 
 function getTranslation(locales, props) {
 
+  var val;
+
   var state = {
     hasErrors: false,
     isMissing: true,
@@ -27,18 +30,23 @@ function getTranslation(locales, props) {
 
   if(locales) {
     if(pellet.locales[locales]) {
-      if(props.index && pellet.locales[locales][props.index]) {
+      if(props.index && (val = (props.fuzzy ? props.index.toLowerCase().replace(/\W/g, ''):props.index)) && pellet.locales[locales][val]) {
         state.isMissing = false;
         try {
-          state.translation = pellet.locales[locales][props.index](props);
+          state.translation = pellet.locales[locales][val](props);
         } catch(ex) {
           console.error('Cannot get translation because:', ex.message);
-          state.translation = '[ERROR:' + locales + ':' + props.index + ']';
+          state.translation = '[ERROR:' + locales + ':' + val + ']';
           state.hasErrors = true;
         }
       } else if(props.value) {
         try {
-          var val = props.value.toLowerCase().replace(/\W/g, '');
+          if(props.fuzzy) {
+            val = props.value.toLowerCase().replace(/\W/g, '');
+          } else {
+            val = props.value;
+          }
+
           if(pellet.locales[locales][val]) {
             state.translation = pellet.locales[locales][val](props);
           } else {
@@ -75,13 +83,12 @@ pellet.intl = function(scope, options) {
   return getTranslation(scope.props.locales || scope.context.locales || scope, options).translation;
 }
 
-pellet.intl.formatNumber = function(scope, number) {
-  return number.toString();
-  return _intl.NumberFormat(scope.props.locales || scope.context.locales).format(number);
+pellet.intl.formatNumber = function(scope, number, options) {
+  return _intl.NumberFormat(scope.props.locales || scope.context.locales, options).format(number);
 }
 
-pellet.intl.formatDateTime = function(scope, options) {
-  return _intl.DateTimeFormat(scope.props.locales || scope.context.locales).format(options);
+pellet.intl.formatDateTime = function(scope, date, options) {
+  return _intl.DateTimeFormat(scope.props.locales || scope.context.locales, options).format(date);
 }
 
 pellet.intl.load = function(locales, next) {
@@ -111,7 +118,26 @@ module.exports = pellet.createClass({
 
   render: function() {
 
-    var translation = getTranslation(this.props.locales || this.context.locales, this.props);
+    var locales = this.props.locales || this.context.locales;
+    var translation = getTranslation(locales, this.props);
+
+    if(process.env.BROWSER_ENV && translation.isMissing && !pellet.locales[locales] && !pellet.locales['_$'+locales]) {
+      console.info('Try to load missing locales:', locales);
+      pellet.locales['_$'+locales] = true;
+      var _this = this;
+
+      pellet.intl.load(locales, function() {
+        while(_this._owner) {
+          _this = _this._owner;
+        }
+
+        _this.forceUpdate();
+      });
+
+      return (
+        <span></span>
+      );
+    }
 
     var classes = cx({
       'translation-missing': translation.isMissing,
