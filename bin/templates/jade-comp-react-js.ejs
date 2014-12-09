@@ -30,8 +30,6 @@ module.exports = <%- name %>Component = pellet.createClass({
   */
 
   render: function() {
-    // now create the layout context and pass it to the template
-    this.layoutContent = this.props.layoutContent(this.props.content);
     return <%- name %>Jade(this);
   }
 });
