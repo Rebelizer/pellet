@@ -70,13 +70,13 @@ function getTranslation(locales, props) {
           state.hasErrors = true;
         }
       } else {
-        state.translation = props.missing || 'MISSING';
+        state.translation = props.missing || '[MISSING: "' + props.index + '"]';
       }
     } else {
-      state.translation = '[UNKNOWN LOCALE]';
+      state.translation = '[UNKNOWN LOCALE: "' + locales + '"]';
     }
   } else {
-    state.translation = '[LOCALE NO SET]';
+    state.translation = '[LOCALE NOT SET]';
   }
 
   return state;
