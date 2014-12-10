@@ -26,6 +26,16 @@ function getTranslation(locales, props) {
     translation: ''
   };
 
+  // supports calling props as 
+  //  getTranslation(locales, { index: stringToTranslate })
+  // or
+  //  getTranslation(locales, stringToTranslate)
+  if (typeof props === "string") {
+    props = {
+      index: props
+    }
+  }
+
   // todo: make a function that will walk over all the locales and try to match them i.e. us-en, us-br, us
 
   if(locales) {
