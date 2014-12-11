@@ -81,7 +81,7 @@ module.exports = function(program, addToReadyQue) {
         nconf.set('winston:containers:console:console:level', nconf.get('verbose'));
       }
 
-      if(!nconf.set('application:config:jsMountPoint')) {
+      if(!nconf.get('application:config:jsMountPoint')) {
         // merge in the mount point for pellet so we can render the correct js directory
         nconf.set('application:config:jsMountPoint', nconf.get('server:webpackMountPoint'));
       }
