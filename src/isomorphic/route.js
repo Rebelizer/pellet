@@ -84,11 +84,21 @@ pellet.addComponentRoute = function(route, component, options) {
             return;
           }
 
-          if(_this.skeletonPageRender) {
-            routeContext.respose.end(_this.skeletonPageRender(html, ctx, renderOptions));
-          } else {
-            routeContext.respose.end(html);
+          if(!routeContext.respose.getHeader('Content-Type')) {
+            routeContext.respose.setHeader('Content-Type', 'text/html');
           }
+
+          if(_this.skeletonPageRender) {
+            html = _this.skeletonPageRender(html, ctx, renderOptions);
+          }
+
+          // if expressjs or nodejs
+          if(res.status) {
+            res.send(html);
+          } else {
+            res.end(html);
+          }
+
         } else {
           if(err) {
             console.error('Error trying to render because:', err.message, err.stack);

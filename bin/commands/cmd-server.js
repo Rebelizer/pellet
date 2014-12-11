@@ -352,13 +352,19 @@ module.exports = function(program, addToReadyQue) {
               }
 
               if (req.fresh) {
-                res.statusCode = 304;
-                res.end();
+                // if expressjs or nodejs
+                if(res.status) {
+                  res.status(304).end();
+                } else {
+                  res.statusCode = 304;
+                  res.end();
+                }
+
                 return
               }
 
               return _polyfill.read(data.name, '.min.js.gz').then(function (buf) {
-                res.end(buf)
+                res.end(buf);
               });
             }).catch(next);
 
@@ -388,9 +394,14 @@ module.exports = function(program, addToReadyQue) {
             appOptions.missingPage = resolveConfigPaths(appOptions.missingPage);
             appOptions.missingPage = ejs.compile(fs.readFileSync(appOptions.missingPage).toString());
             app.use(function (req, res, next) {
-              res.status(404).send(appOptions.missingPage({config: appOptions, req: req, res: res}));
 
-              // todo: load the 404 to a custom logger
+              // if expressjs or nodejs
+              if(res.status) {
+                res.status(404).send(appOptions.missingPage({config: appOptions, req: req, res: res}));
+              } else {
+                res.statusCode = 404;
+                res.end(appOptions.missingPage({config: appOptions, req: req, res: res}));
+              }
             });
           }
 
@@ -398,7 +409,14 @@ module.exports = function(program, addToReadyQue) {
             appOptions.errorPage = resolveConfigPaths(appOptions.errorPage);
             appOptions.errorPage = ejs.compile(fs.readFileSync(appOptions.errorPage).toString());
             app.use(function (err, req, res, next) {
-              res.status(500).send(appOptions.errorPage({config: appOptions, req: req, res: res, err: err}));
+
+              // if expressjs or nodejs
+              if(res.status) {
+                res.status(500).send(appOptions.errorPage({config: appOptions, req: req, res: res, err: err}));
+              } else {
+                res.statusCode = 500;
+                res.end(appOptions.errorPage({config: appOptions, req: req, res: res, err: err}));
+              }
 
               console.error('Error rendering page:', err);
               if (logException) {
