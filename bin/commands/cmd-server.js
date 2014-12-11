@@ -339,7 +339,7 @@ module.exports = function(program, addToReadyQue) {
 
           // create a polyfill endpoint
           app.use(function (req, res, next) {
-            if (req.path !== '/js/polyfills.js') return next();
+            if (req.path !== appOptions.polyfillPath) return next();
 
             _polyfill(req.headers['user-agent']).then(function (data) {
               // you probably want to do content negotiation here
