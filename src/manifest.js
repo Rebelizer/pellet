@@ -451,11 +451,17 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
         translationStats[j] = Object.keys(translationDictionary[j]).length;
 
-        translationDictionary[j] = {
-          i18n:'(function() {var i18n='+msgFormatBuilder.functions()+';'+
-            'i18n._='+msgFormatBuilder.precompileObject(translationDictionary[j])+';'+
-            'if(__pellet__ref) {__pellet__ref.loadTranslation("'+j+'",i18n._);}})();\n'
-        };
+        try {
+          translationDictionary[j] = {
+            i18n: '(function() {var i18n=' + msgFormatBuilder.functions() + ';' +
+            'i18n._=' + msgFormatBuilder.precompileObject(translationDictionary[j]) + ';' +
+            'if(__pellet__ref) {__pellet__ref.loadTranslation("' + j + '",i18n._);}})();\n'
+          };
+        } catch(ex) {
+          if(ex) {
+            console.error('Can not include translations because:', ex.message)
+          }
+        }
 
         translationDictionary[j].localeData = 'if(Intl.__addLocaleData) {Intl.__addLocaleData(' +
           fs.readFileSync(require.resolve('intl/locale-data/json/' + j + '.json')).toString() + ');}';
