@@ -93,7 +93,7 @@ pellet.addComponentRoute = function(route, component, options) {
           }
 
           // if expressjs or nodejs
-          if(res.status) {
+          if(routeContext.respose.status) {
             routeContext.respose.send(html);
           } else {
             routeContext.respose.end(html);
