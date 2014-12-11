@@ -81,9 +81,10 @@ module.exports = function(program, addToReadyQue) {
         nconf.set('winston:containers:console:console:level', nconf.get('verbose'));
       }
 
-      // merge in the mount point for pellet so we can render the correct js directory
-      nconf.set('application:options:jsMountPoint', nconf.get('server:webpackMountPoint'));
-      nconf.set('application:config:language', nconf.get('server:webpackMountPoint'));
+      if(!nconf.set('application:config:jsMountPoint')) {
+        // merge in the mount point for pellet so we can render the correct js directory
+        nconf.set('application:config:jsMountPoint', nconf.get('server:webpackMountPoint'));
+      }
 
       // setup the apps default logger and overwrite the javascript console to use our logger
       var pelletLogger = winston.loggers.add('pellet', nconf.get('winston:containers:console'));

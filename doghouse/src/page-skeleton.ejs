@@ -17,7 +17,7 @@
         <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,400italic' rel='stylesheet' type='text/css'>
 
         <script src="<%- config.polyfillPath %>"></script>
-        <script src="<%- config.jsMountPoint + config.assetFileName %>"></script>
+        <script src="<%- isomorphicSharedConfig.jsMountPoint + config.assetFileName %>"></script>
         <%- options.http.headTags.join(' ') %>
     </head>
     <body class="lang <%- _lang %>">
@@ -32,8 +32,8 @@
 
         <script src="<%- config.reactCDNUrl -%>"></script>
         <script>window.__pellet__config = '<%- JSON.stringify(isomorphicSharedConfig) %>';</script>
-        <script src="<%- config.jsMountPoint + config.componentFileName %>"></script>
-        <script src="<%- config.jsMountPoint + (options.locales || config.locales || 'en-US') + '.js' %>"></script>
+        <script src="<%- isomorphicSharedConfig.jsMountPoint + config.componentFileName %>"></script>
+        <script src="<%- isomorphicSharedConfig.jsMountPoint + (options.locales || config.locales || 'en-US') + '.js' %>"></script>
 
         <% if(ctx) {%>
         <script>window.__pellet__ctx = <%- ctx %>;</script>

@@ -26,7 +26,7 @@ function getTranslation(locales, props) {
     translation: ''
   };
 
-  // supports calling props as 
+  // supports calling props as
   //  getTranslation(locales, { index: stringToTranslate })
   // or
   //  getTranslation(locales, stringToTranslate)
@@ -109,7 +109,7 @@ pellet.intl.load = function(locales, next) {
     }
   }
 
-  var src = (pellet.config.languageBaseUrl || '/js/') + locales + '.js';
+  var src = (pellet.config.jsMountPoint || '/js/') + locales + '.js';
   var head = document.getElementsByTagName('head')[0];
   var script = document.createElement('script');
   script.type = 'text/javascript';

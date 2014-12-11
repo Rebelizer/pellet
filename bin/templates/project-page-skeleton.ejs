@@ -9,7 +9,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="<%- config.polyfillPath %>"></script>
-        <script src="<%- config.jsMountPoint + config.assetFileName %>"></script>
+        <script src="<%- isomorphicSharedConfig.jsMountPoint + config.assetFileName %>"></script>
         <%- options.http.headTags.join(' ') %>
     </head>
     <body class="lang <%- _lang %>">
@@ -23,8 +23,8 @@
 
         <script src="<%- config.reactCDNUrl %>"></script>
         <script>window.__pellet__config = '<%- JSON.stringify(isomorphicSharedConfig) %>';</script>
-        <script src="<%- config.jsMountPoint + config.componentFileName %>"></script>
-        <script src="<%- config.jsMountPoint + (options.locales || config.locales || 'en-US') + '.js' %>"></script>
+        <script src="<%- isomorphicSharedConfig.jsMountPoint + config.componentFileName %>"></script>
+        <script src="<%- isomorphicSharedConfig.jsMountPoint + (options.locales || config.locales || 'en-US') + '.js' %>"></script>
         <% if(ctx) { %>
         <script>window.__pellet__ctx = <%- ctx %>;</script>
         <% } %>

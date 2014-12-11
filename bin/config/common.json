@@ -5,6 +5,8 @@
   "application": {
     "config": {
       // shared config for both client and server (do not include secrets this is public!)
+      // "jsMountPoint": "/js/", is defaulted to server:webpackMountPoint if missing
+      "locales": "en-US"
     },
     "options": {
       "locales": "en-US",

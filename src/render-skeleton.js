@@ -16,9 +16,9 @@ pellet.registerInitFn(function(next) {
 });
 
 function defaultRender(html, ctx, renderOptions) {
-  var assetPath = pellet.options.jsMountPoint + pellet.options.assetFileName;
-  var appPath = pellet.options.jsMountPoint + pellet.options.componentFileName;
-  var locales = pellet.options.jsMountPoint + (renderOptions.locales || pellet.config.locales || 'en-US') + '.js';
+  var assetPath = pellet.config.jsMountPoint + pellet.options.assetFileName;
+  var appPath = pellet.config.jsMountPoint + pellet.options.componentFileName;
+  var locales = pellet.config.jsMountPoint + (renderOptions.locales || pellet.config.locales || 'en-US') + '.js';
 
   var ourBodyScripts = '<script src="'+pellet.options.reactCDNUrl+'"></script>'+
     '<script>window.__pellet__config = ' + JSON.stringify(pellet.config) + ';</script>'+
