@@ -1,3 +1,28 @@
+### 0.0.30 (2014-12-11)
+
+
+#### Bug Fixes
+
+* bad default config logic we need to test using get not a set ([2889e227](https://github.com/Rebelizer/pellet/commit/2889e227b02dec9ee3d9774054bf843833efa24b))
+* using the wrong respose need to use routeContext.respose ([1079eede](https://github.com/Rebelizer/pellet/commit/1079eedeb1467c0af723c07d1ddafe77c1ce73ae))
+* make sure the polyfillPath is used in the route not just in the skeleton ([97cddda3](https://github.com/Rebelizer/pellet/commit/97cddda3f92326409327b5189f16ae09d1d82b46))
+* when inlcuding translations (locale data) the path was wrong case ([4f1d1081](https://github.com/Rebelizer/pellet/commit/4f1d108115ca6f1a62041792d25a90804dd13c35))
+* bad/old template examples ([705302bd](https://github.com/Rebelizer/pellet/commit/705302bd3931b459f76eb0107f5497b264f51dbf))
+
+
+#### Features
+
+* as a dev I want better plumbing for locales so server renders can pass isolated  ([0f245d24](https://github.com/Rebelizer/pellet/commit/0f245d24856d39583c5a074fb210fa4e700e964c))
+* as a dev I want to read/write headers via isomorphic http interface ([c0980f3a](https://github.com/Rebelizer/pellet/commit/c0980f3a60bacb77497675b8816c013c042f051b))
+* as a dev I want stats on http the number of 404 and 500 responses ([c5f32597](https://github.com/Rebelizer/pellet/commit/c5f32597d58fdb892d397584a093aff98cc104fb))
+* as a dev I want the jsMountPoint to be public in the isomorphic broswer environm ([e6e5f7ed](https://github.com/Rebelizer/pellet/commit/e6e5f7ed9bfeaace9b59a5132faa7ff94d395705))
+* as a dev I want to use nodejs api directly unless we are using expressjs ([6d8c4b0f](https://github.com/Rebelizer/pellet/commit/6d8c4b0f10a5eb80f253d9bb273f547b9861d0e6))
+* as a dev I want better error handling around building the translations file. ([66d36049](https://github.com/Rebelizer/pellet/commit/66d36049d8266eca8ee152e55b140403c2f9810f))
+* Add more verbose error messaging for i18n ([baceb532](https://github.com/Rebelizer/pellet/commit/baceb532f73f47992974d2147fb541612e54739b))
+* Add syntactic sugar for intl helper ([8388641e](https://github.com/Rebelizer/pellet/commit/8388641e4763a5d51ac34dde7bd00ceca5a1f170))
+* as a dev I want better built in internationalization support ([0d26134c](https://github.com/Rebelizer/pellet/commit/0d26134ceb102fee6c1a9cc365f69f00aa8689d8))
+
+
 ### 0.0.29 (2014-12-06)
 
 
