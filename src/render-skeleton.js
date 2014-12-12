@@ -18,7 +18,8 @@ pellet.registerInitFn(function(next) {
 function defaultRender(html, ctx, renderOptions) {
   var assetPath = pellet.config.jsMountPoint + pellet.options.assetFileName;
   var appPath = pellet.config.jsMountPoint + pellet.options.componentFileName;
-  var locales = pellet.config.jsMountPoint + (renderOptions.locales || pellet.config.locales || 'en-US') + '.js';
+  var _locales = renderOptions.locales || pellet.config.locales || 'en-US';
+  var locales = pellet.config.jsMountPoint + _locales + '.js';
 
   var ourBodyScripts = '<script src="'+pellet.options.reactCDNUrl+'"></script>'+
     '<script>window.__pellet__config = ' + JSON.stringify(pellet.config) + ';</script>'+
@@ -47,14 +48,12 @@ function defaultRender(html, ctx, renderOptions) {
     '<head>'+
       '<meta charset="utf-8">'+
       '<meta http-equiv="X-UA-Compatible" content="IE=edge">'+
-      //((message.meta && message.meta.title) ? '  <title>' + message.meta.title + '</title>' : '') +
-      '<meta name="description" content="">'+
       '<meta name="viewport" content="width=device-width, initial-scale=1">'+
       '<script src="' + pellet.options.polyfillPath + '"></script>'+
       '<script src="' + assetPath + '"></script>'+
       renderOptions.http.headTags.join(' ')+
     '</head>'+
-    '<body>'+
+    '<body class="lang '+_locales.substring(0,2)+'" locales="'+_locales+'">'+
       '<!--[if lt IE 7]>\n'+
       '<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>\n'+
       '<![endif]-->\n'+

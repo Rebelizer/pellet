@@ -287,9 +287,12 @@ pellet.prototype.startInit = function() {
  * @returns {locals|*|js.locals|module.locals|app.locals|string}
  */
 pellet.prototype.suggestLocales = function(renderOptions, component, options) {
-  // todo: if server read (Accept-Language) and push it onto array after en
-  // todo: if broswer we can use navigator.language etc.
-  // final this can be overwrite by a cookie or by url/host
+  if(process.env.BROWSER_ENV) {
+    var locales = document.body.getAttribute('locales');
+    if(locales) {
+      return locales;
+    }
+  }
 
   return module.exports.config.locales || 'en-US';
 }
