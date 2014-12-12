@@ -59,6 +59,14 @@ pipeline.prototype.addToHead = function(field, val) {
   this.http.addToHead(field, val);
 };
 
+pipeline.prototype.headers = function(field, val) {
+  if(arguments.length === 2) {
+    return this.http.headers(field, val);
+  } else {
+    return this.http.headers(field);
+  }
+};
+
 pipeline.prototype.setTitle = function(title) {
   this.http.addToHead(this.TITLE, title);
 };

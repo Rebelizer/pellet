@@ -20,7 +20,7 @@ isomorphicHttp.prototype = {
     this.respose.status(code);
   },
 
-  header: function(field, val) {
+  headers: function(field, val) {
     if(process.env.BROWSER_ENV) {
       return;
     }
@@ -34,10 +34,12 @@ isomorphicHttp.prototype = {
 
       // setHeader = res.set ? http.OutgoingMessage.prototype.setHeader : res.setHeader
       this.respose.setHeader(field, val);
-    } else {
+    } else if(typeof field === 'object'){
       for (var key in field) {
         this.set(key, field[key]);
       }
+    } else {
+      return this.request.headers[field];
     }
   },
 
