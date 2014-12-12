@@ -403,6 +403,8 @@ module.exports = function(program, addToReadyQue) {
                 res.statusCode = 404;
                 res.end(appOptions.missingPage({config: appOptions, req: req, res: res}));
               }
+
+              instrument.increment('http.status.404');
             });
           }
 
@@ -418,6 +420,8 @@ module.exports = function(program, addToReadyQue) {
                 res.statusCode = 500;
                 res.end(appOptions.errorPage({config: appOptions, req: req, res: res, err: err}));
               }
+
+              instrument.increment('http.status.500');
 
               console.error('Error rendering page:', err);
               if (logException) {
