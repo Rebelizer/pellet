@@ -1,3 +1,11 @@
+### 0.0.31 (2014-12-14)
+
+
+#### Bug Fixes
+
+* the polyfill server ([1529a9b1](https://github.com/Rebelizer/pellet/commit/1529a9b1903005447705d934513a0f0714497f0c))
+
+
 ### 0.0.30 (2014-12-11)
 
 
