@@ -56,6 +56,7 @@ var pelletRender = module.exports = {
             }
           }
 
+          react.initializeTouchEvents(true);
           react.unmountComponentAtNode(options.targetEl);
           //mesure.mark('react_unmount');
           result = react.render(component, options.targetEl);
