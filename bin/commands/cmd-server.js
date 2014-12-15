@@ -336,16 +336,20 @@ module.exports = function(program, addToReadyQue) {
             console.info('Polyfill:', polyfillOptions);
           }
 
-          var _polyfill = polyfill(polyfillOptions);
+          var _polyfill = polyfill();
 
           // create a polyfill endpoint
           app.use(function (req, res, next) {
             if (req.path !== appOptions.polyfillPath) return next();
-
             _polyfill(req.headers['user-agent']).then(function (data) {
-              // you probably want to do content negotiation here
-              res.setHeader('Content-Encoding', 'gzip');
-              res.setHeader('Content-Length', data.length['.min.js.gz']);
+              var ext = _polyfill.select(data, true, true);
+              console.log('we have:',JSON.stringify(data,null,2))
+
+              if(ext[1]) {
+                res.setHeader('Content-Encoding', 'gzip');
+              }
+
+              res.setHeader('Content-Length', data.length[ext[0]]);
               res.setHeader('Content-Type', 'application/javascript');
               res.setHeader('ETag', '"' + data.hash + '"');
               if(data.date) {
@@ -364,7 +368,7 @@ module.exports = function(program, addToReadyQue) {
                 return
               }
 
-              return _polyfill.read(data.name, '.min.js.gz').then(function (buf) {
+              return _polyfill.read(data.name, ext[0]).then(function (buf) {
                 res.end(buf);
               });
             }).catch(next);
