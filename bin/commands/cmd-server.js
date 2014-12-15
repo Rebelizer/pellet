@@ -343,7 +343,6 @@ module.exports = function(program, addToReadyQue) {
             if (req.path !== appOptions.polyfillPath) return next();
             _polyfill(req.headers['user-agent']).then(function (data) {
               var ext = _polyfill.select(data, true, true);
-              console.log('we have:',JSON.stringify(data,null,2))
 
               if(ext[1]) {
                 res.setHeader('Content-Encoding', 'gzip');
@@ -353,7 +352,7 @@ module.exports = function(program, addToReadyQue) {
               res.setHeader('Content-Type', 'application/javascript');
               res.setHeader('ETag', '"' + data.hash + '"');
               if(data.date) {
-                res.setHeader('Last-Modified', data.date.toUTCString());
+                res.setHeader('Last-Modified', data.date);
               }
 
               if (req.fresh) {

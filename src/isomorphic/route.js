@@ -1,6 +1,7 @@
 var pellet = require('pellet')
   , pelletRender = require('./../render')
   , isomorphicHttp = require('./http')
+  , utils = require('../utils')
   , routeTable = require('./../route-table')
 
 pellet.routes = new routeTable(); // TODO: pass in an options for sensitive & strict vi pellet.config
@@ -87,6 +88,10 @@ pellet.addComponentRoute = function(route, component, options) {
           if(!routeContext.respose.getHeader('Content-Type')) {
             routeContext.respose.setHeader('Content-Type', 'text/html');
           }
+
+          // add user-agent hash and the build number to the render options to help with cahce control
+          renderOptions.ushash = utils.djb2(routeContext.request.headers['user-agent']||'').toString(32);
+          renderOptions.manifest = pellet.options.manifest;
 
           if(_this.skeletonPageRender) {
             html = _this.skeletonPageRender(html, ctx, renderOptions);
