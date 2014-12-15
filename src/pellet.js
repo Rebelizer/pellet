@@ -3,7 +3,8 @@ var react = require('react')
   , observables = require('./observables')
   , isolator = require('./isolator')
   , instrumentation = require('./instrumentation')
-  , pelletReactMixin = require('./component-mixin');
+  , pelletReactMixin = require('./component-mixin')
+  , cookie = require('./isomorphic/cookie');
 
 /**
  * @class pellet
@@ -39,6 +40,14 @@ function pellet(config, options) {
  * @type {observables}
  */
 pellet.prototype.observables = observables;
+
+/**
+ *
+ * @type {cookie}
+ */
+if(process.env.BROWSER_ENV) {
+  pellet.prototype.cookie = cookie;
+}
 
 /**
  *
