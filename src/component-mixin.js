@@ -36,7 +36,11 @@ module.exports = {
   },
 
   getIsolatedConfig: function() {
-    return this._$isolator.isolatedConfig;
+    if(this._$isolator) {
+      return this._$isolator.isolatedConfig;
+    } else {
+      return this.context.rootIsolator.isolatedConfig;
+    }
   },
 
   componentWillUnmount: function() {
