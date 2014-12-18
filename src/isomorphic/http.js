@@ -80,7 +80,7 @@ isomorphicHttp.prototype = {
         }
 
         if (fields.property) {
-          newLine.push('name="' + fields.property + '"');
+          newLine.push('property="' + fields.property + '"');
         }
 
         if (fields.charset) {
