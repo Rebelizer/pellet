@@ -84,7 +84,7 @@ var pelletRender = module.exports = {
         // create a pipeline to render the component and track its state.
         // options.context is the serialized data from the server
         // options.http is isomorphic req/res to
-        var pipe = new pipeline(options.context, options.http);
+        var pipe = new pipeline(options.context, options.http, options.isolatedConfig);
 
         // update the pipe props because we got them in our options
         // the route function sets things like originalUrl, params, etc.
@@ -138,7 +138,7 @@ var pelletRender = module.exports = {
 
       try {
         componentWithContext = react.withContext({
-          rootIsolator: new isolator(),
+          rootIsolator: new isolator(null, null, null, options.isolatedConfig),
           locales: options.locales
         }, function () {
           var props;

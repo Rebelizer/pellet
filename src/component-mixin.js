@@ -35,6 +35,10 @@ module.exports = {
     return this._$isolator.coordinator(name, type);
   },
 
+  getIsolatedConfig: function() {
+    return this._$isolator.isolatedConfig;
+  },
+
   componentWillUnmount: function() {
     // release everything if root element unmounting
     // else check if local isolator that we need to

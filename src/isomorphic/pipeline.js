@@ -9,11 +9,11 @@ var pellet = require('./../pellet')
  * @param initData
  * @param http
  */
-function pipeline(initData, http) {
+function pipeline(initData, http, isolatedConfig) {
   this.http = http;
   this.serialize = {};
   this.props = {};
-  this.rootIsolator = new isolator();
+  this.rootIsolator = new isolator(null, null, null, isolatedConfig);
   this.coordinatorNameTypeMap = {};
 
   if(initData) {
@@ -81,6 +81,10 @@ pipeline.prototype.cookie = function() {
 
 pipeline.prototype.event = function(name) {
   return this.rootIsolator.event(name);
+}
+
+pipeline.prototype.getIsolatedConfig = function() {
+  return this.rootIsolator.isolatedConfig;
 }
 
 pipeline.prototype.updateIsolatedConfig = function(config) {

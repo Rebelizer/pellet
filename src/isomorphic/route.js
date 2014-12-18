@@ -4,6 +4,11 @@ var pellet = require('pellet')
   , utils = require('../utils')
   , routeTable = require('./../route-table')
 
+var runtimeIsolatedConfig = null;
+if(process.env.BROWSER_ENV) {
+  runtimeIsolatedConfig = {};
+}
+
 pellet.routes = new routeTable(); // TODO: pass in an options for sensitive & strict vi pellet.config
 pellet.skeletonPageRender = false;
 
@@ -23,7 +28,7 @@ pellet.addComponentRoute = function(route, component, options) {
   this.routes.add(route, function() {
     var routeContext = this
       , _component = component
-      , renderOptions = {props:{}};
+      , renderOptions = {props:{}, isolatedConfig:runtimeIsolatedConfig};
 
     try {
       if(process.env.SERVER_ENV) {
