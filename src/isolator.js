@@ -62,6 +62,36 @@ isolator.prototype.event = function(name, isolate) {
   return autoRelease;
 }
 
+isolator.prototype.makeProperty = function(event, name, current, isolate) {
+  var emitter, autoRelease;
+
+  if(autoRelease = this._releaseList[name]) {
+    if(autoRelease instanceof observables.autoRelease) {
+      return autoRelease;
+    }
+
+    // throw because the key already exists and is not an emitter. this is most
+    // likely because we have a coordinator with that name or name is _$..
+    throw new Error('Conflict with existing key');
+  }
+
+  if(!(event instanceof observables.autoRelease)) {
+    if(!(event = this._emitters[event])) {
+      throw new Error('Unknown base event to build property from');
+    }
+  }
+
+  emitter = this._emitters[name];
+  if(!emitter) {
+    emitter = this._emitters[name] = event.toProperty({sender:this._id, event:current});
+  }
+
+  autoRelease = new observables.autoRelease(emitter, this._id);
+  this._releaseList[name] = autoRelease;
+
+  return autoRelease;
+}
+
 isolator.prototype.registerEmitter = function(name, emitter) {
   if(this._releaseList[name]) {
     // throw because the key already exists
