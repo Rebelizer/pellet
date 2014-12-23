@@ -79,6 +79,10 @@ isomorphicHttp.prototype = {
           newLine.push('name="' + fields.name + '"');
         }
 
+        if (fields.property) {
+          newLine.push('property="' + fields.property + '"');
+        }
+
         if (fields.charset) {
           newLine.push('charset="' + fields.charset + '"');
         }
