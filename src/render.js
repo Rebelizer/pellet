@@ -84,7 +84,7 @@ var pelletRender = module.exports = {
         // create a pipeline to render the component and track its state.
         // options.context is the serialized data from the server
         // options.http is isomorphic req/res to
-        var pipe = new pipeline(options.context, options.http, options.isolatedConfig);
+        var pipe = new pipeline(options.context, options.http, options.isolatedConfig, options.requestContext);
 
         // update the pipe props because we got them in our options
         // the route function sets things like originalUrl, params, etc.
@@ -111,6 +111,7 @@ var pelletRender = module.exports = {
           try {
             componentWithContext = react.withContext({
               rootIsolator: new isolator(null, null, null, pipe.rootIsolator.isolatedConfig),
+              requestContext: options.requestContext,
               locales: options.locales
             }, function () {
               return React.createElement(component, pipe.props);
@@ -139,6 +140,7 @@ var pelletRender = module.exports = {
       try {
         componentWithContext = react.withContext({
           rootIsolator: new isolator(null, null, null, options.isolatedConfig),
+          requestContext: options.requestContext,
           locales: options.locales
         }, function () {
           var props;
@@ -161,7 +163,20 @@ var pelletRender = module.exports = {
         return;
       }
 
-      renderReactComponent(componentWithContext);
+      renderReactComponent(componentWithContext, {
+        toJSON: function() {
+          try {
+            return JSON.stringify({
+              requestContext: options.requestContext,
+              props: null,
+              coordinatorState: null
+            });
+          } catch(ex) {
+            console.error("Cannot serialize isomorphic context because:", ex.message);
+            throw ex;
+          }
+        }
+      });
     }
   }
 };

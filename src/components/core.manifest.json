@@ -8,13 +8,15 @@
     ],
     "code": [
       "../isomorphic/route.js",
-      "../instrumentation.js"
+      "../instrumentation.js",
+      "./user-agent-mixin.js"
     ],
     "client-dependencies": [
       "./history-polyfill.browser.min.js"
     ],
     "server-dependencies": [
-      "../render-skeleton.js"
+      "../render-skeleton.js",
+      "./user-agent-middleware.js"
     ]
   }
 ]

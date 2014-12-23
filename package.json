@@ -83,6 +83,7 @@
     "statsd": "^0.7.2",
     "style-loader": "^0.8.0",
     "stylus-loader": "^0.4.0",
+    "ua-parser-js": "^0.7.3",
     "uglify-js": "^2.4.15",
     "url-loader": "^0.5.5",
     "webpack": "^1.4.0-beta4",

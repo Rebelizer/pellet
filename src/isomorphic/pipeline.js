@@ -9,18 +9,15 @@ var pellet = require('./../pellet')
  * @param initData
  * @param http
  */
-function pipeline(initData, http, isolatedConfig) {
+function pipeline(initData, http, isolatedConfig, requestContext) {
   this.http = http;
   this.serialize = {};
   this.props = {};
+  this.requestContext = requestContext;
   this.rootIsolator = new isolator(null, null, null, isolatedConfig);
   this.coordinatorNameTypeMap = {};
 
   if(initData) {
-    if(typeof(initData) === 'string') {
-      initData = JSON.parse(initData);
-    }
-
     utils.objectUnion([initData.props], this.props);
     utils.objectUnion([initData.props], this.serialize);
 
@@ -231,9 +228,16 @@ pipeline.prototype.addChildComponent = function(namespace, component, options, n
   }
 };
 
+if(pellet.options.includeUserAgentInfo) {
+  pipeline.prototype.getUA = function () {
+    return (this.requestContext && this.requestContext.userAgentDetails) || {};
+  }
+}
+
 pipeline.prototype.toJSON = function() {
   try {
     return JSON.stringify({
+      requestContext: this.requestContext,
       props: this.serialize,
       coordinatorState: this.coordinatorState
     });

@@ -2,6 +2,7 @@ var react = require('react')
   , isolator = require('./isolator');
 
 var spec = {
+  requestContext: react.PropTypes.object,
   rootIsolator: react.PropTypes.instanceOf(isolator),
   locales: react.PropTypes.oneOfType([
     react.PropTypes.string,
@@ -59,6 +60,7 @@ module.exports = {
   getChildContext: function () {
     return {
       rootIsolator: this.context.rootIsolator,
+      requestContext: this.context.requestContext,
       locales: this.props.locales || this.context.locales
     };
   }

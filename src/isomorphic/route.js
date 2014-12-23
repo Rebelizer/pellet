@@ -48,15 +48,25 @@ pellet.addComponentRoute = function(route, component, options) {
           routeContext.request,
           routeContext.respose,
           routeContext.next);
+
+        renderOptions.requestContext = routeContext.request.requestContext;
       } else {
         // create a isomorphic http provider for the isomorphic render
         renderOptions.http = new isomorphicHttp();
 
         // in the browser only use the serialized date once the bootstrap
-        // call router  .
+        // call router.
         if(window.__pellet__ctx) {
           renderOptions.context = window.__pellet__ctx;
           delete window.__pellet__ctx;
+
+          if(typeof(renderOptions.context) === 'string') {
+            renderOptions.context = JSON.parse(renderOptions.context);
+          }
+          if(typeof(renderOptions.context.requestContext) !== 'undefined') {
+            renderOptions.requestContext = renderOptions.context.requestContext;
+            delete renderOptions.context.requestContext;
+          }
         }
       }
 
@@ -94,7 +104,7 @@ pellet.addComponentRoute = function(route, component, options) {
             routeContext.respose.setHeader('Content-Type', 'text/html');
           }
 
-          // add user-agent hash and the build number to the render options to help with cahce control
+          // add user-agent hash and the build number to the render options to help with cache control
           renderOptions.ushash = utils.djb2(routeContext.request.headers['user-agent']||'').toString(32);
           renderOptions.manifest = pellet.options.manifest;
 
