@@ -1,3 +1,23 @@
+### 0.0.35 (2014-12-28)
+
+
+#### Bug Fixes
+
+* need to handle both cases (if we created a child isolator or using parent) ([3105155f](https://github.com/Rebelizer/pellet/commit/3105155fa01881900a4c742c3b5f9003f5039f7e))
+* as a dev I want isolatedConfig in the browser to maintain between routes ([63e3effa](https://github.com/Rebelizer/pellet/commit/63e3effa098cd9e49bf9fabe3c919106b3c61514))
+* addToHead should support meta tags with properties ([db7f89b3](https://github.com/Rebelizer/pellet/commit/db7f89b354378cb900298cff352fab6b1fd98302))
+
+
+#### Features
+
+* as a dev I want user-agian to be parsed and passed to the component for mobile r ([2eefdd96](https://github.com/Rebelizer/pellet/commit/2eefdd96844332517955ca57911c71360ce915fa))
+* as a dev I want property based events on my isolator ([46e2ad92](https://github.com/Rebelizer/pellet/commit/46e2ad92d971557f25646ad6c7b3fb750b7c52bf))
+* as a dev i want to add a meta tag with a property attr to the head ([e17a5ffc](https://github.com/Rebelizer/pellet/commit/e17a5ffc3e69924ab57cd252003b384444b3d365))
+* as a dev I need pellet.cookie in the browser ([f3e76fd4](https://github.com/Rebelizer/pellet/commit/f3e76fd4a6b44ba2b235028ca8fa6689004fd873))
+* as a dev I want touch events ([b9b8f937](https://github.com/Rebelizer/pellet/commit/b9b8f9370a3e2c819e988b4ff081a2881a92012f))
+* as a dev I want a the polyfill to have a hash to bust cdn caching ([caefc638](https://github.com/Rebelizer/pellet/commit/caefc638fdc3a39f6714faaa62f34845eea08109))
+
+
 ### 0.0.31 (2014-12-14)
 
 
