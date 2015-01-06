@@ -19,6 +19,11 @@
     "react",
     "webpack"
   ],
+  "keywords": [
+    "react",
+    "webpack"
+  ],
+
   "files": [
     "bin",
     "src",
