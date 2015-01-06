@@ -444,27 +444,36 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         fs.writeJSONFileSync(translationMapFile, translationDictionary);
       }
 
-      var translationStats = {};
+      var k, translationObj =[], translationStats = {};
 
       for(j in translationDictionary) {
         msgFormatBuilder = new messageFormat(j.split('-')[0]);
 
         translationStats[j] = Object.keys(translationDictionary[j]).length;
 
-        try {
-          translationDictionary[j] = {
-            i18n: '(function() {var i18n=' + msgFormatBuilder.functions() + ';' +
-            'i18n._=' + msgFormatBuilder.precompileObject(translationDictionary[j]) + ';' +
-            'if(__pellet__ref) {__pellet__ref.loadTranslation("' + j + '",i18n._);}})();\n'
-          };
-        } catch(ex) {
-          if(ex) {
-            console.error('Can not include translations because:', ex.message)
+        for (k in translationDictionary[j]) {
+          try {
+            translationObj.push(JSON.stringify(k) + ':' + msgFormatBuilder.precompile(msgFormatBuilder.parse(translationDictionary[j][k])));
+          } catch(ex) {
+            console.error('Can not include translation', j, '|'+k+'|', 'because:', ex.message);
+            console.error('  value:', translationDictionary[j][k]);
           }
         }
 
-        translationDictionary[j].localeData = 'if(Intl.__addLocaleData) {Intl.__addLocaleData(' +
-          fs.readFileSync(require.resolve('intl/locale-data/json/' + j + '.json')).toString() + ');}';
+        translationDictionary[j] = {
+          i18n: '(function() {var i18n=' + msgFormatBuilder.functions() + ';' +
+          'i18n._={' + translationObj.join(',') + '};' +
+          'if(__pellet__ref) {__pellet__ref.loadTranslation("' + j + '",i18n._);}})();\n'
+        };
+
+        var localData = JSON.parse(fs.readFileSync(require.resolve('intl/locale-data/json/' + j + '.json')).toString());
+        /*localData.date.formats.push({
+            "month": "short",
+            "day": "numeric",
+            "pattern": "{month}",
+            "pattern12": "{month}"
+        });*/
+        translationDictionary[j].localeData = 'if(Intl.__addLocaleData) {Intl.__addLocaleData(' + JSON.stringify(localData) + ');}';
       }
 
       if(Object.keys(translationStats).length == 0) {
