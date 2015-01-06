@@ -455,8 +455,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           try {
             translationObj.push(JSON.stringify(k) + ':' + msgFormatBuilder.precompile(msgFormatBuilder.parse(translationDictionary[j][k])));
           } catch(ex) {
-            console.error('Can not include translation', j, '|'+k+'|', 'because:', ex.message);
-            console.error('  value:', translationDictionary[j][k]);
+            console.error('Can not include translation', j, 'KEY['+k+']', 'VALUE['+translationDictionary[j][k]+']', 'because:', ex.message);
           }
         }
 
