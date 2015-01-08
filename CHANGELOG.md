@@ -1,3 +1,12 @@
+### 0.0.37 (2015-01-08)
+
+
+#### Features
+
+* as a dev I want to have access to the locales info in pipeline and have a isomor ([419eccdd](https://github.com/Rebelizer/pellet/commit/419eccdde55182baa6f97ae9c190db24f0a880b1))
+* as a dev I want to excluded items from the manifest by flag not deleting the def ([09d112ba](https://github.com/Rebelizer/pellet/commit/09d112bad0d1519cb5b4cb6d1c3351dc8b71f054))
+
+
 ### 0.0.36 (2015-01-08)
 
 
