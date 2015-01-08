@@ -90,16 +90,20 @@ function getTranslation(locales, props) {
  * @param options
  * @returns {string|*|buildManifestMap.server.translation}
  */
+function _getLocales(scope) {
+  return (scope.getLocales && scope.getLocales()) || scope;
+}
+
 pellet.intl = function(scope, options) {
-  return getTranslation(scope.props.locales || scope.context.locales || scope, options).translation;
+  return getTranslation(_getLocales(scope), options).translation;
 }
 
 pellet.intl.formatNumber = function(scope, number, options) {
-  return _intl.NumberFormat(scope.props.locales || scope.context.locales, options).format(number);
+  return _intl.NumberFormat(_getLocales(scope), options).format(number);
 }
 
 pellet.intl.formatDateTime = function(scope, date, options) {
-  return _intl.DateTimeFormat(scope.props.locales || scope.context.locales, options).format(date);
+  return _intl.DateTimeFormat(_getLocales(scope), options).format(date);
 }
 
 pellet.intl.load = function(locales, next) {
@@ -129,7 +133,7 @@ module.exports = pellet.createClass({
 
   render: function() {
 
-    var locales = this.props.locales || this.context.locales;
+    var locales = this.getLocales();
     var translation = getTranslation(locales, this.props);
 
     if(process.env.BROWSER_ENV && translation.isMissing && !pellet.locales[locales] && !pellet.locales['_$'+locales]) {

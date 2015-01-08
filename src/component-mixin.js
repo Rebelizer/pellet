@@ -36,6 +36,10 @@ module.exports = {
     return this._$isolator.coordinator(name, type);
   },
 
+  getLocales: function() {
+    return this.props.locales || this.context.locales;
+  },
+
   getIsolatedConfig: function() {
     if(this._$isolator) {
       return this._$isolator.isolatedConfig;
@@ -61,7 +65,7 @@ module.exports = {
     return {
       rootIsolator: this.context.rootIsolator,
       requestContext: this.context.requestContext,
-      locales: this.props.locales || this.context.locales
+      locales: this.getLocales()
     };
   }
 };

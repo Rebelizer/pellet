@@ -9,11 +9,12 @@ var pellet = require('./../pellet')
  * @param initData
  * @param http
  */
-function pipeline(initData, http, isolatedConfig, requestContext) {
+function pipeline(initData, http, isolatedConfig, requestContext, locales) {
   this.http = http;
   this.serialize = {};
   this.props = {};
   this.requestContext = requestContext;
+  this.locales = locales;
   this.rootIsolator = new isolator(null, null, null, isolatedConfig);
   this.coordinatorNameTypeMap = {};
 
@@ -86,6 +87,10 @@ pipeline.prototype.getIsolatedConfig = function() {
 
 pipeline.prototype.updateIsolatedConfig = function(config) {
   return this.rootIsolator.updateIsolatedConfig(config);
+}
+
+pipeline.prototype.getLocales = function() {
+  return this.props.locales || this.locales;
 }
 
 pipeline.prototype.coordinator = function(name, type, serializeEventName) {
