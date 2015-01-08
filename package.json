@@ -1,6 +1,6 @@
 {
   "name": "pellet",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "",
   "author": "Demetrius Johnson <contact@demetriusj.com> (http://demetriusj.com)",
   "repository": {
@@ -23,7 +23,6 @@
     "react",
     "webpack"
   ],
-
   "files": [
     "bin",
     "src",

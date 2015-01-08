@@ -1,3 +1,19 @@
+### 0.0.36 (2015-01-08)
+
+
+#### Bug Fixes
+
+* airbag bug on pellet create ([2d9ed0bf](https://github.com/Rebelizer/pellet/commit/2d9ed0bf8e495e66bd4fbb1055a285cc39168c89))
+* as a dev I want translation error better formatted ([285b75bb](https://github.com/Rebelizer/pellet/commit/285b75bb482822cebf26741a5467f63a9bed9d6f))
+
+
+#### Features
+
+* as a dev I want to use my intl locale-data (so I can fix intl data format bugs e ([6a2ee137](https://github.com/Rebelizer/pellet/commit/6a2ee137b0871ec6473bc67560abc38831aaebb2))
+* as a dev I want better error handling around translations ([16e6c7ac](https://github.com/Rebelizer/pellet/commit/16e6c7aceaf504805cd2490597e46ebc6fca85ed))
+* add keywords for package.json to help people file us ([c7345630](https://github.com/Rebelizer/pellet/commit/c7345630097dae39712b46220397e42cef41fe0c))
+
+
 ### 0.0.35 (2014-12-28)
 
 
