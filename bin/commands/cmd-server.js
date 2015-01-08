@@ -487,6 +487,7 @@ module.exports = function(program, addToReadyQue) {
       options.output = path.resolve(LAUNCH_CWD, (resolveConfigPaths(nconf.get('pellet:output')) || 'build'));
       options.outputBrowser = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputBrowser'), true) || 'browser');
       options.outputServer = path.resolve(options.output, resolveConfigPaths(nconf.get('pellet:outputServer'), true) || 'server');
+      options.intlLocaleDataPath = nconf.get('pellet:intlLocaleData') && path.resolve(PELLET_PROJECT_PATH, resolveConfigPaths(nconf.get('pellet:intlLocaleData')));
       options.mountPoint = nconf.get('server:webpackMountPoint');
       options.useInternalDependencies = !!nconf.get('pellet:useInternalDependencies');
       options.ignoreCoreManifest = !!nconf.get('pellet:skipIncludedInternalCoreManifest');

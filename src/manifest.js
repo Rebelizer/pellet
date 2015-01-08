@@ -444,7 +444,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         fs.writeJSONFileSync(translationMapFile, translationDictionary);
       }
 
-      var k, translationObj =[], translationStats = {};
+      var k, localData, translationObj =[], translationStats = {};
 
       for(j in translationDictionary) {
         msgFormatBuilder = new messageFormat(j.split('-')[0]);
@@ -465,13 +465,12 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           'if(__pellet__ref) {__pellet__ref.loadTranslation("' + j + '",i18n._);}})();\n'
         };
 
-        var localData = JSON.parse(fs.readFileSync(require.resolve('intl/locale-data/json/' + j + '.json')).toString());
-        /*localData.date.formats.push({
-            "month": "short",
-            "day": "numeric",
-            "pattern": "{month}",
-            "pattern12": "{month}"
-        });*/
+        if(options.intlLocaleDataPath && fs.existsSync(path.resolve(options.intlLocaleDataPath, 'json', j + '.json'))) {
+          localData = JSON.parse(fs.readFileSync(path.resolve(options.intlLocaleDataPath, 'json', j + '.json')).toString());
+        } else {
+          localData = JSON.parse(fs.readFileSync(require.resolve('intl/locale-data/json/' + j + '.json')).toString());
+        }
+
         translationDictionary[j].localeData = 'if(Intl.__addLocaleData) {Intl.__addLocaleData(' + JSON.stringify(localData) + ');}';
       }
 
@@ -599,6 +598,13 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           intl: 'pellet/node_modules/intl',
           ejs: 'pellet/node_modules/ejs'
         };
+      }
+
+      if(options.intlLocaleDataPath && fs.existsSync(path.resolve(options.intlLocaleDataPath, 'complete.js'))) {
+        externalDependencies.intl = path.join(externalDependencies.intl, 'Intl.complete.js');
+        config.resolve.alias['intl/locale-data/complete.js'] = path.resolve(options.intlLocaleDataPath, 'complete.js');
+      } else {
+        config.resolve.alias['intl/locale-data/complete.js'] = path.resolve(__dirname, 'components/internationalization/no-op.js');
       }
 
       utils.objectUnion([config, {

@@ -39,6 +39,7 @@
     "output": "#PELLET_PROJECT_PATH#/build",
     "outputBrowser" : "browser",
     "outputServer" : "server",
+    "intlLocaleData": false, // or path to data "#PELLET_PROJECT_PATH#/config/locale-data"
     "useInternalDependencies": true,
     "jadeTemplateSupport": true,
     "skipIncludedInternalCoreManifest": false

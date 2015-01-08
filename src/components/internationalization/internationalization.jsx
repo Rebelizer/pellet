@@ -11,7 +11,8 @@ var spec = {
 
 var _intl;
 if(process.env.SERVER_ENV) {
-  _intl = require('intl');
+  _intl = require('intl/Intl.complete.js');
+  require('intl/locale-data/complete.js');
 } else {
   _intl = window.Intl;
 }
