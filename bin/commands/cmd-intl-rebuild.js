@@ -21,7 +21,7 @@ module.exports = function(program, addToReadyQue) {
   program
     .command('intl-rebuild')
     .description('Rebuild the intl server locale data')
-    .option('--locale-data <path>', 'path to Intl locale-data', path.resolve(PELLET_PROJECT_PATH, program.pelletConfig.configDir || '.', 'locale-data'))
+    .option('--locale-data <path>', 'path to Intl locale-data', path.resolve(PELLET_PROJECT_PATH, (program.pelletConfig && program.pelletConfig.configDir) || '.', 'locale-data'))
     .action(function (options) {
 
       var
