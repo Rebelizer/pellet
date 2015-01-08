@@ -230,18 +230,21 @@ manifestParser.prototype.merge = function(file, additionalItems, options, next) 
         return next(err);
       }
 
-      // merge all webpack fields into
-      for(i in WEBPACK_FIELDS) {
-        field = WEBPACK_FIELDS[i];
+      if(component.excluded !== true) {
+        // merge all webpack fields into
+        for(i in WEBPACK_FIELDS) {
+          field = WEBPACK_FIELDS[i];
 
-        mergeUniqueComponentFields(_this, component, field, 'webpackEP');
+          mergeUniqueComponentFields(_this, component, field, 'webpackEP');
+        }
+
+        mergeUniqueComponentFields(_this, component, 'translations');
+
+        // add the component to our manifest and cleanup _id
+        // we added in the validate step above
+        _this.manifest[component._id] = component;
       }
 
-      mergeUniqueComponentFields(_this, component, 'translations');
-
-      // add the component to our manifest and cleanup _id
-      // we added in the validate step above
-      _this.manifest[component._id] = component;
       delete component._id;
 
       next(null);
