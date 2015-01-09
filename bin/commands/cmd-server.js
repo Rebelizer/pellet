@@ -21,6 +21,8 @@ var path = require('path')
 var PELLET_BIN_PATH = path.resolve(__dirname, '..');
 var LAUNCH_CWD = process.cwd();
 
+var LAUNCH_TIME = new Date();
+
 /*
  * helper function to parse the nconf webpack overrides
  * and conver the strings into RegExp
@@ -252,10 +254,26 @@ module.exports = function(program, addToReadyQue) {
         appOptions.instrumentation = instrument;
         appOptions.logger = pelletLogger;
 
-        // todo: add flag to track memory
-        //setInterval(function() {
-        //  instrument all the node memory stats!
-        //}, 10000)
+        var sampleInterval = nconf.get('pellet:insterumentation:interval');
+        if(sampleInterval) {
+          setInterval(function() {
+            var namespace = os.hostname() + '.';
+            var memoryUsage = process.memoryUsage();
+
+            instrument.gauge(namespace + 'loadavg', os.loadavg());
+            instrument.gauge(namespace + 'totalmem', os.totalmem());
+            instrument.gauge(namespace + 'freemem', os.freemem());
+
+            namespace = namespace + process.pid + '.';
+            instrument.gauge(namespace + 'runtime', new Date() - LAUNCH_TIME);
+            instrument.gauge(namespace + 'rss', memoryUsage.rss);
+            instrument.gauge(namespace + 'heapTotal', memoryUsage.heapTotal);
+            instrument.gauge(namespace + 'heapUsed', memoryUsage.heapUsed);
+
+            console.info('Interval sample loadavg:', os.loadavg(), 'totalmem:', os.totalmem(), 'freemem:', os.freemem(), 'runtime:', new Date() - LAUNCH_TIME, 'rss:', memoryUsage.rss, 'heapTotal:', memoryUsage.heapTotal, 'heapUsed:', memoryUsage.heapUsed);
+
+          }, sampleInterval);
+        }
 
         try {
           console.log('Loading', componentFile, 'webpack into pellet server.');
@@ -479,6 +497,8 @@ module.exports = function(program, addToReadyQue) {
                 console.log('Listen on', nconf.get('http:port'), nconf.get('http:address'));
               }
             });
+
+            //TODO: app.maxConnections
           });
         }
       }

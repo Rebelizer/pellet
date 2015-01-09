@@ -43,6 +43,9 @@
     "useInternalDependencies": true,
     "jadeTemplateSupport": true,
     "skipIncludedInternalCoreManifest": false
+    //,"insterumentation": {
+    //  "interval": 5000
+    //}
   },
 
   // overwrite pellets webpack config
