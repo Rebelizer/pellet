@@ -1,3 +1,12 @@
+### 0.0.38 (2015-01-09)
+
+
+#### Features
+
+* as a dev I want to sample process into and send it to statsd ([a71192e5](https://github.com/Rebelizer/pellet/commit/a71192e54d55e6c3b3a1b18b5bc620da67893836))
+* as a dev I want the lates stylus-loader package ([e115df9b](https://github.com/Rebelizer/pellet/commit/e115df9b48dd0a2b3fe0ca60fc3ca2f1f39b79df))
+
+
 ### 0.0.37 (2015-01-08)
 
 
