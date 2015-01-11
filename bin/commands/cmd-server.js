@@ -337,7 +337,7 @@ module.exports = function(program, addToReadyQue) {
 
               var logStream = fs.createWriteStream(logFile, {flags: 'a'});
               logStream.write("START LOGGING:" + (new Date()).toJSON() + " PID:" + process.pid + "\n");
-              app.use(morgan(nconf.get('server:accessLog:format'), {stream: logStream, buffer: 1000}));
+              app.use(morgan(nconf.get('server:accessLog:format'), {stream: logStream}));
             }
           }
 
