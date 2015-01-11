@@ -588,18 +588,32 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       // projects version
       var externalDependencies;
       if(options.useInternalDependencies) {
+        externalDependencies = {};
+        if(fs.existsSync(path.resolve(options.projectRootPath, 'node_modules', 'pellet', 'node_modules', 'react'))) {
+          externalDependencies.React = path.join('pellet', 'node_modules', 'react', 'addons');
+          externalDependencies.react = externalDependencies.React;
+        } else {
+          externalDependencies.React = path.resolve(__dirname, '..', 'node_modules', 'react', 'addons');
+          externalDependencies.react = externalDependencies.React;
+        }
+
+        if(fs.existsSync(path.resolve(options.projectRootPath, 'node_modules', 'pellet', 'node_modules', 'intl'))) {
+          externalDependencies.intl = path.join('pellet', 'node_modules', 'intl');
+        } else {
+          externalDependencies.intl = path.resolve(__dirname, '..', 'node_modules', 'intl');
+        }
+
+        if(fs.existsSync(path.resolve(options.projectRootPath, 'node_modules', 'pellet', 'node_modules', 'ejs'))) {
+          externalDependencies.ejs = path.join('pellet', 'node_modules', 'ejs');
+        } else {
+          externalDependencies.ejs = path.resolve(__dirname, '..', 'node_modules', 'ejs');
+        }
+      } else {
         externalDependencies = {
           React: 'react/addons',
           react: 'react/addons',
           intl: 'intl',
           ejs: 'ejs'
-        };
-      } else {
-        externalDependencies = {
-          React: 'pellet/node_modules/react/addons',
-          react: 'pellet/node_modules/react/addons',
-          intl: 'pellet/node_modules/intl',
-          ejs: 'pellet/node_modules/ejs'
         };
       }
 

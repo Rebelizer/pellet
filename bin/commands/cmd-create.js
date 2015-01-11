@@ -388,25 +388,25 @@ module.exports = function(program, addToReadyQue) {
             console.log('\n\n');
             if(answer.type === 'Project') {
               console.log('#### IMPORTANT ####');
-              console.log('The default configuration of pellet requires react,');
-              console.log('ejs, and intl installed.\n\nPlease run:\n');
+              console.log('It is highly recommended that you install a local');
+              console.log('pellet so the deploy files have no dependencies');
+              console.log('\nPlease run:\n');
 
               console.log('$ cd', options.output);
 
               if(!fs.existsSync(path.join(options.output, 'package.json'))) {
                 console.log('$ npm init')
-                console.log('$ npm install react ejs intl messageformat --save')
+                console.log('$ npm install pellet --save')
               } else {
-                console.log('$ npm install react ejs intl messageformat --save')
+                console.log('$ npm install pellet --save')
               }
 
               console.log('\nIf you want to use pellet standalone you will need');
               console.log('to set useInternalDependencies=false in your config');
-              console.log('and "npm install pellet --save"\n\n');
+              console.log('and "npm install react ejs intl messageformat --save"\n\n');
 
               console.log('To start pellet run:');
               console.log('$ pellet run --watch --clean');
-
             }
           });
         }
