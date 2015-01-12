@@ -1,3 +1,16 @@
+### 0.0.39 (2015-01-12)
+
+
+#### Bug Fixes
+
+* remove morgan deprecated buffer option ([b9285e85](https://github.com/Rebelizer/pellet/commit/b9285e85c976e57f918666a9b282a4ea698abe34))
+
+
+#### Features
+
+* as a dev I want to run pellet project without installing a local npm pellet ([0c1c114f](https://github.com/Rebelizer/pellet/commit/0c1c114f8d8ed7c234976e8b91382f9c5e28f702))
+
+
 ### 0.0.38 (2015-01-09)
 
 
