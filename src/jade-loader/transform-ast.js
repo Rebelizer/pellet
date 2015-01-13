@@ -101,7 +101,7 @@ Rectifier.prototype = {
     // console.log(new Array(this.depth).join('  ') + node.type);
     var visitor = this['visit' + node.type];
     if (visitor) node = visitor.call(this, node);
-    else console.warn('WARNING: missing visitor for ' + node.type);
+    //else console.warn('WARNING: missing visitor for ' + node.type);
     // this.depth--;
     return node;
   },
