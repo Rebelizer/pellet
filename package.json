@@ -63,6 +63,7 @@
     "file-loader": "^0.7.2",
     "fs-extra": "^0.12.0",
     "glob": "^4.0.5",
+    "heapdump": "^0.3.4",
     "html5": "^1.0.5",
     "inquirer": "^0.7.1",
     "intl": "^0.1.4",

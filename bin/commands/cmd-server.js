@@ -521,6 +521,33 @@ module.exports = function(program, addToReadyQue) {
       if (options.clean) {
         console.log('Cleaning:', options.output);
         fs.deleteSync(options.output);
+
+        glob(path.join(LAUNCH_CWD, 'heapdump-*.*.heapsnapshot'), function (err, fileList) {
+          if (err) {
+            console.error('Error finding heapdump files to clean because:', err.message || err);
+          }
+
+          if(fileList && fileList.length) {
+            for(var i in fileList) {
+              console.log('Cleaning:', fileList[i]);
+              fs.deleteSync(fileList[i]);
+            }
+          }
+
+          // enable the heapdump
+          if(options.heapdump) {
+            console.info('Enabled strongloop heapdump: to snapshot "kill -USR2', process.pid + '"');
+            console.info('  Read http://strongloop.com/strongblog/how-to-heap-snapshots/');
+            console.info('  Initial heapdump');
+            require('heapdump').writeSnapshot();
+          }
+        });
+      } else if(options.heapdump) {
+        // run headdump with out the clean flag
+        console.info('Enabled strongloop heapdump: to snapshot "kill -USR2', process.pid + '"');
+        console.info('  Read http://strongloop.com/strongblog/how-to-heap-snapshots/');
+        console.info('  Initial heapdump');
+        require('heapdump').writeSnapshot();
       }
 
       mesureLaunch.mark('clean');
@@ -766,6 +793,7 @@ module.exports = function(program, addToReadyQue) {
     .option('--polyfill-rebuild', 'Rebuild polyfill files')
     .option('--es6', 'run with es6 support', false)
     .option('--spdy', 'path to directory with spdy cert', false)
+    .option('--heapdump', 'enable heapdump for memory leaks', false)
     .action(exec)
     .on('--help', function () {
       console.log(fs.readFileSync(path.join(__dirname, '..', 'help', 'server.txt')).toString());
