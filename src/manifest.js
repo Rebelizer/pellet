@@ -608,11 +608,18 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         } else {
           externalDependencies.ejs = path.resolve(__dirname, '..', 'node_modules', 'ejs');
         }
+
+        if(fs.existsSync(path.resolve(options.projectRootPath, 'node_modules', 'pellet', 'node_modules', 'messageformat'))) {
+          externalDependencies.messageformat = path.join('pellet', 'node_modules', 'messageformat');
+        } else {
+          externalDependencies.messageformat = path.resolve(__dirname, '..', 'node_modules', 'messageformat');
+        }
       } else {
         externalDependencies = {
           React: 'react/addons',
           react: 'react/addons',
           intl: 'intl',
+          messageformat: 'messageformat',
           ejs: 'ejs'
         };
       }

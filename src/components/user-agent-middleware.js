@@ -9,13 +9,13 @@ if(pellet.options.includeUserAgentInfo) {
       var ua = req.headers['user-agent'];
       if(ua) {
         ua = UAParser.setUA(ua).getResult();
+        delete ua.ua;
       }
 
       if(!req.requestContext) {
         req.requestContext = {};
       }
 
-      delete ua.ua;
       req.requestContext.userAgentDetails = ua;
       next();
     }
