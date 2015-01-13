@@ -161,7 +161,9 @@ if(process.env.SERVER_ENV) {
 
   pellet.onReady(function() {
     var match = pellet.routes.parse(location.pathname + location.search);
-    match.fn.call(match);
+    if(match && match.fn) {
+      match.fn.call(match);
+    }
   });
 
   pellet.addWindowOnloadEvent(function() {
