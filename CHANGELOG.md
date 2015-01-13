@@ -1,3 +1,19 @@
+### 0.0.40 (2015-01-13)
+
+
+#### Bug Fixes
+
+* remove some warning messages ([4ac0b070](https://github.com/Rebelizer/pellet/commit/4ac0b0705831c575f48fdf6f2f26b7c683f2610b))
+* airbag exception if no user-agent was parsed ([31d19c18](https://github.com/Rebelizer/pellet/commit/31d19c18538d0c0a9c0c012030de8500aef18710))
+
+
+#### Features
+
+* as a dev I want to see my delta on memory stats ([66e542fa](https://github.com/Rebelizer/pellet/commit/66e542fac208d101be90f4c60f85e4d5558319f3))
+* as a dev I want to auto snapshot the heap via a growth threshold and interval ([186b277a](https://github.com/Rebelizer/pellet/commit/186b277a94c025c89ae2a1cc369c8b4c50213953))
+* as a dev I want to take heap snapshot to help track down memory leaks ([240a9524](https://github.com/Rebelizer/pellet/commit/240a952465c0cb8961b495678c2256ba1076e99d))
+
+
 ### 0.0.39 (2015-01-12)
 
 
