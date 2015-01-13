@@ -275,6 +275,47 @@ module.exports = function(program, addToReadyQue) {
           }, sampleInterval);
         }
 
+        var heapSnapshotThreshold = nconf.get('pellet:heapSnapshot');
+        if(heapSnapshotThreshold == 'true') {
+          heapSnapshotThreshold = 1;
+        } else {
+          heapSnapshotThreshold = ~~heapSnapshotThreshold;
+        }
+
+        if(heapSnapshotThreshold) {
+          var nextThreshold = process.memoryUsage().rss + heapSnapshotThreshold
+            , heapdump = require('heapdump')
+
+          console.info('Enabled strongloop heapdump: to snapshot "kill -USR2', process.pid + '"');
+          console.info('  Read http://strongloop.com/strongblog/how-to-heap-snapshots/');
+
+          // default to 30sec if not set
+          if(!sampleInterval) {
+            sampleInterval = 30000;
+          }
+
+          if(heapSnapshotThreshold > 1) { // i.e not false or true but a value
+            console.info('  Start watching: threshold', heapSnapshotThreshold, 'interval:', sampleInterval);
+
+            setInterval(function () {
+              rss = process.memoryUsage().rss;
+              if(rss > nextThreshold) {
+                heapdump.writeSnapshot(function (err, filename) {
+                  if (err) {
+                    console.error('Can not write heap snapshot because:', err.message || err);
+                  }
+
+                  console.log('Take a heap snapshot:',  path.join(process.cwd(), filename));
+                });
+
+                nextThreshold = rss + heapSnapshotThreshold;
+              }
+            }, sampleInterval);
+          }
+        }
+
+        mesureServerLaunch.mark('heap_snapshot');
+
         try {
           console.log('Loading', componentFile, 'webpack into pellet server.');
           require('source-map-support').install({handleUncaughtExceptions: false});
@@ -533,21 +574,7 @@ module.exports = function(program, addToReadyQue) {
               fs.deleteSync(fileList[i]);
             }
           }
-
-          // enable the heapdump
-          if(options.heapdump) {
-            console.info('Enabled strongloop heapdump: to snapshot "kill -USR2', process.pid + '"');
-            console.info('  Read http://strongloop.com/strongblog/how-to-heap-snapshots/');
-            console.info('  Initial heapdump');
-            require('heapdump').writeSnapshot();
-          }
         });
-      } else if(options.heapdump) {
-        // run headdump with out the clean flag
-        console.info('Enabled strongloop heapdump: to snapshot "kill -USR2', process.pid + '"');
-        console.info('  Read http://strongloop.com/strongblog/how-to-heap-snapshots/');
-        console.info('  Initial heapdump');
-        require('heapdump').writeSnapshot();
       }
 
       mesureLaunch.mark('clean');
@@ -785,6 +812,7 @@ module.exports = function(program, addToReadyQue) {
     .option('--pellet:output-browser <dir>', 'Directory browser packed version saved to')
     .option('--pellet:output-server <dir>', 'Directory nodejs packed version saved to')
     .option('--server:webpack-mount-point <path>', 'Path the packed browser assets are served')
+    .option('--pellet:heap-snapshot <threshold>', 'enable heapdump for memory leaks', false)
     .option('--startStatsD', 'run local statsd server')
     .option('--watch', 'Watch manifest dependencies and rebuild', false)
     .option('--build', 'Build manifest dependencies and run', false)
@@ -793,7 +821,6 @@ module.exports = function(program, addToReadyQue) {
     .option('--polyfill-rebuild', 'Rebuild polyfill files')
     .option('--es6', 'run with es6 support', false)
     .option('--spdy', 'path to directory with spdy cert', false)
-    .option('--heapdump', 'enable heapdump for memory leaks', false)
     .action(exec)
     .on('--help', function () {
       console.log(fs.readFileSync(path.join(__dirname, '..', 'help', 'server.txt')).toString());
