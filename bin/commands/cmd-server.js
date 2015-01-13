@@ -255,6 +255,7 @@ module.exports = function(program, addToReadyQue) {
         appOptions.logger = pelletLogger;
 
         var sampleInterval = nconf.get('pellet:insterumentation:interval');
+        var lastRSS = 0, heapTotal = 0;
         if(sampleInterval) {
           setInterval(function() {
             var namespace = os.hostname() + '.';
@@ -270,7 +271,14 @@ module.exports = function(program, addToReadyQue) {
             instrument.gauge(namespace + 'heapTotal', memoryUsage.heapTotal);
             instrument.gauge(namespace + 'heapUsed', memoryUsage.heapUsed);
 
-            console.info('Interval sample loadavg:', os.loadavg(), 'totalmem:', os.totalmem(), 'freemem:', os.freemem(), 'runtime:', new Date() - LAUNCH_TIME, 'rss:', memoryUsage.rss, 'heapTotal:', memoryUsage.heapTotal, 'heapUsed:', memoryUsage.heapUsed);
+            console.info('Interval sample loadavg:', os.loadavg());
+            console.info('  totalmem:', os.totalmem(), 'freemem:', os.freemem(), 'runtime:', new Date() - LAUNCH_TIME);
+            console.info('  rss:', memoryUsage.rss, 'heapTotal:', memoryUsage.heapTotal, 'heapUsed:', memoryUsage.heapUsed);
+            if(lastRSS && lastHeapUsed) {
+              console.info('  ^delta rss:', memoryUsage.rss - lastRSS, 'heapTotal:', memoryUsage.heapTotal - heapTotal);
+            }
+
+            lastRSS = memoryUsage.rss; lastHeapUsed = memoryUsage.heapUsed;
 
           }, sampleInterval);
         }
