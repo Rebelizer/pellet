@@ -1,3 +1,16 @@
+### 0.0.41 (2015-01-15)
+
+
+#### Bug Fixes
+
+* airbag bad route on launch (this should never happen, just be on the safe side) ([07c9bfca](https://github.com/Rebelizer/pellet/commit/07c9bfcaf20d5aa6c788821e894f22f6d3edefb6))
+
+
+#### Features
+
+* as a user I want pellet to be more responsive ([9b3fa44d](https://github.com/Rebelizer/pellet/commit/9b3fa44dde149390b5c3609a60a69be93d38b42f))
+
+
 ### 0.0.40 (2015-01-13)
 
 
