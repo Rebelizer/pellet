@@ -166,7 +166,7 @@ if(process.env.SERVER_ENV) {
     }
   });
 
-  pellet.addWindowOnloadEvent(function() {
+  pellet.addWindowOnreadyEvent(function() {
     // add a listener to the history statechange and route requests
     window.History.Adapter.bind(window, "statechange", function() {
       var match = pellet.routes.parse(location.pathname + location.search);

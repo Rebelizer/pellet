@@ -311,19 +311,17 @@ if(process.env.SERVER_ENV) {
 } else if(process.env.BROWSER_ENV) {
   module.exports = window.__pellet__ref = new pellet(window.__pellet__config);
 
-  module.exports.addWindowOnloadEvent = function(fn) {
-    var _onload = window.onload;
-    if (typeof window.onload != 'function') {
-      window.onload = fn;
+  module.exports.addWindowOnreadyEvent = function(fn) {
+    if (document.addEventListener) {
+      document.addEventListener("DOMContentLoaded", fn, false);
+    } else if(window.attachEvent) {
+      document.attachEvent("onreadystatechange", fn);
     } else {
-      window.onload = function() {
-        if (_onload) {_onload();}
-        fn();
-      }
+      setTimeout(fn, 2000);
     }
   }
 
-  module.exports.addWindowOnloadEvent(function() {
+  module.exports.addWindowOnreadyEvent(function() {
     window.__pellet__ref.startInit();
   });
 } else {
