@@ -709,10 +709,9 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
               beautify      : false, // (default is true) beautify output?
               source_map    : null,  // output a source map
               bracketize    : false, // use brackets every time?
-              comments      : false, // output comments?
               semicolons    : true,  // use semicolons to separate statements? (otherwise, newlines)
               preamble      : null,
-              comments      : /^\**!|@preserve|@license/
+              comments      : /^\**!|@preserve|@license/ // output comments? or false
             },
             compress: {
               sequences     : true,  // join consecutive statemets with the “comma operator”
@@ -738,6 +737,10 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
               drop_console  : true
             }
           };
+        } else {
+          if(options.uglifyOptions.output && options.uglifyOptions.output.comments) {
+            options.uglifyOptions.output.comments = new RegExp(options.uglifyOptions.output.comments);
+          }
         }
 
         browser.plugins.push(new webpack.optimize.UglifyJsPlugin(options.uglifyOptions));
