@@ -739,7 +739,9 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           };
         } else {
           if(options.uglifyOptions.output && options.uglifyOptions.output.comments) {
-            options.uglifyOptions.output.comments = new RegExp(options.uglifyOptions.output.comments);
+            if(typeof(options.uglifyOptions.output.comments) !== 'object') {
+              options.uglifyOptions.output.comments = new RegExp(options.uglifyOptions.output.comments);
+            }
           }
         }
 

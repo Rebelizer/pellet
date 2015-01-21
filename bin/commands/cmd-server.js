@@ -559,6 +559,7 @@ module.exports = function(program, addToReadyQue) {
       options.intlLocaleDataPath = nconf.get('pellet:intlLocaleData') && path.resolve(PELLET_PROJECT_PATH, resolveConfigPaths(nconf.get('pellet:intlLocaleData')));
       options.projectRootPath = PELLET_PROJECT_PATH;
       options.mountPoint = nconf.get('server:webpackMountPoint');
+      options.uglifyOptions = nconf.get('pellet:uglifyOptions');
       options.useInternalDependencies = !!nconf.get('pellet:useInternalDependencies');
       options.ignoreCoreManifest = !!nconf.get('pellet:skipIncludedInternalCoreManifest');
       options.jadeTemplateSupport = !!nconf.get('pellet:jadeTemplateSupport');
