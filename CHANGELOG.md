@@ -1,3 +1,16 @@
+### 0.0.42 (2015-01-21)
+
+
+#### Bug Fixes
+
+* as a dev I want to overwrite uglify options in my config ([087284af](https://github.com/Rebelizer/pellet/commit/087284af0ac428eda3ed723c25aa482c2bfcb8a8))
+
+
+#### Features
+
+* as a dev I want a better intro to pellet ([1e9f65b3](https://github.com/Rebelizer/pellet/commit/1e9f65b330acf81e8f55042cf223eb2b5d844581))
+
+
 ### 0.0.41 (2015-01-15)
 
 
