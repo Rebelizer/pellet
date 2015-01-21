@@ -1,3 +1,11 @@
+### 0.0.43 (2015-01-21)
+
+
+#### Bug Fixes
+
+* the uglify options implementation ([6585aae0](https://github.com/Rebelizer/pellet/commit/6585aae0c51a3d17ed43affedf6d399468658934))
+
+
 ### 0.0.42 (2015-01-21)
 
 
