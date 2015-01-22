@@ -38,14 +38,30 @@ instrumentation.prototype.elapseTimer = function(startAt, namespace) {
   }
 
   if(startAt) {
-    start = new Date(startAt);
+    start = startAt;
   } else {
-    start = new Date();
+    if(process.env.SERVER_ENV) {
+      start = process.hrtime();
+    } else if(process.env.BROWSER_ENV) {
+      if(window.performance) {
+        start = window.performance.now();
+      } else {
+        start = new Date();
+      }
+    }
   }
 
   return {
     mark: function(name) {
-      _this.timing(name, new Date()-start);
+      if(process.env.SERVER_ENV) {
+        _this.timing(name, process.hrtime()-start);
+      } else if(process.env.BROWSER_ENV) {
+        if(window.performance) {
+          _this.timing(name, window.performance.now()-start);
+        } else {
+          _this.timing(name, new Date()-start);
+        }
+      }
     }
   };
 }
