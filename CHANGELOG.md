@@ -1,3 +1,11 @@
+### 0.0.45 (2015-01-22)
+
+
+#### Bug Fixes
+
+* lock down the webpack version because aws is having problems ([2f1cc823](https://github.com/Rebelizer/pellet/commit/2f1cc8236822069872bfe972c4239b5eeb9da73c))
+
+
 ### 0.0.44 (2015-01-22)
 
 
