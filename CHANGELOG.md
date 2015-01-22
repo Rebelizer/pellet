@@ -1,3 +1,14 @@
+### 0.0.44 (2015-01-22)
+
+
+#### Features
+
+* as a dev I want a way to abort render in the pipeline ([3ff8fb72](https://github.com/Rebelizer/pellet/commit/3ff8fb72acdbfc9fd14f5992287f300f7c14190c))
+* as a dev I want to use the latest mocha ([cdcb317d](https://github.com/Rebelizer/pellet/commit/cdcb317db78b8e984c3eb0dd96bfab7a9a032d9d))
+* as a dev I want to use the latest webpack and statsd ([9fe26446](https://github.com/Rebelizer/pellet/commit/9fe26446c332c5e1e3cc43454b2ca223540ebc50))
+* as a dev I want instrumentation to be high res ([794de98e](https://github.com/Rebelizer/pellet/commit/794de98ef2120abcb9dd5e3ab376ab6c73094073))
+
+
 ### 0.0.43 (2015-01-21)
 
 
