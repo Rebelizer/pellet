@@ -17,6 +17,7 @@ function pipeline(initData, http, isolatedConfig, requestContext, locales) {
   this.locales = locales;
   this.rootIsolator = new isolator(null, null, null, isolatedConfig);
   this.coordinatorNameTypeMap = {};
+  this.abortRender = false;
 
   if(initData) {
     utils.objectUnion([initData.props], this.props);
@@ -75,6 +76,11 @@ pipeline.prototype.setCanonical = function(url) {
 
 pipeline.prototype.cookie = function() {
   return this.http.cookie.apply(this.http, Array.prototype.slice.apply(arguments));
+};
+
+pipeline.prototype.redirect = function(url) {
+  this.http.redirect(url);
+  this.abortRender = true;
 };
 
 pipeline.prototype.event = function(name) {
