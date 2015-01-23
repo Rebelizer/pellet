@@ -40,6 +40,10 @@ module.exports = {
     return this.props.locales || this.context.locales;
   },
 
+  getRequestContext: function() {
+    return this.context.requestContext;
+  },
+
   getIsolatedConfig: function() {
     if(this._$isolator) {
       return this._$isolator.isolatedConfig;

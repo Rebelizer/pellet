@@ -99,6 +99,10 @@ pipeline.prototype.getLocales = function() {
   return this.props.locales || this.locales;
 }
 
+pipeline.prototype.getRequestContext = function() {
+  return this.requestContext;
+}
+
 pipeline.prototype.coordinator = function(name, type, serializeEventName) {
   this.coordinatorNameTypeMap[name] = type;
   var coordinator = this.rootIsolator.coordinator(name, type);
