@@ -278,7 +278,7 @@ module.exports = function(program, addToReadyQue) {
               console.info('  ^delta rss:', memoryUsage.rss - lastRSS, 'heapTotal:', memoryUsage.heapTotal - heapTotal);
             }
 
-            lastRSS = memoryUsage.rss; lastHeapUsed = memoryUsage.heapUsed;
+            lastRSS = memoryUsage.rss; heapTotal = memoryUsage.heapTotal;
 
           }, sampleInterval);
         }
