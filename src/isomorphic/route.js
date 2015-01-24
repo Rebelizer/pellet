@@ -5,8 +5,10 @@ var pellet = require('pellet')
   , routeTable = require('./../route-table')
 
 var runtimeIsolatedConfig = null;
+var runtimeRequestContext = null;
 if(process.env.BROWSER_ENV) {
   runtimeIsolatedConfig = {};
+  runtimeRequestContext = {};
 }
 
 pellet.routes = new routeTable(); // TODO: pass in an options for sensitive & strict vi pellet.config
@@ -28,7 +30,7 @@ pellet.addComponentRoute = function(route, component, options) {
   this.routes.add(route, function() {
     var routeContext = this
       , _component = component
-      , renderOptions = {props:{}, isolatedConfig:runtimeIsolatedConfig};
+      , renderOptions = {props:{}, isolatedConfig:runtimeIsolatedConfig, requestContext:runtimeRequestContext};
 
     try {
       if(process.env.SERVER_ENV) {
@@ -63,8 +65,9 @@ pellet.addComponentRoute = function(route, component, options) {
           if(typeof(renderOptions.context) === 'string') {
             renderOptions.context = JSON.parse(renderOptions.context);
           }
+
           if(typeof(renderOptions.context.requestContext) !== 'undefined') {
-            renderOptions.requestContext = renderOptions.context.requestContext;
+            runtimeRequestContext = renderOptions.requestContext = renderOptions.context.requestContext;
             delete renderOptions.context.requestContext;
           }
         }
