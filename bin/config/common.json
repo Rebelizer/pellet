@@ -27,11 +27,19 @@
     "favicon": "#PELLET_PROJECT_PATH#/public/favicon.ico",
     "static": "#PELLET_PROJECT_PATH#/public",
     "webpackMountPoint": "/js/",
+    "polyfillRebuild": false,
     "accessLog": {
       "format": "common",
       "logFile": "/tmp/pellet.access.log"
     },
-    "polyfillRebuild": false
+    "compression": {
+      "threshold": 512
+      //"flush": 0,
+      //"level": -1,
+      //"chunkSize": 16384,
+      //"memLevel": 8,
+      //"strategy": 0
+    }
   },
 
   // pellet build/package options

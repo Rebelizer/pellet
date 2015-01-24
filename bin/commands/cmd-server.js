@@ -12,6 +12,7 @@ var path = require('path')
   , nconf = require('nconf')
   , cluster = require('cluster-master')
   , polyfill = require('polyfills')
+  , compression = require('compression')
   , react = require('react')
   , instrumentation = require('../../src/instrumentation')
   , manifest = require('../../src/manifest')
@@ -392,6 +393,12 @@ module.exports = function(program, addToReadyQue) {
 
           // setup express static assets including the facicon.ico (replace __DEFAULT_STATIC_DIR with pellet internal path)
           app.use(require('serve-favicon')(resolveConfigPaths(nconf.get('server:favicon'))));
+
+          var compressionOpts = nconf.get('server:compression')
+          if(compressionOpts) {
+            app.use(compression(compressionOpts));
+          }
+
           app.use(server.static(resolveConfigPaths(nconf.get('server:static'))));
           app.use(nconf.get('server:webpackMountPoint'), server.static(options.outputBrowser));
 
