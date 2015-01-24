@@ -56,9 +56,14 @@ var pelletRender = module.exports = {
             }
           }
 
-          react.initializeTouchEvents(true);
           react.unmountComponentAtNode(options.targetEl);
           //mesure.mark('react_unmount');
+
+          // only add touch events if the device support it
+          if ('ontouchstart' in document.documentElement) {
+            react.initializeTouchEvents(true);
+          }
+
           result = react.render(component, options.targetEl);
         } else if(options.mode == pelletRender.MODE_STRING) {
           result = react.renderToStaticMarkup(component);
