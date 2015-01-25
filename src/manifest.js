@@ -385,14 +385,18 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
       var subNode, manifestIndex = ourManifest.manifest;
       var indexScript = 'var index = {};';
-      var assetConfigPath = false;
+      var assetConfigPath = [];
       for(ix in manifestIndex) {
         if((subNode = manifestIndex[ix])) {
           if(subNode.component) {
             indexScript += 'index["' + ix + '"] = require("' + subNode.component + '");';
           }
           if(subNode.assetConfig) {
-            assetConfigPath = subNode.assetConfig;
+            if(typeof(subNode.assetConfig) === 'string') {
+              assetConfigPath.push(subNode.assetConfig);
+            } else {
+              assetConfigPath = assetConfigPath.concat(subNode.assetConfig);
+            }
           }
         }
       }
@@ -415,6 +419,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         , j, k;
 
       var translationDictionary = {};
+      var intermediateAssetFiles = {};
 
       for(ix in translationFiles) {
         try {
@@ -447,7 +452,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         fs.writeJSONFileSync(translationMapFile, translationDictionary);
       }
 
-      var k, localData, translationObj =[], translationStats = {};
+      var localData, translationObj =[], translationStats = {};
 
       for(j in translationDictionary) {
         msgFormatBuilder = new messageFormat(j.split('-')[0]);
@@ -485,18 +490,58 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           .replace(/[{\[":,]/g, ""));
       }
 
+      /* if a manifests has an asset config of type "less or stylus" we need to build an
+       * intermediate file because if each asset includes the config that could included
+       * NIB, globes, mixins, and resets the outputted webpack css would have duplicate styles,
+       * resets, etc. To fix this we create a style file that imports the "asset configs" and
+       * all the manifests assets under a single file.
+       */
+      if(assetConfigPath.length > 0) {
+        ourManifest.webpackEP._assets = [];
+
+        for(j in assetConfigPath) {
+          if((k = assetConfigPath[j].match(/\.(styl|less)$/)) && (k = k[1])) {
+            if(intermediateAssetFiles[k]) {
+              intermediateAssetFiles[k].push(assetConfigPath[j]);
+            } else {
+              intermediateAssetFiles[k] = [assetConfigPath[j]];
+            }
+          } else {
+            // unknown type so add to the webpack asset files
+            ourManifest.webpackEP._assets.push(assetConfigPath[j])
+          }
+        }
+
+        // now sift through all the assets and pull out types that have a type that matches one of our asset config types.
+        for(j in ourManifest.webpackEP.assets) {
+          if((k = ourManifest.webpackEP.assets[j].match(/\.(styl|less)$/)) && (k=k[1]) && intermediateAssetFiles[k]) {
+            intermediateAssetFiles[k].push(ourManifest.webpackEP.assets[j]);
+          } else {
+            ourManifest.webpackEP._assets.push(ourManifest.webpackEP.assets[j]);
+          }
+        }
+
+        // clean up the temp array used to filter out asset we need to merge into a single asset
+        ourManifest.webpackEP.assets = ourManifest.webpackEP._assets;
+        delete ourManifest.webpackEP._assets;
+
+        for(j in intermediateAssetFiles) {
+          intermediateAssetFiles[j] = '// intermediate file (so no duplicate globes/mixins/etc)\n@import "' + intermediateAssetFiles[j].join('"\n@import "') + '"\n';
+        }
+
+        if(options.useIntermediateAssets) {
+          for(j in intermediateAssetFiles) {
+            var intermediateAssetPath = path.resolve(__dirname, options.useIntermediateAssets) + '.' + j;
+
+            fs.outputFileSync(intermediateAssetPath, intermediateAssetFiles[j]);
+            ourManifest.webpackEP.assets.push(intermediateAssetPath);
+          }
+        }
+      }
+
       // merge in pellet into the components so its loaded and can bootstrap environment
       var pelletEntryPointPath = path.resolve(__dirname, './pellet.js');
       ourManifest.webpackEP.component.push(pelletEntryPointPath);
-
-      // merge in asset config into the webpack assets
-      if(assetConfigPath) {
-        if(!ourManifest.webpackEP.assets) {
-          ourManifest.webpackEP.assets = [];
-        }
-
-        ourManifest.webpackEP.assets.push(assetConfigPath);
-      }
 
       // merge in the code into the webpack component
       if(ourManifest.webpackEP.code) {
@@ -544,11 +589,6 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       if(options.jadeTemplateSupport) {
         config.resolve.extensions.push('.jade');
         config.module.loaders.push({test: /\.jade$/, loader: path.join(__dirname, 'jade-loader')});
-      }
-
-      // alias the assetConfig to make it easy to get common styles merged into our assets
-      if(assetConfigPath) {
-        config.resolve.alias['assetConfig'] = assetConfigPath;
       }
 
       var browser = {}
@@ -753,6 +793,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
       next(null, {
         translationDictionary: translationDictionary,
+        intermediateAssetFiles: intermediateAssetFiles,
         indexScript: indexScript,
         baseConfig: config,
         browserConfig: browser,

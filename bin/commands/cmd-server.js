@@ -606,6 +606,9 @@ module.exports = function(program, addToReadyQue) {
           // embed the manifest index into the webpack so pellet can find all the components
           options.embedManifestIndex = path.join(options.output, '_EMBED_INDEX.js');
 
+          // embed the manifest index into the webpack so pellet can find all the components
+          options.useIntermediateAssets = path.join(options.output, '_INTERMEDIATE_ASSETS');
+
           // build the translation map
           options.translationMapFile = path.join(options.output, '_TRANSLATIONS.json');
 
