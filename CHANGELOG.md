@@ -1,3 +1,11 @@
+### 0.0.47 (2015-01-26)
+
+
+#### Bug Fixes
+
+* bug using the wrong var so crashes ([fa6388a1](https://github.com/Rebelizer/pellet/commit/fa6388a1671409c7089e91382b10f4f2b4c0f304))
+
+
 ### 0.0.46 (2015-01-26)
 
 
