@@ -50,6 +50,7 @@
     "intlLocaleData": false, // or path to data "#PELLET_PROJECT_PATH#/config/locale-data"
     "useInternalDependencies": true,
     "jadeTemplateSupport": true,
+    "includeFallbackPaths": true,
     "skipIncludedInternalCoreManifest": false,
     "heapSnapshot": false // 1048576 * 5mb = 5242880
     // "uglifyOptions": {},

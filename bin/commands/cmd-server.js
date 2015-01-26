@@ -569,6 +569,7 @@ module.exports = function(program, addToReadyQue) {
       options.uglifyOptions = nconf.get('pellet:uglifyOptions');
       options.useInternalDependencies = !!nconf.get('pellet:useInternalDependencies');
       options.ignoreCoreManifest = !!nconf.get('pellet:skipIncludedInternalCoreManifest');
+      options.includeFallbackPaths = !!nconf.get('pellet:includeFallbackPaths');
       options.jadeTemplateSupport = !!nconf.get('pellet:jadeTemplateSupport');
 
       var componentModule = path.join(options.output, '_MANIFEST.json');

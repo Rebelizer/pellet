@@ -420,6 +420,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
       var translationDictionary = {};
       var intermediateAssetFiles = {};
+      var assetFallbackPaths = [];
 
       for(ix in translationFiles) {
         try {
@@ -501,10 +502,11 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
         for(j in assetConfigPath) {
           if((k = assetConfigPath[j].match(/\.(styl|less)$/)) && (k = k[1])) {
+            assetFullFilePath = assetConfigPath[j];
             if(intermediateAssetFiles[k]) {
-              intermediateAssetFiles[k].push(assetConfigPath[j]);
+              intermediateAssetFiles[k].push(assetFullFilePath);
             } else {
-              intermediateAssetFiles[k] = [assetConfigPath[j]];
+              intermediateAssetFiles[k] = [assetFullFilePath];
             }
           } else {
             // unknown type so add to the webpack asset files
@@ -512,12 +514,24 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           }
         }
 
+        var assetFullFilePath;
+
         // now sift through all the assets and pull out types that have a type that matches one of our asset config types.
         for(j in ourManifest.webpackEP.assets) {
-          if((k = ourManifest.webpackEP.assets[j].match(/\.(styl|less)$/)) && (k=k[1]) && intermediateAssetFiles[k]) {
-            intermediateAssetFiles[k].push(ourManifest.webpackEP.assets[j]);
+
+          assetFullFilePath = ourManifest.webpackEP.assets[j];
+          if((k = assetFullFilePath.match(/\.(styl|less)$/)) && (k=k[1]) && intermediateAssetFiles[k]) {
+            intermediateAssetFiles[k].push(assetFullFilePath);
           } else {
-            ourManifest.webpackEP._assets.push(ourManifest.webpackEP.assets[j]);
+            ourManifest.webpackEP._assets.push(assetFullFilePath);
+          }
+
+          // only add unique parent asset dir as fallback path so in the assets
+          // we can ~[parentDir]/foo.png
+          if(options.includeFallbackPaths && (assetFullFilePath = path.dirname(path.dirname(assetFullFilePath)))
+            && assetFullFilePath !== '.'
+            && assetFallbackPaths.indexOf(assetFullFilePath) === -1) {
+            assetFallbackPaths.push(assetFullFilePath);
           }
         }
 
@@ -585,6 +599,21 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           ]
         }
       };
+
+      if(options.includeFallbackPaths) {
+
+        // add all component to our fallback paths
+        for (j in ourManifest.webpackEP.component) {
+          // only add unique parent component dir as fallback path so in any code dev can ~module/foo.js
+          if ((assetFullFilePath = path.dirname(path.dirname(ourManifest.webpackEP.component[j])))
+            && assetFullFilePath !== '.'
+            && assetFallbackPaths.indexOf(assetFullFilePath) === -1) {
+            assetFallbackPaths.push(assetFullFilePath);
+          }
+        }
+
+        config.resolve.fallback = assetFallbackPaths;
+      }
 
       if(options.jadeTemplateSupport) {
         config.resolve.extensions.push('.jade');
