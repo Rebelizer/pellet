@@ -275,7 +275,7 @@ module.exports = function(program, addToReadyQue) {
             console.info('Interval sample loadavg:', os.loadavg());
             console.info('  totalmem:', os.totalmem(), 'freemem:', os.freemem(), 'runtime:', new Date() - LAUNCH_TIME);
             console.info('  rss:', memoryUsage.rss, 'heapTotal:', memoryUsage.heapTotal, 'heapUsed:', memoryUsage.heapUsed);
-            if(lastRSS && lastHeapUsed) {
+            if(lastRSS && heapTotal) {
               console.info('  ^delta rss:', memoryUsage.rss - lastRSS, 'heapTotal:', memoryUsage.heapTotal - heapTotal);
             }
 
