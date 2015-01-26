@@ -1,3 +1,20 @@
+### 0.0.46 (2015-01-26)
+
+
+#### Bug Fixes
+
+* make sure the browser request context does not get lost between routes ([8cdd12c8](https://github.com/Rebelizer/pellet/commit/8cdd12c87950854931526a6f742944a46f753aa4))
+* memory instrumentation reporting wrong delta heapTotal ([7dcafe6b](https://github.com/Rebelizer/pellet/commit/7dcafe6be894ac4375e14e1ff931f5cfda2894b6))
+
+
+#### Features
+
+* as a dev I want asset (less/stylus) to get added via intermediate file ([93531857](https://github.com/Rebelizer/pellet/commit/935318573394d3f7baea5e20b4255a39c124c527))
+* as a dev I want the options to compress pages for mobile users ([8d70ae31](https://github.com/Rebelizer/pellet/commit/8d70ae3177138717b62abca2da9c40b28c82562f))
+* as a dev I want touch events initialized only if the device supports touch ([ee3579cc](https://github.com/Rebelizer/pellet/commit/ee3579cc8fc1305ac70a3a5e6c7bfc991843a73a))
+* as a dev I want a explicit method to get request context ([820e7cc1](https://github.com/Rebelizer/pellet/commit/820e7cc141c2e40bbe46327fb261b32afe495e2a))
+
+
 ### 0.0.45 (2015-01-22)
 
 
