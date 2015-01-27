@@ -19,7 +19,6 @@ module.exports = function(program, addToReadyQue) {
     .option('--output <path>', 'path to the pack file and base path for dist output', '___output.js')
     .option('--output-browser <dir>', 'Directory browser packed version saved to', 'browser')
     .option('--output-node <dir>', 'Directory nodejs packed version saved to', 'node')
-    .option('--mode <prod|dev>', 'Packaging mode')
     .option('--watch', 'watch the files')
     .option('--build', 'Build the packed dist version mode')
     .option('--script <path>', 'Path to dump standalone pack script')
@@ -45,13 +44,8 @@ module.exports = function(program, addToReadyQue) {
         options.outputBrowser = path.resolve(options.output, options.outputBrowser);
         options.outputServer = path.resolve(options.output, options.outputServer);
 
-        if(options.mode) {
-          if (options.mode.toLowerCase().trim().indexOf('prod') === 0) {
-            options.mode = 'production';
-          } else {
-            options.mode = 'development';
-          }
-        }
+        // set mode using the config flag
+        options.mode = program.config;
 
         // make sure we do not generate production webpack
         // because its hard to grantee that both the node & browser

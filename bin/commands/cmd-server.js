@@ -89,6 +89,9 @@ module.exports = function(program, addToReadyQue) {
         nconf.set('application:config:jsMountPoint', nconf.get('server:webpackMountPoint'));
       }
 
+      // set mode using the config flag
+      options.mode = program.config;
+
       // setup the apps default logger and overwrite the javascript console to use our logger
       var pelletLogger = winston.loggers.add('pellet', nconf.get('winston:containers:console'));
       pelletLogger.extend(console);
@@ -196,14 +199,6 @@ module.exports = function(program, addToReadyQue) {
 
         if (process.argv.indexOf('--harmony') == -1) {
           process.argv.push('--harmony');
-        }
-      }
-
-      if (options.mode) {
-        if (options.mode.toLowerCase().trim().indexOf('prod') === 0) {
-          options.mode = 'production';
-        } else {
-          options.mode = 'development';
         }
       }
 
@@ -837,7 +832,6 @@ module.exports = function(program, addToReadyQue) {
     .option('--watch', 'Watch manifest dependencies and rebuild', false)
     .option('--build', 'Build manifest dependencies and run', false)
     .option('--clean', 'Clean the build dir', false)
-    .option('--mode <prod|dev>', 'Packaging mode')
     .option('--polyfill-rebuild', 'Rebuild polyfill files')
     .option('--es6', 'run with es6 support', false)
     .option('--spdy', 'path to directory with spdy cert', false)
@@ -850,7 +844,6 @@ module.exports = function(program, addToReadyQue) {
     .command('build [manifest]')
     .description('Build and webpack for a server/CDN')
     .option('--clean', 'Clean the build dir', false)
-    .option('--mode <prod|dev>', 'Packaging mode')
     .action(function(manifestGlob, options) {
       options.build = true;
       options.exitOnBuild = true;

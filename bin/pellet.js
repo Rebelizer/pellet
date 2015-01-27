@@ -94,6 +94,19 @@ for(i in allCommandFiles) {
 
 program.parse(process.argv);
 
+// use
+if(program.config) {
+  if (program.config.toLowerCase().trim().indexOf('prod') === 0) {
+    program.config = 'production';
+  } if (program.config.toLowerCase().trim().indexOf('dev') === 0) {
+    program.config = 'development';
+  } if (program.config.toLowerCase().trim().indexOf('stag') === 0) {
+    program.config = 'staging';
+  }
+
+  process.env.NODE_ENV = program.config;
+}
+
 // load the common and environment configuration files before building the nconf
 // version because we need have access to things like security, envWhiteList to build
 // the nconf. This is why we do not use the built in nconf load config file (nconf.add({type:'file'})) but use
