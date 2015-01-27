@@ -1,3 +1,12 @@
+### 0.0.48 (2015-01-26)
+
+
+#### Features
+
+* as a dev I want the config to control the run mode ([796cd37a](https://github.com/Rebelizer/pellet/commit/796cd37a1ed0400d2def7a4e8a504d955779347c))
+* as a dev I want webpack to include fallback paths for each asset/component paren ([31c86830](https://github.com/Rebelizer/pellet/commit/31c86830c6b03bb78c71548b17cb125b8f371884))
+
+
 ### 0.0.47 (2015-01-26)
 
 
