@@ -1,3 +1,18 @@
+### 0.0.49 (2015-01-27)
+
+
+#### Bug Fixes
+
+* exception in side of the email exception send function ([ba57620b](https://github.com/Rebelizer/pellet/commit/ba57620b9a6113f8bfdfb5211f2d538f15fdf9b4))
+
+
+#### Features
+
+* as a dev I want the environment config flag to be --env not --config ([135a359b](https://github.com/Rebelizer/pellet/commit/135a359b69a9df6b7821f3c66a1d9311c084d7cd))
+* as a dev I want to be alerted when the server start up ([17cea8c1](https://github.com/Rebelizer/pellet/commit/17cea8c19e04eeaf44bc2c5b875dbca23a58be00))
+* as a dev I want the http access logs to use winston logger with logstash support ([83f1122f](https://github.com/Rebelizer/pellet/commit/83f1122fc82ccbc5a585b7145997f7c698d2b955))
+
+
 ### 0.0.48 (2015-01-26)
 
 
