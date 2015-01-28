@@ -2,6 +2,7 @@ var path = require('path')
   , fs = require('fs-extra')
   , ejs = require('ejs')
   , os = require('os')
+  , util = require('util')
   , webpack = require('webpack')
   , glob = require('glob')
   , spdy = require('spdy')
@@ -104,14 +105,22 @@ module.exports = function(program, addToReadyQue) {
       // catch all uncaught exception and try to email them
       if (nconf.get('winston:containers:alert')) {
         var alertLogger = winston.loggers.add('alert', nconf.get('winston:containers:alert'));
-        logException = function (err) {
-          var body = 'Stack Trace:\n\n' + err.stack + '\n\n';
+        logException = function (err, subject) {
+          var body, isAlert;
+
+          if(typeof err === 'string') {
+            body = 'Alert' + (subject?(' ' + subject):'') + ':\n\n' + err + '\n\n';
+            isAlert = true;
+          } else {
+            body = 'Stack Trace' + (subject?(' ' + subject):'') + ':\n\n' + err.stack + '\n\n';
+            isAlert = false;
+          }
 
           // only include the system information if requested
           // in development mode this is a lot of information to parse
           if (nconf.get('stackTrace:includeSystemInfo')) {
             try {
-              body += 'VERSION: ' + version + '\n';
+              body += 'VERSION: ' + program._version + '\n';
               body += 'CWD: ' + process.cwd() + '\n';
               body += 'SYSTEM: ' + process.platform + ' pid: ' + process.pid;
 
@@ -125,6 +134,13 @@ module.exports = function(program, addToReadyQue) {
               body += JSON.stringify(process.versions, null, 1)
                 .replace(/\s+[{},\]]/g, '')
                 .replace(/[{\[":,]/g, '') + '\n\n';
+
+              if(program._running) {
+                body += 'PACKAGE:\n';
+                body += JSON.stringify(program._running, null, 1)
+                  .replace(/\s+[{},\]]/g, '')
+                  .replace(/[{\[":,]/g, '') + '\n\n';
+              }
 
               body += 'CONFIGURATION ' + (options.config || '') + ':\n';
               body += JSON.stringify(nconf.get(), null, 1)
@@ -143,9 +159,13 @@ module.exports = function(program, addToReadyQue) {
             }
           }
 
-          alertLogger.error(body);
-
-          instrument.increment('uncaughtException');
+          if(isAlert) {
+            instrument.increment('alerts');
+            alertLogger.info(body);
+          } else {
+            instrument.increment('uncaughtException');
+            alertLogger.error(body);
+          }
         }
 
         process.on('uncaughtException', logException);
@@ -217,6 +237,7 @@ module.exports = function(program, addToReadyQue) {
         if (isManifestFile) {
           try {
             componentModule = require(componentModule);
+            program._running = componentModule;
           } catch (ex) {
             console.error('Cannot load manifest', componentModule, 'because:', ex.message);
             process.exit(1);
@@ -375,7 +396,39 @@ module.exports = function(program, addToReadyQue) {
           mesureServerLaunch.mark('server_container');
 
           if (nconf.get('server:accessLog')) {
-            if (nconf.get('server:accessLog:logFile') === 'STDOUT') {
+            var loggingFormat, httpLogger;
+            if(nconf.get('server:accessLog:transport') === 'winston' &&
+              (httpLogger = nconf.get('winston:containers:httplogger')) &&
+              (loggingFormat = nconf.get('server:accessLog:format'))) {
+
+              httpLogger = winston.loggers.add('httplogger', httpLogger);
+
+              if(morgan[loggingFormat]) {
+                loggingFormat = morgan[loggingFormat];
+              }
+
+              if(nconf.get('server:accessLog:mode') === 'object') {
+                loggingFormat = 'return {' + loggingFormat.replace(/"/g, '\\"').replace(/:([-\w]{2,})(?:\[([^\]]+)\])?/g, function (_, name, arg) {
+                  return '"'+name+'":'+'(tokens["' + name + '"](req, res, ' + String(JSON.stringify(arg)) + ') || null),';
+                }) + '};'
+              } else {
+                loggingFormat = 'return "' + loggingFormat.replace(/"/g, '\\"').replace(/:([-\w]{2,})(?:\[([^\]]+)\])?/g, function (_, name, arg) {
+                  return '"\n    + (tokens["' + name + '"](req, res, ' + String(JSON.stringify(arg)) + ') || "-") + "';
+                }) + '";'
+              }
+
+              try {
+                loggingFormat = new Function('tokens, req, res', loggingFormat);
+              } catch(ex) {
+                console.error('Error setting up httplogger (fix format config) because:', ex.message);
+                process.exit(1);
+              }
+
+              app.use(morgan(function(morgan, req, res) {
+                httpLogger.log('info', loggingFormat(morgan, req, res));
+                return null;
+              }));
+            } else if(nconf.get('server:accessLog:logFile') === 'STDOUT') {
               app.use(morgan(nconf.get('server:accessLog:format')));
             } else {
               var logFile = resolveConfigPaths(nconf.get('server:accessLog:logFile'));
@@ -504,6 +557,12 @@ module.exports = function(program, addToReadyQue) {
         }
 
         mesureServerLaunch.mark('middleware_loaded');
+
+        if(logException && nconf.get('server:alertOnLaunch')) {
+          // send out an alert that we just launched the server so restart can be tracked
+          logException('pellet server started on ' + new Date(), 'launch');
+          mesureServerLaunch.mark('sent_launch_alert');
+        }
 
         if (nconf.get('spdy')) {
           var spdyPath = resolveConfigPaths(nconf.get('spdy'));
