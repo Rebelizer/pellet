@@ -1,0 +1,21 @@
+##########################################################
+Please install Xcode and the command line tools for OSX
+
+$ brew install ant
+$ brew install android-sdk
+$ npm install -g ios-sim
+
+$ android
+
+This will launch the Android SDK Manager and should preselect
+all of the libraries you need. Click the Install packages...
+button, accept the licenses for all of the packages, and click
+Install. Now in order to emulate an Android device, we need
+to first create a virtual device.
+
+$ android avd
+
+Now install phonegap
+
+$ npm install -g phonegap
+##########################################################
