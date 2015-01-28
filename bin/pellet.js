@@ -59,7 +59,7 @@ if(pelletConfigFile) {
 }
 
 program
-  .version(require('../package.json').version)
+  .version(version)
   .option('-c, --config <path>', 'environment config file (override common config)', process.env.NODE_ENV ? process.env.NODE_ENV : 'development')
   .option('--config-common <path>', 'path to common config file', 'common')
   .option('--config-dir <path>', 'path to config directory', process.env.PELLET_CONF_DIR ? path.resolve(process.cwd(), process.env.PELLET_CONF_DIR) : (pelletConfigFile ? path.resolve(pelletConfigFile, '..', program.pelletConfig.configDir) : path.join(__dirname, 'config')))
@@ -68,6 +68,8 @@ program
   .option('--scrub-logs <string>', 'RegExp used to scrub launchDetails and logs', false)
   .option('--silent', 'will disable all pellet launch logging', false)
   .option('--launch-details', 'will print launch and env details', false);
+
+program._version = version;
 
 var readyQue = [];
 function addToReadyQue(onReadyFn) {
