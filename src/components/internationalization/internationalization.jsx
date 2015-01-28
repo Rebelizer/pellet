@@ -121,8 +121,19 @@ pellet.intl.load = function(locales, next) {
   script.src = src;
 
   if(next) {
-    script.onreadystatechange = next;
-    script.onload = next;
+    var done = false;
+    script.onload = script.onreadystatechange = function() {
+      if( !done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete") ) {
+        done = true;
+        next();
+
+        // Handle memory leak in IE
+        script.onload = script.onreadystatechange = null;
+        if (head && script.parentNode) {
+          head.removeChild(script);
+        }
+      }
+    };
   }
 
   head.appendChild(script);
