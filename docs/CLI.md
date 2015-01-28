@@ -5,7 +5,7 @@
 pellet has very few flags to know about. All other flags are for tasks to use if needed.
 
 - `-v` or `--version` will display the pellet version
-- `-c` or `--config` environment config file (override common config)
+- `-e` or `--env` environment config file (override common config)
 - `--configCommon <path>` path to common config file
 - `--configDir <path>` path to config directory
 - `--commandDir <path>` path to directory containing additional commands

@@ -60,7 +60,7 @@ if(pelletConfigFile) {
 
 program
   .version(version)
-  .option('-c, --config <path>', 'environment config file (override common config)', process.env.NODE_ENV ? process.env.NODE_ENV : 'development')
+  .option('-e, --env <path>', 'environment config file (override common config)', process.env.NODE_ENV ? process.env.NODE_ENV : 'development')
   .option('--config-common <path>', 'path to common config file', 'common')
   .option('--config-dir <path>', 'path to config directory', process.env.PELLET_CONF_DIR ? path.resolve(process.cwd(), process.env.PELLET_CONF_DIR) : (pelletConfigFile ? path.resolve(pelletConfigFile, '..', program.pelletConfig.configDir) : path.join(__dirname, 'config')))
   .option('--command-dir <path>', 'path to directory containing additional commands', false)
@@ -97,16 +97,16 @@ for(i in allCommandFiles) {
 program.parse(process.argv);
 
 // use
-if(program.config) {
-  if (program.config.toLowerCase().trim().indexOf('prod') === 0) {
-    program.config = 'production';
-  } if (program.config.toLowerCase().trim().indexOf('dev') === 0) {
-    program.config = 'development';
-  } if (program.config.toLowerCase().trim().indexOf('stag') === 0) {
-    program.config = 'staging';
+if(program.env) {
+  if (program.env.toLowerCase().trim().indexOf('prod') === 0) {
+    program.env = 'production';
+  } if (program.env.toLowerCase().trim().indexOf('dev') === 0) {
+    program.env = 'development';
+  } if (program.env.toLowerCase().trim().indexOf('stag') === 0) {
+    program.env = 'staging';
   }
 
-  process.env.NODE_ENV = program.config;
+  process.env.NODE_ENV = program.env;
 }
 
 // load the common and environment configuration files before building the nconf
@@ -114,7 +114,7 @@ if(program.config) {
 // the nconf. This is why we do not use the built in nconf load config file (nconf.add({type:'file'})) but use
 // the memory loader. The load order is arguments -> common config -> environment config
 var commonConfigFile = path.resolve(program.configDir, program.configCommon)
-  , configFile = path.resolve(program.configDir, program.config)
+  , configFile = path.resolve(program.configDir, program.env)
   , commonConfig = utils.readConfigFile(commonConfigFile)
   , config = utils.readConfigFile(configFile);
 

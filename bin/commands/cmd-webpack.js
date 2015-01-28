@@ -45,7 +45,7 @@ module.exports = function(program, addToReadyQue) {
         options.outputServer = path.resolve(options.output, options.outputServer);
 
         // set mode using the config flag
-        options.mode = program.config;
+        options.mode = program.env;
 
         // make sure we do not generate production webpack
         // because its hard to grantee that both the node & browser

@@ -91,7 +91,7 @@ module.exports = function(program, addToReadyQue) {
       }
 
       // set mode using the config flag
-      options.mode = program.config;
+      options.mode = program.env;
 
       // setup the apps default logger and overwrite the javascript console to use our logger
       var pelletLogger = winston.loggers.add('pellet', nconf.get('winston:containers:console'));
@@ -142,7 +142,7 @@ module.exports = function(program, addToReadyQue) {
                   .replace(/[{\[":,]/g, '') + '\n\n';
               }
 
-              body += 'CONFIGURATION ' + (options.config || '') + ':\n';
+              body += 'CONFIGURATION ' + (options.env || '') + ':\n';
               body += JSON.stringify(nconf.get(), null, 1)
                 .replace(/\s+[{},\]]/g, '')
                 .replace(/[{\[":,]/g, '')
