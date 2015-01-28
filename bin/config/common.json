@@ -28,9 +28,14 @@
     "static": "#PELLET_PROJECT_PATH#/public",
     "webpackMountPoint": "/js/",
     "polyfillRebuild": false,
+    "alertOnLaunch": false,
     "accessLog": {
-      "format": "common",
-      "logFile": "/tmp/pellet.access.log"
+      "format": ":date[iso] :http-version :method :referrer :remote-addr :remote-user :req[header] :res[header] :response-time :status :url :user-agent",
+      "transport: "winston",
+      "mode": "object"
+      // send to a log file with winston
+      //"format": "common",
+      //"logFile": "/tmp/pellet.access.log"
     },
     "compression": {
       "threshold": 512
