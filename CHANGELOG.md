@@ -1,3 +1,18 @@
+### 0.0.50 (2015-01-28)
+
+
+#### Bug Fixes
+
+* config has a syntax error - so can not create new projects ([e9d75cbe](https://github.com/Rebelizer/pellet/commit/e9d75cbe3c64022cab8f772341531333a940606d))
+* update the docs ([e3d0c839](https://github.com/Rebelizer/pellet/commit/e3d0c839d312fec7dba970b2911621900a81c8a1))
+* in IE the lang files don't fire load event correctly, so you see a render flicke ([a38c5b19](https://github.com/Rebelizer/pellet/commit/a38c5b19c7efb1cf81eec719b20f3ef610203ce5))
+
+
+#### Features
+
+* as a dev I want a simple command to manage creating cordova templates ([d63303d5](https://github.com/Rebelizer/pellet/commit/d63303d550325e27db8347629ab561b40c513f37))
+
+
 ### 0.0.49 (2015-01-27)
 
 
