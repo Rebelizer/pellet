@@ -57,10 +57,10 @@ module.exports = {
     // else check if local isolator that we need to
     // release.
     if(!this._owner) {
-      console.log('release rootIsolator');
-      this.context.rootIsolator.release();
+      if(this.context && this.context.rootIsolator) {
+        this.context.rootIsolator.release();
+      }
     } else if(this._$isolator) {
-      console.log('release local isolator');
       this._$isolator.release();
     }
   },
