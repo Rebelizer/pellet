@@ -115,8 +115,7 @@ var pelletRender = module.exports = {
             pipe.release();
             mesure.mark('release');
             instrument.increment('isorender.abort');
-            renderReactComponent(componentWithContext, pipe);
-            return next();
+            return next(null, null, pipe);
           }
 
           // make sure the react context has locales to pick the
