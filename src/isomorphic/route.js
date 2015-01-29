@@ -181,6 +181,22 @@ if(process.env.SERVER_ENV) {
     });
   });
 
+  pellet.setLocation = function(url, title, data) {
+    if(!url) {
+      return
+    }
+
+    var match = pellet.routes.parse(url);
+    if(!match) {
+      console.log('set via window.location')
+      window.location = url;
+      return;
+    }
+
+    console.log('set via window.History.pushState')
+    window.History.pushState(data || null, title || '', url);
+  }
+
   document.addEventListener("click",function(e) {
     var node = e.target;
     while(node) {
@@ -206,7 +222,7 @@ if(process.env.SERVER_ENV) {
         e.stopPropagation();
         e.preventDefault();
 
-        window.History.pushState(null, null, node.href);
+        window.History.pushState(null, '', node.href);
       }
 
       node = node.parentNode;
