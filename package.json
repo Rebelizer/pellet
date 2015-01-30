@@ -45,10 +45,14 @@
   "bugs": "https://github.com/Rebelizer/pellet/issues",
   "scripts": {
     "prepublish": "marked-man --name pellet docs/CLI.md > docs/pellet.1",
+    "jshint": "jshint -c .jshintrc --exclude-path .gitignore .",
     "lint": "jshint lib bin index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
     "test": "mocha --compilers coffee:coffee-script/register ./test/",
     "start": "./bin/pellet.js run --build --env prod --launch-details"
   },
+  "pre-commit": [
+    "jshint"
+  ],
   "dependencies": {
     "async": "^0.9.0",
     "autoprefixer-loader": "^1.0.0",
