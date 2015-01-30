@@ -17,11 +17,16 @@
     "asset",
     "pipeline",
     "react",
-    "webpack"
+    "webpack",
+    "ambidex"
   ],
   "keywords": [
     "react",
-    "webpack"
+    "webpack",
+    "isomorphic",
+    "flux",
+    "jade",
+    "ambidex"
   ],
   "files": [
     "bin",
