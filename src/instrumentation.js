@@ -1,3 +1,45 @@
+// default transport function
+var transportFn = function(sessionId, type, namespace, payload) {
+  if(process.env.BROWSER_ENV && __pellet__ref.config &&
+    __pellet__ref.config.instrumentation &&
+    __pellet__ref.config.instrumentation.url) {
+
+    var url = __pellet__ref.config.instrumentation.url
+      , query = []
+      , data = Object.create(payload);
+
+    // try to get a sessionId via our own cookie or use ga cookie
+    if(!sessionId) {
+      sessionId = __pellet__ref.cookie.get(__pellet__ref.config.instrumentation.cookie || '_uid');
+      if (!sessionId) {
+        sessionId = __pellet__ref.cookie.get('_ga');
+        if (sessionId) {
+          sessionId = sessionId.split('.').slice(2).join('.');
+        }
+      }
+    }
+
+    data._s = sessionId;
+    data._n = namespace;
+    data._t = type;
+
+    for(i in data) {
+      if(data[i]) {
+        query.push(i + '=' + encodeURIComponent(data[i]));
+      }
+    }
+
+    if(query.length) {
+      url += '?' + query.join('&');
+    }
+
+    var trackPixel = new Image();
+    trackPixel.src = url;
+  } else {
+    console.log('instrument:', sessionId, type, namespace, JSON.stringify(payload));
+  }
+};
+
 // Helper function
 function wrap(command) {
   return function() {
@@ -5,7 +47,14 @@ function wrap(command) {
     args[0] = this._namespace + args[0];
 
     if(!this.statsd) {
-      console.log('instrument:', command, args);
+      if(process.env.BROWSER_ENV && __pellet__ref.config &&
+        __pellet__ref.config.instrumentation &&
+        __pellet__ref.config.instrumentation.stats) {
+        this.log('statsd', {c:command, a:JSON.stringify(args)});
+      } else {
+        console.log('instrument:', command, args);
+      }
+
       return;
     }
 
@@ -24,7 +73,7 @@ function instrumentation(config) {
 
 instrumentation.prototype.namespace = function(namespace) {
   var obj = Object.create(this);
-  obj._namespace = this._namespace + namespace;
+  obj._namespace = this._namespace + namespace.replace(/\.$/,'') + '.';
   return obj;
 }
 
@@ -66,11 +115,50 @@ instrumentation.prototype.elapseTimer = function(startAt, namespace) {
   };
 }
 
+/**
+ * log data unstructured
+ *
+ * @param type
+ * @param payload
+ * @param sessionId
+ * @param namespace
+ */
+instrumentation.prototype.log = function(type, payload, sessionId, namespace) {
+  if(!transportFn) {
+    return;
+  }
+
+  transportFn(sessionId, type || null, namespace || this._namespace || null, payload || {});
+}
+
 instrumentation.prototype.timing = wrap('timing');
 instrumentation.prototype.increment = wrap('increment');
 instrumentation.prototype.decrement = wrap('decrement');
 instrumentation.prototype.histogram = wrap('histogram');
 instrumentation.prototype.gauge = wrap('gauge');
 instrumentation.prototype.set = wrap('set');
+
+/**
+ * set the instrumentation transport used to send log data and
+ * statsd data if not statsd server is configured.
+ *
+ * @param fn
+ * @param flushFn
+ */
+instrumentation.prototype.setInstrumentationTransport = function(fn, flushFn) {
+  transportFn = fn;
+
+  if(flushFn) {
+    if(process.env.SERVER_ENV) {
+      process.on('exit', flushFn);
+    } else if(process.env.BROWSER_ENV) {
+      if (document.addEventListener) {
+        document.addEventListener("unload", flushFn, true);
+      } else if(window.attachEvent) {
+        document.attachEvent("unload", flushFn);
+      }
+    }
+  }
+}
 
 module.exports = instrumentation;

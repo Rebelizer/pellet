@@ -18,6 +18,7 @@ var path = require('path')
   , instrumentation = require('../../src/instrumentation')
   , manifest = require('../../src/manifest')
   , utils = require('../utils')
+  , url = require('url')
   , pelletUtils = require('../../src/utils');
 
 var PELLET_BIN_PATH = path.resolve(__dirname, '..');
@@ -83,8 +84,32 @@ module.exports = function(program, addToReadyQue) {
     pelletLogger.extend(console);
     console.log = pelletLogger.info;
 
-    // now setup instrumentation using statsd
+    // now setup instrumentation using statsd and winston logger
     var instrument = new instrumentation(nconf.get('statsd'));
+    if(nconf.get('winston:containers:instrumentation')) {
+      var instrumentationLogger = winston.loggers.add('instrumentation', nconf.get('winston:containers:instrumentation'));
+
+      var instrumentClientSide = instrument;
+      if(nconf.get('statsd:browserNamespace')) {
+        var instrumentClientSide = instrument.namespace(nconf.get('statsd:browserNamespace'));
+      }
+
+      instrument.setInstrumentationTransport(function (sessionId, type, namespace, payload) {
+        var level = 'info';
+        if(payload && payload._level) {
+          level = payload._level;
+          delete payload._level; // not a good idea to delete data but I think its ok for log data
+        }
+
+        if(type === 'statsd') {
+          instrumentClientSide[payload.c].apply(instrumentClientSide, JSON.parse(payload.a));
+          return;
+        }
+
+        instrumentationLogger.log(level, {sid:sessionId, type:type, n:namespace, data:payload});
+      });
+    }
+
     var mesureLaunch = instrument.elapseTimer(null, 'pellet_launch.');
 
     // catch all uncaught exception and try to email them
@@ -428,6 +453,51 @@ module.exports = function(program, addToReadyQue) {
 
         // setup express static assets including the facicon.ico (replace __DEFAULT_STATIC_DIR with pellet internal path)
         app.use(require('serve-favicon')(resolveConfigPaths(nconf.get('server:favicon'))));
+
+        if(nconf.get('pellet:runInstrumentationTrackServer') &&
+          appConfig.instrumentation &&
+          appConfig.instrumentation.url) {
+
+          // now setup the tracking pixel server
+          var pixelUrl = url.parse(appConfig.instrumentation.url, false, true).path;
+          var trackPixel = new Buffer([71,73,70,56,57,97,1,0,1,0,128,0,0,255,255,255,0,0,0,33,249,4,1,0,0,0,0,44,0,0,0,0,1,0,1,0,0,2,2,68,1,0,59]);
+          app.use(function(req, res, next) {
+            var _s, _n, _t;
+
+            if (req.path !== pixelUrl || req.method !== 'GET') {
+              return next();
+            }
+
+            if(!req.query) {
+              req.query = url.parse(req.url, true).query;
+            }
+
+            res.writeHead(200, {
+              'Access-Control-Allow-Origin': '*',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Content-Length': 43,
+              'Content-Type': 'image/gif',
+              'Expires':'Fri, 01 Jan 1990 00:00:00 GMT',
+              'Last-Modified':'Sun, 17 May 1998 03:00:00 GMT',
+              'Pragma':'no-cache'
+            });
+
+            res.end(trackPixel, 'binary');
+
+            if(!(_s = req.query._s)) {
+              return;
+            }
+
+            _n = req.query._n;
+            _t = req.query._t;
+
+            delete req.query._s;
+            delete req.query._n;
+            delete req.query._t;
+
+            instrument.log(_t, req.query, _s, _n);
+          });
+        }
 
         var compressionOpts = nconf.get('server:compression')
         if(compressionOpts) {

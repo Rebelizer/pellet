@@ -6,6 +6,11 @@
     "config": {
       // shared config for both client and server (do not include secrets this is public!)
       // "jsMountPoint": "/js/", is defaulted to server:webpackMountPoint if missing
+      "instrumentation": {
+        "stats": true,
+        "cookie": "_sid",
+        "url": "/__idat" // or //foobar.com/__idat
+      }
     },
     "options": {
       "locales": "en-US",
@@ -56,6 +61,7 @@
     "useInternalDependencies": true,
     "jadeTemplateSupport": true,
     "includeFallbackPaths": true,
+    "runInstrumentationTrackServer": true,
     "skipIncludedInternalCoreManifest": false,
     "heapSnapshot": false // 1048576 * 5mb = 5242880
     // "uglifyOptions": {},
@@ -88,6 +94,7 @@
   // config statsd client
   "statsd": {
     "serverConfig": "#PELLET_PROJECT_PATH#/config/statsd.config",
+    "browserNamespace": "fromBrowser",
     "host": "localhost",
     "port": 8125,
     "prefix": "",
@@ -137,6 +144,14 @@
           "colorize": true,
           "label": "http",
           "timestamp": true
+        }
+      },
+      "instrumentation": {
+        "console": {
+          "level": "info",
+          "colorize": true,
+          "label": "instrumentation",
+          "timestamp": false
         }
       }
     }
