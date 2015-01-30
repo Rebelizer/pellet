@@ -1,3 +1,18 @@
+### 0.0.51 (2015-01-29)
+
+
+#### Bug Fixes
+
+* do not render in pipeline's abortRender flag is set to true ([6ade9466](https://github.com/Rebelizer/pellet/commit/6ade946632772bde51c5d56c30427a16da89966c))
+
+
+#### Features
+
+* as a dev I want a the instrumentation isomorphic and add logging support ([0b344349](https://github.com/Rebelizer/pellet/commit/0b3443494d75370ad379bd5e915875ed42e0f125))
+* update kefir version from 2.6 to 5.3 ([14759ca8](https://github.com/Rebelizer/pellet/commit/14759ca88954fdd48774fb22fdb4ca692317b0d2))
+* as a dev I want a way to change route location without using low level History.p ([87f35d94](https://github.com/Rebelizer/pellet/commit/87f35d9486123df323eda8f66f1ddf96bccdf6ef))
+
+
 ### 0.0.50 (2015-01-28)
 
 
