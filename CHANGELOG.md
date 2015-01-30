@@ -1,3 +1,11 @@
+### 0.0.52 (2015-01-29)
+
+
+#### Features
+
+* update package.json with more keywords ([901e43d5](https://github.com/Rebelizer/pellet/commit/901e43d52d1e67412d8b79de15b3cecd27ae0e17))
+
+
 ### 0.0.51 (2015-01-29)
 
 
