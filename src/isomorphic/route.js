@@ -201,7 +201,7 @@ if(process.env.SERVER_ENV) {
     var node = e.target;
     while(node) {
       if (node.nodeName == 'A') {
-        if (node.dataset.externalLink == 'true') {
+        if (node.getAttribute('data-externalLink') == 'true') {
           return;
         }
 
