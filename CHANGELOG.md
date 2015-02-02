@@ -1,3 +1,17 @@
+### 0.0.53 (2015-02-01)
+
+
+#### Bug Fixes
+
+* make sure the externalLink attribute works on IE and other old browsers ([ef213b03](https://github.com/Rebelizer/pellet/commit/ef213b0368aeda8a1df37f947b1d7c46798514b7))
+
+
+#### Features
+
+* as a dev I want control over static assets caching via my config ([2ed850fb](https://github.com/Rebelizer/pellet/commit/2ed850fbd34bd08c209182272f8f7afd6414e96a))
+* as a dev I want to have pre commit check-list ([32e1f7dd](https://github.com/Rebelizer/pellet/commit/32e1f7ddb6c6b58de0120c7bd14479e482e5ef14))
+
+
 ### 0.0.52 (2015-01-29)
 
 
