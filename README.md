@@ -14,6 +14,12 @@ Build SEO friendly rich isomorphic app using React, webpack, nodejs, and FRP
 ```
 $ npm install -g pellet
 ```
+## Is this you?
+
+You love React/Webpack/NodeJS/Jade. You care about having a SEO friendly application, but you need a dynamic application that can render its pages on the client without any dependencies on your server. You need an easy way to compose your applications making deployment, A/B tests, and reusable components a cinch. Your site needs to support internationalization. You care about instrumentation, logging, and analytics, and you want to track user behavior on your site. You care about testing, and you want good tools for running, building, and deploying. You want to use react, jade, cjs, js/cs and other modern technologies. You need to support not only desktop, but also mobile, tv, and other devices.
+
+Sounds like you? Then you are like VEVO, and we are open sourcing pellet, our tool that does all of this. In under five minutes you can have your first project up and running with all of the above bells and whistles. Check out pellets features below.
+
 ## Motivation
 
 Pellet was built to support VEVO's isomorphic web platform. Last year VEVO was responsible for 40+ billion videos watched globally and
@@ -38,15 +44,17 @@ the site there is no need to ask the server for anything, except for RESTFull AP
   * Isomorphic environment
   * Robust routing
   * Instrumentation, logging, statsd, and alerting
+  * Internationalization
   * FRP, event, and coordinator support
   * Flexible multi-environment configuration (dev, staging, prod)
   * Manifest based composition
   * Modular page, component, and layout/skin framework
   * Very extensible and flexible architecture
+  * User tracking and client side metrics
   * Webpack based with asset management
   * Preconfigured to support
     * css, less, stylus
-    * jsx, cjs, jade
+    * jsx, cjs, jade(reactjs transpiler)
     * JavaScript, CoffeeScript, es6
   * Multi device and platform support
     * Web desktop, mobile, tablet
