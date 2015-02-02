@@ -31,7 +31,9 @@
 
   "server": {
     "favicon": "#PELLET_PROJECT_PATH#/public/favicon.ico",
-    "static": "#PELLET_PROJECT_PATH#/public",
+    "static": {
+      "path": "#PELLET_PROJECT_PATH#/public"
+    },
     "webpackMountPoint": "/js/",
     "accessLog": {
       "format": ":pid :method :url :status :response-time ms - :res[content-length]",

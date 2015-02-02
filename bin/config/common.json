@@ -30,8 +30,28 @@
   // pellet basic http server options
   "server": {
     "favicon": "#PELLET_PROJECT_PATH#/public/favicon.ico",
-    "static": "#PELLET_PROJECT_PATH#/public",
+    "static": {
+      "path": "#PELLET_PROJECT_PATH#/public",
+      "options": {
+        "dotfiles": "ignore",
+        "etag": false,
+        "extensions": [],
+        "index": false,
+        "maxAge": "2592000",
+        "redirect": false,
+        "setHeaders": "res.set({'Expires':new Date(Date.now()+2592000000).toUTCString()})" // args res, path, stat
+      }
+    },
     "webpackMountPoint": "/js/",
+    "webpackMountPointHttpOptions": {
+      "dotfiles": "ignore",
+      "etag": false,
+      "extensions": [],
+      "index": false,
+      "maxAge": "2592000",
+      "redirect": false,
+      "setHeaders": "res.set({'Expires':new Date(Date.now()+2592000000).toUTCString()})" // args res, path, stat
+    },
     "polyfillRebuild": false,
     "alertOnLaunch": false,
     "accessLog": {

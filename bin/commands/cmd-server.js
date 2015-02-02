@@ -452,7 +452,7 @@ module.exports = function(program, addToReadyQue) {
         }
 
         // setup express static assets including the facicon.ico (replace __DEFAULT_STATIC_DIR with pellet internal path)
-        app.use(require('serve-favicon')(resolveConfigPaths(nconf.get('server:favicon'))));
+        app.use(require('serve-favicon')(resolveConfigPaths(nconf.get('server:favicon')), {maxAge: 2592000000}));
 
         if(nconf.get('pellet:runInstrumentationTrackServer') &&
           appConfig.instrumentation &&
@@ -504,8 +504,19 @@ module.exports = function(program, addToReadyQue) {
           app.use(compression(compressionOpts));
         }
 
-        app.use(server.static(resolveConfigPaths(nconf.get('server:static'))));
-        app.use(nconf.get('server:webpackMountPoint'), server.static(options.outputBrowser));
+        var serverConfig = nconf.get('server:static');
+        if(serverConfig.options && serverConfig.options.setHeaders) {
+          serverConfig.options.setHeaders = new Function('res, path, stat', serverConfig.options.setHeaders);
+        }
+
+        app.use(server.static(resolveConfigPaths(serverConfig.path), serverConfig.options));
+
+        serverConfig = nconf.get('server:webpackMountPointHttpOptions');
+        if(serverConfig.setHeaders) {
+          serverConfig.setHeaders = new Function('res, path, stat', serverConfig.setHeaders);
+        }
+
+        app.use(nconf.get('server:webpackMountPoint'), server.static(options.outputBrowser, serverConfig));
 
         // init the polyfill and rebuild cache is needed
         var polyfillOptions = nconf.get('polyfill');
