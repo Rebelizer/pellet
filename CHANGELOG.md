@@ -1,3 +1,11 @@
+### 0.0.56 (2015-02-03)
+
+
+#### Bug Fixes
+
+* the math to calculate micro to ms for instrumentation ([8180682f](https://github.com/Rebelizer/pellet/commit/8180682f62e5dda2177b9000352ecefa96c86b39))
+
+
 ### 0.0.55 (2015-02-02)
 
 
