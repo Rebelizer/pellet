@@ -1,3 +1,11 @@
+### 0.0.55 (2015-02-02)
+
+
+#### Bug Fixes
+
+* high res timer needs to get converted to number (in ms) for statsd timers ([3dfc2c47](https://github.com/Rebelizer/pellet/commit/3dfc2c47d8845999e4299d64bd14634bb3ed2614))
+
+
 ### 0.0.54 (2015-02-02)
 
 
