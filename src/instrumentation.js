@@ -111,7 +111,8 @@ instrumentation.prototype.elapseTimer = function(startAt, namespace) {
   return {
     mark: function(name) {
       if(process.env.SERVER_ENV) {
-        _this.timing(name, process.hrtime()-start);
+        var end = process.hrtime();
+        _this.timing(name, ((end[0]-start[0])*1e9) + (end[1]-start[1])/1e9);
       } else if(process.env.BROWSER_ENV) {
         if(window.performance) {
           _this.timing(name, window.performance.now()-start);
