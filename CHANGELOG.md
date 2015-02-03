@@ -1,3 +1,11 @@
+### 0.0.54 (2015-02-02)
+
+
+#### Features
+
+* as a dev I want a easier/safer api to instrumentation logging ([17c2808f](https://github.com/Rebelizer/pellet/commit/17c2808f468fce28301972e9c0e5519d05bc340f))
+
+
 ### 0.0.53 (2015-02-01)
 
 
