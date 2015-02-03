@@ -495,7 +495,7 @@ module.exports = function(program, addToReadyQue) {
             delete req.query._n;
             delete req.query._t;
 
-            instrument.log(_t, req.query, _s, _n);
+            instrument.console(_t, req.query, _s, _n);
           });
         }
 

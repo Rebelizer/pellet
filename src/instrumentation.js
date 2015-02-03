@@ -6,7 +6,15 @@ var transportFn = function(sessionId, type, namespace, payload) {
 
     var url = __pellet__ref.config.instrumentation.url
       , query = []
-      , data = Object.create(payload);
+      , data;
+
+    if(typeof(payload) === 'string') {
+      data = {
+        text: payload
+      }
+    } else {
+      data = Object.create(payload);
+    }
 
     // try to get a sessionId via our own cookie or use ga cookie
     if(!sessionId) {
@@ -50,7 +58,7 @@ function wrap(command) {
       if(process.env.BROWSER_ENV && __pellet__ref.config &&
         __pellet__ref.config.instrumentation &&
         __pellet__ref.config.instrumentation.stats) {
-        this.log('statsd', {c:command, a:JSON.stringify(args)});
+        this.console('statsd', {c:command, a:JSON.stringify(args)});
       } else {
         console.log('instrument:', command, args);
       }
@@ -123,12 +131,27 @@ instrumentation.prototype.elapseTimer = function(startAt, namespace) {
  * @param sessionId
  * @param namespace
  */
-instrumentation.prototype.log = function(type, payload, sessionId, namespace) {
+instrumentation.prototype.console = function(type, payload, sessionId, namespace) {
   if(!transportFn) {
     return;
   }
 
-  transportFn(sessionId, type || null, namespace || this._namespace || null, payload || {});
+  transportFn(sessionId, type || 'info', namespace || this._namespace || 'NA', payload || {});
+}
+
+instrumentation.prototype.log = instrumentation.prototype.info = function(data) {
+  if(arguments.length !== 1) {throw Error('instrumentation log can only have one argument');}
+  this.console('info', data);
+}
+
+instrumentation.prototype.error = function(data) {
+  if(arguments.length !== 1) {throw Error('instrumentation log can only have one argument');}
+  this.console('error', data);
+}
+
+instrumentation.prototype.warn = function(data) {
+  if(arguments.length !== 1) {throw Error('instrumentation log can only have one argument');}
+  this.console('warn', data);
 }
 
 instrumentation.prototype.timing = wrap('timing');
