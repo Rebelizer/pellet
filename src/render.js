@@ -57,7 +57,7 @@ var pelletRender = module.exports = {
           }
 
           react.unmountComponentAtNode(options.targetEl);
-          //mesure.mark('react_unmount');
+          mesure.mark('react_unmount');
 
           // only add touch events if the device support it
           if ('ontouchstart' in document.documentElement) {
@@ -70,6 +70,7 @@ var pelletRender = module.exports = {
         } else if(options.mode == pelletRender.MODE_HTML) {
           result = react.renderToString(component);
         }
+
         mesure.mark('react_render');
       } catch(ex) {
         next(ex);
@@ -133,6 +134,8 @@ var pelletRender = module.exports = {
             next(ex);
             return;
           }
+
+          mesure.mark('react_context');
 
           // wait a tick so all kefir emit get processed for the
           // pipe serialization.
