@@ -1,3 +1,11 @@
+### 0.0.59 (2015-02-03)
+
+
+#### Features
+
+* as a dev I want to know if I have a memory leek ([b4a336c0](https://github.com/Rebelizer/pellet/commit/b4a336c04776d2b57d3e92daf77cdaba04666a37))
+
+
 ### 0.0.58 (2015-02-03)
 
 
