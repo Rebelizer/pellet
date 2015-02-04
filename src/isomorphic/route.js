@@ -177,6 +177,7 @@ if(process.env.SERVER_ENV) {
         match.fn.call(match);
       } else {
         console.error('Can not find route for:', location.pathname + location.search);
+        window.location = location.pathname + location.search;
       }
     });
   });
