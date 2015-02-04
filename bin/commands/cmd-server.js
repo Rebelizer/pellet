@@ -302,6 +302,10 @@ module.exports = function(program, addToReadyQue) {
           console.info('  estimated_base', stats.estimated_base, 'current_base', stats.current_base, 'min', stats.min, 'max', stats.max);
           console.info('  usage_trend', stats.usage_trend);
         });
+
+        memwatch.on('leak', function(info) {
+          instrument.error({'memory_leek': os.hostname() + '.' + process.pid, start:info.start, end:info.end, growth:info.growth, reason:info.reason});
+        });
       }
 
       var sampleInterval = nconf.get('pellet:insterumentation:interval');
