@@ -1,3 +1,11 @@
+### 0.0.58 (2015-02-03)
+
+
+#### Features
+
+* as a dev I want more stats on v8 GCs and report it to statsd ([955187a2](https://github.com/Rebelizer/pellet/commit/955187a29a17f1c41c6abfa10fd46b29984669fe))
+
+
 ### 0.0.57 (2015-02-03)
 
 
