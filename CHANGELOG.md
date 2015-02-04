@@ -1,3 +1,11 @@
+### 0.0.57 (2015-02-03)
+
+
+#### Bug Fixes
+
+* when using back button on html pushState if no route found default to window.loc ([aa95e026](https://github.com/Rebelizer/pellet/commit/aa95e026cfc72ad99bc7fffbbd52349a77612480))
+
+
 ### 0.0.56 (2015-02-03)
 
 
