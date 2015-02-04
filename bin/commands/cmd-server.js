@@ -106,7 +106,7 @@ module.exports = function(program, addToReadyQue) {
           return;
         }
 
-        instrumentationLogger.log(level, {sid:sessionId, type:type, n:namespace, data:payload});
+        instrumentationLogger.log(level, {sid:sessionId, message:type, n:namespace, data:payload});
       });
     }
 
@@ -282,6 +282,27 @@ module.exports = function(program, addToReadyQue) {
       // add the instrumentation and logger to config
       appOptions.instrumentation = instrument;
       appOptions.logger = pelletLogger;
+
+      if(nconf.get('pellet:insterumentation:memwatch')) {
+        var memwatch = require('memwatch');
+        memwatch.on('stats', function(stats) {
+          var namespace = os.hostname() + '.' + process.pid + '.';
+
+          instrument.gauge(namespace + 'num_full_gc', stats.num_full_gc);
+          instrument.gauge(namespace + 'num_inc_gc', stats.num_inc_gc);
+          instrument.gauge(namespace + 'heap_compactions', stats.heap_compactions);
+          instrument.gauge(namespace + 'estimated_base', stats.estimated_base);
+          instrument.gauge(namespace + 'current_base', stats.current_base);
+          instrument.gauge(namespace + 'min', stats.min);
+          instrument.gauge(namespace + 'max', stats.max);
+          instrument.gauge(namespace + 'usage_trend', stats.usage_trend);
+
+          console.info('GC:', os.loadavg(), 'runtime:', new Date() - LAUNCH_TIME);
+          console.info('  full_gc', stats.num_full_gc, 'inc_gc', stats.num_full_gc, 'heap_compactions', stats.num_full_gc)
+          console.info('  estimated_base', stats.estimated_base, 'current_base', stats.current_base, 'min', stats.min, 'max', stats.max);
+          console.info('  usage_trend', stats.usage_trend);
+        });
+      }
 
       var sampleInterval = nconf.get('pellet:insterumentation:interval');
       var lastRSS = 0, heapTotal = 0;

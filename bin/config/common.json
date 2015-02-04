@@ -86,7 +86,8 @@
     "heapSnapshot": false // 1048576 * 5mb = 5242880
     // "uglifyOptions": {},
     //,"insterumentation": {
-    //  "interval": 5000
+    //  "interval": 5000,
+    //  "memwatch": true
     //}
   },
 
