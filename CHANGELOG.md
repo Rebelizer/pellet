@@ -1,3 +1,11 @@
+### 0.0.60 (2015-02-03)
+
+
+#### Features
+
+* as a dev I want more details on the react pipeline performance ([e28ec4e0](https://github.com/Rebelizer/pellet/commit/e28ec4e0efa9c255192da83d424318bcf3662605))
+
+
 ### 0.0.59 (2015-02-03)
 
 
