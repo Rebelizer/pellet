@@ -1,3 +1,11 @@
+### 0.0.61 (2015-02-05)
+
+
+#### Bug Fixes
+
+* the typo in addHeader rel it was output rev not rel ([53d91627](https://github.com/Rebelizer/pellet/commit/53d916274418a421b9b0820efc7814bf7c7389d9))
+
+
 ### 0.0.60 (2015-02-03)
 
 
