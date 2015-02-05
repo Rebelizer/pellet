@@ -125,7 +125,7 @@ isomorphicHttp.prototype = {
         }
 
         if (fields.rel) {
-          newLine.push('rev="' + fields.rel + '"');
+          newLine.push('rel="' + fields.rel + '"');
         }
 
         if (fields.sizes) {
