@@ -111,7 +111,7 @@ pipeline.prototype.coordinator = function(name, type, serializeEventName) {
     var _this = this;
 
     coordinator.event(serializeEventName).filter(function(data) {
-      return (data.sender.id === coordinator._id.id)
+      return (data.sender.id === coordinator._id.id) && (data.ctx === coordinator.isolatedConfig);
     }).on(function(data) {
       _this.set(name, data.event);
     }, true);

@@ -38,7 +38,7 @@ isolator.prototype.createChild = function(isolatedConfig) {
   return proxy;
 }
 
-isolator.prototype.event = function(name, isolate) {
+isolator.prototype.event = function(name, isolated) {
   var emitter, autoRelease;
 
   if(autoRelease = this._releaseList[name]) {
@@ -56,8 +56,19 @@ isolator.prototype.event = function(name, isolate) {
     emitter = this._emitters[name] = observables.emitter();
   }
 
-  autoRelease = new observables.autoRelease(emitter, this._id);
+  autoRelease = new observables.autoRelease(emitter, this._id, this.isolatedConfig);
   this._releaseList[name] = autoRelease;
+
+  if(isolated) {
+    var _this = this;
+    return autoRelease.filter(function(data) {
+      if(!data.ctx || !_this.isolatedConfig) {
+        return false;
+      }
+
+      return data.ctx === _this.isolatedConfig;
+    });
+  }
 
   return autoRelease;
 }
