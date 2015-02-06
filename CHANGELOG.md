@@ -1,3 +1,11 @@
+### 0.0.62 (2015-02-06)
+
+
+#### Features
+
+* as a dev I want script register via pellet.addWindowOnreadyEvent to fire if docu ([77cedbd2](https://github.com/Rebelizer/pellet/commit/77cedbd2d1b8cb60cb917e98d06db78315f0a62c))
+
+
 ### 0.0.61 (2015-02-05)
 
 
