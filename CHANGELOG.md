@@ -1,3 +1,12 @@
+### 0.0.63 (2015-02-06)
+
+
+#### Features
+
+* update unit test ([5f3a165b](https://github.com/Rebelizer/pellet/commit/5f3a165b8dd0fdee110d625f8deff421d9ab3193))
+* as a dev I want a built in way to filter events per isolatedConfig so no manual  ([4fa0641d](https://github.com/Rebelizer/pellet/commit/4fa0641dd8c71c347213e67bd4c7dec619e2a604))
+
+
 ### 0.0.62 (2015-02-06)
 
 
