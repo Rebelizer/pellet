@@ -94,7 +94,7 @@ describe "Observables", ->
         autoRelease = new observables.autoRelease(false, "foo owner")
 
         autoRelease.on (val)->
-          expect(val).to.deep.equal({sender:"foo owner", event:"foobar"})
+          expect(val).to.deep.equal({sender:"foo owner", event:"foobar", ctx: undefined})
         , true
 
         autoRelease.emit("foobar")
@@ -105,17 +105,17 @@ describe "Observables", ->
         cbCount = 0
 
         fn = (val)->
-          expect(val).to.deep.equal({sender:"foo owner", event:"barfoo"})
+          expect(val).to.deep.equal({sender:"foo owner", event:"barfoo", ctx: undefined})
           cbCount++
 
         fn2 = (val)->
-          expect(val).to.deep.equal({sender:"foo owner", event:"foobar"})
+          expect(val).to.deep.equal({sender:"foo owner", event:"foobar", ctx: undefined})
           cbCount++
           val.event = "barfoo"
           val
 
         fn3 = (val)->
-          expect(val).to.deep.equal({sender:"foo owner", event:"barfoo"})
+          expect(val).to.deep.equal({sender:"foo owner", event:"barfoo", ctx: undefined})
           cbCount++
 
         autoRelease.map(fn2).tap(fn3).on(fn, true)
@@ -153,7 +153,7 @@ describe "Observables", ->
         autoRelease = new observables.autoRelease(fooE, "foo owner")
 
         fooE.onValue (val)->
-          expect(val).to.deep.equal({sender:"foo owner", event:"foobar"})
+          expect(val).to.deep.equal({sender:"foo owner", event:"foobar", ctx: undefined})
         , true
 
         autoRelease.emit("foobar")
