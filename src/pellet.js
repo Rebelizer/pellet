@@ -312,10 +312,15 @@ if(process.env.SERVER_ENV) {
   module.exports = window.__pellet__ref = new pellet(window.__pellet__config);
 
   module.exports.addWindowOnreadyEvent = function(fn) {
+    if(document.readyState == 'interactive' || document.readyState == 'complete') {
+      fn();
+      return;
+    }
+
     if (document.addEventListener) {
-      document.addEventListener("DOMContentLoaded", fn, false);
+      document.addEventListener('DOMContentLoaded', fn, false);
     } else if(window.attachEvent) {
-      document.attachEvent("onreadystatechange", fn);
+      document.attachEvent('onreadystatechange', fn);
     } else {
       setTimeout(fn, 2000);
     }
