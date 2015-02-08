@@ -51,16 +51,23 @@ var transportFn = function(sessionId, type, namespace, payload) {
 // Helper function
 function wrap(command) {
   return function() {
+    var configDetails;
     var args = Array.prototype.slice.call(arguments, 0);
     args[0] = this._namespace + args[0];
 
+    if(process.env.SERVER_ENV) {
+      configDetails = global.__pellet__ref && global.__pellet__ref.config && global.__pellet__ref.config.instrumentation;
+    } else if(process.env.BROWSER_ENV) {
+      configDetails = window.__pellet__ref && window.__pellet__ref.config && window.__pellet__ref.config.instrumentation;
+    }
+
+    if(configDetails && configDetails.log) {
+      console.log('instrument:', command, args);
+    }
+
     if(!this.statsd) {
-      if(process.env.BROWSER_ENV && __pellet__ref.config &&
-        __pellet__ref.config.instrumentation &&
-        __pellet__ref.config.instrumentation.stats) {
+      if(process.env.BROWSER_ENV && configDetails && configDetails.stats) {
         this.console('statsd', {c:command, a:JSON.stringify(args)});
-      } else {
-        console.log('instrument:', command, args);
       }
 
       return;

@@ -7,6 +7,7 @@
       // shared config for both client and server (do not include secrets this is public!)
       // "jsMountPoint": "/js/", is defaulted to server:webpackMountPoint if missing
       "instrumentation": {
+        "log": true,
         "stats": true,
         "cookie": "_sid",
         "url": "/__idat" // or //foobar.com/__idat
