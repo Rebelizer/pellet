@@ -589,14 +589,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         },
         module: {
           unknownContextCritical: false,
-          loaders: [
-            { test: /\.json$/, loader: 'json' },
-            { test: /\.jsx$/, loader: 'jsx' },
-            { test: /\.cjsx$/, loader: 'coffee!cjsx' },
-            { test: /\.styl$/, loader: 'style!css!stylus' }, // style!css!autoprefixer!stylus
-            { test: /\.css$/, loader: 'style!css!autoprefixer' },
-            { test: /\.coffee$/, loader: 'coffee' }
-          ]
+          loaders: []
         }
       };
 

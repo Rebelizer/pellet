@@ -107,7 +107,13 @@
         {"test": "\\.woff$", "loader": "file-loader"},
         {"test": "\\.ttf$", "loader": "file-loader"},
         {"test": "\\.eot$", "loader": "file-loader"},
-        {"test": "\\.otf$", "loader": "file-loader"}
+        {"test": "\\.otf$", "loader": "file-loader"},
+        {"test": "\\.json$", "loader": "json" },
+        {"test": "\\.jsx$", "loader": "jsx" },
+        {"test": "\\.cjsx$", "loader": "coffee!cjsx" },
+        {"test": "\\.styl$", "loader": "style!css!stylus" }, // "file?name=styles-[hash:8].css!stylus"
+        {"test": "\\.css$", "loader": "style!css!autoprefixer" },
+        {"test": "\\.coffee$", "loader": "coffee" }
       ]
     }
   },
