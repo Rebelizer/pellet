@@ -6,7 +6,7 @@ var fs = require('fs-extra')
   , glob = require('glob')
   , utils = require('./utils');
 
-var WEBPACK_FIELDS = ['component', 'assets', 'server-dependencies', 'client-dependencies', 'coordinator', 'code'];
+var WEBPACK_FIELDS = ['component', 'style', 'server-dependencies', 'client-dependencies', 'coordinator', 'code'];
 
 // todo: create a winston logger for pellet (budjs) and use it not console.log (let use ignore the logging if include is someone else project)
 
@@ -281,7 +281,7 @@ manifestParser.prototype.resolveComponentPaths = function(manifestFilePath, comp
   }
 
   resolveComponentField('translations');
-  resolveComponentField('assetConfig');
+  resolveComponentField('styleMain');
 
   async.parallel(steps, function(err) {
     next(err, component);
@@ -385,17 +385,17 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
       var subNode, manifestIndex = ourManifest.manifest;
       var indexScript = 'var index = {};';
-      var assetConfigPath = [];
+      var styleMainPath = [];
       for(ix in manifestIndex) {
         if((subNode = manifestIndex[ix])) {
           if(subNode.component) {
             indexScript += 'index["' + ix + '"] = require("' + subNode.component + '");';
           }
-          if(subNode.assetConfig) {
-            if(typeof(subNode.assetConfig) === 'string') {
-              assetConfigPath.push(subNode.assetConfig);
+          if(subNode.styleMain) {
+            if(typeof(subNode.styleMain) === 'string') {
+              styleMainPath.push(subNode.styleMain);
             } else {
-              assetConfigPath = assetConfigPath.concat(subNode.assetConfig);
+              styleMainPath = styleMainPath.concat(subNode.styleMain);
             }
           }
         }
@@ -419,8 +419,9 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         , j, k;
 
       var translationDictionary = {};
-      var intermediateAssetFiles = {};
+      var intermediateStyleFiles = {};
       var assetFallbackPaths = [];
+      var nonParity = [];
 
       for(ix in translationFiles) {
         try {
@@ -497,20 +498,20 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
        * resets, etc. To fix this we create a style file that imports the "asset configs" and
        * all the manifests assets under a single file.
        */
-      if(assetConfigPath.length > 0) {
+      if(styleMainPath.length > 0) {
         ourManifest.webpackEP._assets = [];
 
-        for(j in assetConfigPath) {
-          if((k = assetConfigPath[j].match(/\.(styl|less)$/)) && (k = k[1])) {
-            assetFullFilePath = assetConfigPath[j];
-            if(intermediateAssetFiles[k]) {
-              intermediateAssetFiles[k].push(assetFullFilePath);
+        for(j in styleMainPath) {
+          if((k = styleMainPath[j].match(/\.(styl|less)$/)) && (k = k[1])) {
+            assetFullFilePath = styleMainPath[j];
+            if(intermediateStyleFiles[k]) {
+              intermediateStyleFiles[k].push(assetFullFilePath);
             } else {
-              intermediateAssetFiles[k] = [assetFullFilePath];
+              intermediateStyleFiles[k] = [assetFullFilePath];
             }
           } else {
             // unknown type so add to the webpack asset files
-            ourManifest.webpackEP._assets.push(assetConfigPath[j])
+            ourManifest.webpackEP._assets.push(styleMainPath[j])
           }
         }
 
@@ -520,8 +521,8 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         for(j in ourManifest.webpackEP.assets) {
 
           assetFullFilePath = ourManifest.webpackEP.assets[j];
-          if((k = assetFullFilePath.match(/\.(styl|less)$/)) && (k=k[1]) && intermediateAssetFiles[k]) {
-            intermediateAssetFiles[k].push(assetFullFilePath);
+          if((k = assetFullFilePath.match(/\.(styl|less)$/)) && (k=k[1]) && intermediateStyleFiles[k]) {
+            intermediateStyleFiles[k].push(assetFullFilePath);
           } else {
             ourManifest.webpackEP._assets.push(assetFullFilePath);
           }
@@ -539,15 +540,15 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         ourManifest.webpackEP.assets = ourManifest.webpackEP._assets;
         delete ourManifest.webpackEP._assets;
 
-        for(j in intermediateAssetFiles) {
-          intermediateAssetFiles[j] = '// intermediate file (so no duplicate globes/mixins/etc)\n@import "' + intermediateAssetFiles[j].join('"\n@import "') + '"\n';
+        for(j in intermediateStyleFiles) {
+          intermediateStyleFiles[j] = '// intermediate file (so no duplicate globes/mixins/etc)\n@import "' + intermediateStyleFiles[j].join('"\n@import "') + '"\n';
         }
 
         if(options.useIntermediateAssets) {
-          for(j in intermediateAssetFiles) {
+          for(j in intermediateStyleFiles) {
             var intermediateAssetPath = path.resolve(__dirname, options.useIntermediateAssets) + '.' + j;
 
-            fs.outputFileSync(intermediateAssetPath, intermediateAssetFiles[j]);
+            fs.outputFileSync(intermediateAssetPath, intermediateStyleFiles[j]);
             ourManifest.webpackEP.assets.push(intermediateAssetPath);
           }
         }
@@ -735,6 +736,8 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           browser.entry.component = ourManifest.webpackEP['client-dependencies'].concat(browser.entry.component);
         }
 
+        nonParity = nonParity.concat(ourManifest.webpackEP['client-dependencies']);
+
         delete ourManifest.webpackEP['client-dependencies'];
         delete browser.entry['client-dependencies'];
         delete node.entry['client-dependencies'];
@@ -746,6 +749,8 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         } else {
           node.entry.component = ourManifest.webpackEP['server-dependencies'].concat(node.entry.component);
         }
+
+        nonParity = nonParity.concat(ourManifest.webpackEP['server-dependencies']);
 
         delete ourManifest.webpackEP['server-dependencies'];
         delete browser.entry['server-dependencies'];
@@ -815,8 +820,9 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
       next(null, {
         translationDictionary: translationDictionary,
-        intermediateAssetFiles: intermediateAssetFiles,
+        intermediateStyleFiles: intermediateStyleFiles,
         indexScript: indexScript,
+        nonParity: nonParity,
         baseConfig: config,
         browserConfig: browser,
         serverConfig: node

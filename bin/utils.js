@@ -71,10 +71,11 @@ var exports = module.exports = {
 
   /**
    * sync both node and browser builds
+   * @param config
    * @param next
    * @returns {Function}
    */
-  syncNodeAndBrowserBuilds: function(next) {
+  syncNodeAndBrowserBuilds: function(config, next) {
     var stacks = [[],[]];
     var statusMap = {};
 
@@ -151,7 +152,11 @@ var exports = module.exports = {
           var safeHash='', file;
           for(var i in stats.modules) {
             file = stats.modules[i].identifier.split('!').pop();
-            if(file[0] == path.separator) {
+            if(file[0] == path.sep) {
+              if(config.nonParity.indexOf(file) !== -1) {
+                continue;
+              }
+
               safeHash += file + fs.statSync(file).mtime + "!!";
             }
           }
