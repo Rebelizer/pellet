@@ -803,7 +803,7 @@ module.exports = function(program, addToReadyQue) {
 
           // build a function that sync the two step build into a single step that
           // builds the manifest profile and map. This also handles duplicate errors
-          var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
+          var doneFn = utils.syncNodeAndBrowserBuilds(config, utils.buildManifestProfileAndMap(
             options, function (err, buildManifestMap, browserStats, nodeStats) {
               if(browserStats) {
                 instrument.timing('pellet_launch.browser_pack_time', browserStats.time);
