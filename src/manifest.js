@@ -6,7 +6,7 @@ var fs = require('fs-extra')
   , glob = require('glob')
   , utils = require('./utils');
 
-var WEBPACK_FIELDS = ['component', 'style', 'server-dependencies', 'client-dependencies', 'coordinator', 'code'];
+var WEBPACK_FIELDS = ['component', 'assets', 'style', 'server-dependencies', 'client-dependencies', 'coordinator', 'code'];
 
 // todo: create a winston logger for pellet (budjs) and use it not console.log (let use ignore the logging if include is someone else project)
 
@@ -75,7 +75,7 @@ function resolvePath(manifestFilePath, file, next) {
 
     return;
   } else if(typeof(file) !== 'string') {
-    return next(new Error('file must be a string or array of strings'))
+    return next(new Error('File must be a string or array of strings'))
   }
 
   // parse out loader detail using webpack loader style
@@ -281,6 +281,7 @@ manifestParser.prototype.resolveComponentPaths = function(manifestFilePath, comp
   }
 
   resolveComponentField('translations');
+  resolveComponentField('assetConfig');
   resolveComponentField('styleMain');
 
   async.parallel(steps, function(err) {
@@ -386,11 +387,21 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       var subNode, manifestIndex = ourManifest.manifest;
       var indexScript = 'var index = {};';
       var styleMainPath = [];
+      var assetConfigPath = [];
       for(ix in manifestIndex) {
         if((subNode = manifestIndex[ix])) {
           if(subNode.component) {
             indexScript += 'index["' + ix + '"] = require("' + subNode.component + '");';
           }
+
+          if(subNode.assetConfig) {
+            if(typeof(subNode.assetConfig) === 'string') {
+              assetConfigPath.push(subNode.assetConfig);
+            } else {
+              assetConfigPath = assetConfigPath.concat(subNode.assetConfig);
+            }
+          }
+
           if(subNode.styleMain) {
             if(typeof(subNode.styleMain) === 'string') {
               styleMainPath.push(subNode.styleMain);
@@ -420,6 +431,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
 
       var translationDictionary = {};
       var intermediateStyleFiles = {};
+      var intermediateAssetFiles = {};
       var assetFallbackPaths = [];
       var nonParity = [];
 
@@ -454,7 +466,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         fs.writeJSONFileSync(translationMapFile, translationDictionary);
       }
 
-      var localData, translationObj =[], translationStats = {};
+      var localData, assetFullFilePath, translationObj =[], translationStats = {};
 
       for(j in translationDictionary) {
         msgFormatBuilder = new messageFormat(j.split('-')[0]);
@@ -498,31 +510,29 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
        * resets, etc. To fix this we create a style file that imports the "asset configs" and
        * all the manifests assets under a single file.
        */
-      if(styleMainPath.length > 0) {
+      if(assetConfigPath.length > 0) {
         ourManifest.webpackEP._assets = [];
 
-        for(j in styleMainPath) {
-          if((k = styleMainPath[j].match(/\.(styl|less)$/)) && (k = k[1])) {
-            assetFullFilePath = styleMainPath[j];
-            if(intermediateStyleFiles[k]) {
-              intermediateStyleFiles[k].push(assetFullFilePath);
+        for(j in assetConfigPath) {
+          if((k = assetConfigPath[j].match(/\.(styl|css|less)$/)) && (k = k[1])) {
+            assetFullFilePath = assetConfigPath[j];
+            if(intermediateAssetFiles[k]) {
+              intermediateAssetFiles[k].push(assetFullFilePath);
             } else {
-              intermediateStyleFiles[k] = [assetFullFilePath];
+              intermediateAssetFiles[k] = [assetFullFilePath];
             }
           } else {
             // unknown type so add to the webpack asset files
-            ourManifest.webpackEP._assets.push(styleMainPath[j])
+            ourManifest.webpackEP._assets.push(assetConfigPath[j])
           }
         }
-
-        var assetFullFilePath;
 
         // now sift through all the assets and pull out types that have a type that matches one of our asset config types.
         for(j in ourManifest.webpackEP.assets) {
 
           assetFullFilePath = ourManifest.webpackEP.assets[j];
-          if((k = assetFullFilePath.match(/\.(styl|less)$/)) && (k=k[1]) && intermediateStyleFiles[k]) {
-            intermediateStyleFiles[k].push(assetFullFilePath);
+          if((k = assetFullFilePath.match(/\.(styl|css|less)$/)) && (k=k[1]) && intermediateAssetFiles[k]) {
+            intermediateAssetFiles[k].push(assetFullFilePath);
           } else {
             ourManifest.webpackEP._assets.push(assetFullFilePath);
           }
@@ -540,17 +550,85 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         ourManifest.webpackEP.assets = ourManifest.webpackEP._assets;
         delete ourManifest.webpackEP._assets;
 
-        for(j in intermediateStyleFiles) {
-          intermediateStyleFiles[j] = '// intermediate file (so no duplicate globes/mixins/etc)\n@import "' + intermediateStyleFiles[j].join('"\n@import "') + '"\n';
+        for(j in intermediateAssetFiles) {
+          intermediateAssetFiles[j] = '// intermediate file (so no duplicate globes/mixins/etc)\n@import "' + intermediateAssetFiles[j].join('"\n@import "') + '"\n';
         }
 
         if(options.useIntermediateAssets) {
-          for(j in intermediateStyleFiles) {
+          for(j in intermediateAssetFiles) {
             var intermediateAssetPath = path.resolve(__dirname, options.useIntermediateAssets) + '.' + j;
 
-            fs.outputFileSync(intermediateAssetPath, intermediateStyleFiles[j]);
+            fs.outputFileSync(intermediateAssetPath, intermediateAssetFiles[j]);
             ourManifest.webpackEP.assets.push(intermediateAssetPath);
           }
+        }
+      }
+
+      /* All style need to be packed into intermediate file and they can only
+       * include style sheet files.
+       */
+      for(j in styleMainPath) {
+        if((k = styleMainPath[j].match(/\.(styl|css|less)$/)) && (k = k[1])) {
+          assetFullFilePath = styleMainPath[j];
+          if(intermediateStyleFiles[k]) {
+            intermediateStyleFiles[k].push(assetFullFilePath);
+          } else {
+            intermediateStyleFiles[k] = [assetFullFilePath];
+          }
+        } else {
+          console.error('Cannot have non style', styleMainPath[j], 'in styleMain section');
+          next(new Error('Only styles allowed in the styleMain session'));
+          return;
+        }
+      }
+
+      // now sift through all the style and pull out types that have a type that matches one of our asset config types.
+      for(j in ourManifest.webpackEP.style) {
+        assetFullFilePath = ourManifest.webpackEP.style[j];
+        if((k = assetFullFilePath.match(/\.(styl|css|less)$/)) && (k=k[1])) {
+          if(intermediateStyleFiles[k]) {
+            intermediateStyleFiles[k].push(assetFullFilePath);
+          } else {
+            intermediateStyleFiles[k] = [assetFullFilePath];
+          }
+        } else {
+          console.error('Cannot have non style', assetFullFilePath, 'in style section');
+          next(new Error('Only styles allowed in the style session'));
+          return;
+        }
+
+        // only add unique parent asset dir as fallback path so in the style
+        // we can ~[parentDir]/foo.png
+        if(options.includeFallbackPaths && (assetFullFilePath = path.dirname(path.dirname(assetFullFilePath)))
+          && assetFullFilePath !== '.'
+          && assetFallbackPaths.indexOf(assetFullFilePath) === -1) {
+          assetFallbackPaths.push(assetFullFilePath);
+        }
+      }
+
+      // nuke the style endpoint because it broken up
+      // into intermediate style files in a format that
+      // can be turned into a string.
+      delete ourManifest.webpackEP.style;
+
+      for(j in intermediateStyleFiles) {
+        intermediateStyleFiles[j] = '// intermediate file (so no duplicate globes/mixins/etc)\n@import "' + intermediateStyleFiles[j].join('"\n@import "') + '"\n';
+      }
+
+      // now dump the static intermediate styles to disk
+      // so the server can load the file
+      if(options.useIntermediateStyle) {
+        for(j in intermediateStyleFiles) {
+          var intermediateStylePath = path.resolve(__dirname, options.useIntermediateStyle) + '.static-' + j;
+
+          fs.outputFileSync(intermediateStylePath, intermediateStyleFiles[j]);
+          var styleEP = '_style!' + j;
+
+          if(!ourManifest.webpackEP[styleEP]) {
+            ourManifest.webpackEP[styleEP] = [];
+          }
+
+          ourManifest.webpackEP[styleEP].push(intermediateStylePath);
         }
       }
 
@@ -590,12 +668,12 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         },
         module: {
           unknownContextCritical: false,
-          loaders: []
+          loaders: [
+          ]
         }
       };
 
       if(options.includeFallbackPaths) {
-
         // add all component to our fallback paths
         for (j in ourManifest.webpackEP.component) {
           // only add unique parent component dir as fallback path so in any code dev can ~module/foo.js
@@ -757,6 +835,18 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         delete node.entry['server-dependencies'];
       }
 
+      //
+      // Now pull the style from the server webpack because we only need the styles
+      // on the browser. This is a special case because we will do additional processing
+      // of the styles to turn them into a static file.
+      //
+
+      if(ourManifest.webpackEP['_style!css'] || ourManifest.webpackEP['_style!less'] || ourManifest.webpackEP['_style!styl']) {
+        delete node.entry['_style!css'];
+        delete node.entry['_style!less'];
+        delete node.entry['_style!styl'];
+      }
+
       // for the browser version change to true source maps and minify the js
       if(options.mode === 'production') {
         browser.devtool = '#source-map';
@@ -821,6 +911,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       next(null, {
         translationDictionary: translationDictionary,
         intermediateStyleFiles: intermediateStyleFiles,
+        intermediateAssetFiles: intermediateAssetFiles,
         indexScript: indexScript,
         nonParity: nonParity,
         baseConfig: config,
@@ -830,6 +921,60 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
     });
   });
 };
+
+/**
+ * create the style.css file by merge all the styl,less,css files into
+ * a single file. To build the name just use the bundle format
+ *
+ * @param manifestGlob
+ * @param options
+ * @param next
+ */
+manifestParser.prototype.convertStyleEPToStaticFile = function(browserStats, outputPath) {
+
+  var i
+    , styleFile
+    , staticStyles
+    , styleFileOutputPath
+    , styleFileOutput
+    , styleFileName= false;
+
+  staticStyles = [browserStats.assetsByChunkName['_style!css'], browserStats.assetsByChunkName['_style!less'], browserStats.assetsByChunkName['_style!styl']];
+
+  for(i = 0; i < staticStyles.length; i++) {
+    if(staticStyles[i]) {
+
+      if(!styleFileName) {
+        if(typeof staticStyles[i] === 'string') {
+          styleFileName = staticStyles[i];
+        } else {
+          styleFileName = staticStyles[i][0];
+        }
+
+        styleFileOutput = styleFileName.replace(/\.js.*$/, '.css').replace(/^[^\-]*\-/,'style-');
+
+        styleFileOutputPath = path.join(outputPath, styleFileOutput);
+
+        if (fs.existsSync(styleFileOutputPath)) {
+          fs.unlinkSync(styleFileOutputPath);
+        }
+      }
+
+      styleFile = path.join(outputPath, styleFileName);
+
+      try {
+        fs.appendFileSync(styleFileOutputPath, require(styleFile).toString()+'\n\n', {flag:'a+'});
+      } catch(ex) {
+        console.error('Cannot build webpack files because style output error:', ex.message);
+        return false;
+      }
+
+      delete require.cache[styleFile];
+    }
+  }
+
+  return styleFileOutput;
+}
 
 module.exports = manifestParser;
 

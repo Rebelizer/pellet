@@ -99,7 +99,7 @@
     // "extensions": null,
     // "server": null,
     "noParse": ["\\.min\\.js$"],
-    "browser": {
+    "module":{
       "loaders": [
         {"test": "\\.less$", "loader": "style!css!autoprefixer!less"},
         {"test": "\\.svg$", "loader": "url-loader?limit=100000&mimetype=image/svg+xml"},
@@ -112,11 +112,16 @@
         {"test": "\\.json$", "loader": "json" },
         {"test": "\\.jsx$", "loader": "jsx" },
         {"test": "\\.cjsx$", "loader": "coffee!cjsx" },
-        {"test": "\\.styl$", "loader": "style!css!stylus" }, // "file?name=styles-[hash:8].css!stylus"
+        {"test": "\\.styl$", "loader": "style!css!stylus" },
         {"test": "\\.css$", "loader": "style!css!autoprefixer" },
+        {"test": "\\.static-styl$", "loader": "css?minimize!stylus" },
+        {"test": "\\.static-css$", "loader": "css?minimize!autoprefixer" },
+        {"test": "\\.static-less$", "loader": "css?minimize!autoprefixer!less" },
         {"test": "\\.coffee$", "loader": "coffee" }
       ]
     }
+    //"browser": {}
+    //"server": {}
   },
 
   // config statsd client

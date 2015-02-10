@@ -152,13 +152,13 @@ var exports = module.exports = {
           var safeHash='', file;
           for(var i in stats.modules) {
             file = stats.modules[i].identifier.split('!').pop();
-            if(file[0] == path.sep) {
+            /*if(file[0] == path.sep) {
               if(config.nonParity.indexOf(file) !== -1) {
                 continue;
               }
 
               safeHash += file + fs.statSync(file).mtime + "!!";
-            }
+            }*/
           }
 
           safeHash = exports.md5(safeHash);

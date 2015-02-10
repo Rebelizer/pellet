@@ -277,6 +277,7 @@ module.exports = function(program, addToReadyQue) {
       appOptions.skeletonPage = resolveConfigPaths(appOptions.skeletonPage);
       appOptions.assetFileName = componentModule.browser.assets;
       appOptions.componentFileName = componentModule.browser.component;
+      appOptions.styleFileName = componentModule.browser.style;
       appOptions.manifest = componentModule;
 
       // add the instrumentation and logger to config
@@ -756,18 +757,18 @@ module.exports = function(program, addToReadyQue) {
 
         // embed the manifest index into the webpack so pellet can find all the components
         options.useIntermediateAssets = path.join(options.output, '_INTERMEDIATE_ASSETS');
+        options.useIntermediateStyle = path.join(options.output, '_INTERMEDIATE_STYLE');
 
         // build the translation map
         options.translationMapFile = path.join(options.output, '_TRANSLATIONS.json');
 
-        //if(options.ignoreCoreManifest) {
         // include our core manifest so our webpack will include pellet internal mixin, components, etc.
         // try to make this one of the first manifest so webpack will load it first (some of the core components)
         // augment the pellet class/interface.
-        manifestGlob.unshift(path.resolve(__dirname, '../../src/components/core.manifest.json'));
-
-        // todo: if running in the debug load more manifest stuff (i.e. translator tool, preview tool, etc.)
-        //}
+        if(!options.ignoreCoreManifest) {
+          manifestGlob.unshift(path.resolve(__dirname, '../../src/components/core.manifest.json'));
+          // todo: if running in the debug load more manifest stuff (i.e. translator tool, preview tool, etc.)
+        }
 
         ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
           mesureLaunch.mark('build_webpack_config');
@@ -817,6 +818,10 @@ module.exports = function(program, addToReadyQue) {
                 console.error('Cannot build webpack files because:', err.message, err.trace);
                 return;
               }
+              // now build the static css file if we have a style endpoint
+              if(!(buildManifestMap.browser.style = ourManifest.convertStyleEPToStaticFile(browserStats, options.outputBrowser))) {
+                return;
+              }
 
               if(options.exitOnBuild) {
                 if(typeof options.exitOnBuild === 'function') {
@@ -845,6 +850,19 @@ module.exports = function(program, addToReadyQue) {
                   fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component + '.map'));
                   fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.assets));
                   fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.component));
+
+                  //todo make this a look that will auto del map and stuff
+                  if(lastManifestDetails.browser.style) {
+                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.style));
+                  }
+
+                  //if(lastManifestDetails.browser['_style!styl'])
+                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!styl']));
+                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!styl'] + '.map'));
+                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!css']));
+                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!css'] + '.map'));
+                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!less']));
+                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!less'] + '.map'));
                 }
               }
 
@@ -1035,5 +1053,4 @@ module.exports = function(program, addToReadyQue) {
   };
 
 //TODO: boost number of http.request.count
-
 };
