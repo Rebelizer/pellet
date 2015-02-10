@@ -163,7 +163,13 @@ module.exports = function(program, addToReadyQue) {
                   "name": answer.name,
                   "version": answer.version,
                   "component": '.' + path.sep + path.relative(manifestOutputDir, componentEP),
-                  "assets": ['.' + path.sep + path.relative(manifestOutputDir, assetEP)]
+                  "styleMain": ['.' + path.sep + path.relative(manifestOutputDir, assetEP)],
+                  "excluded": false,
+                  "assets": [],
+                  "client-dependencies": [],
+                  "server-dependencies": [],
+                  "code": []
+//                  "assets": ['.' + path.sep + path.relative(manifestOutputDir, assetEP)]
 //                    "dependencies": ["react"],
 //                    "test": false,
 //                    "docs": false
@@ -327,8 +333,13 @@ module.exports = function(program, addToReadyQue) {
             var newComponent = {
               "name": answer.name,
               "version": answer.version,
-              "assetConfig": '.' + path.normalize(assetEP.replace(baseOutputDir, '')),
-              "component": '.' + path.sep + path.relative(baseOutputDir, componentEP)
+              "component": '.' + path.sep + path.relative(baseOutputDir, componentEP),
+              "styleMain": '.' + path.normalize(assetEP.replace(baseOutputDir, '')),
+              "excluded": false,
+              "assets": [],
+              "client-dependencies": [],
+              "server-dependencies": [],
+              "code": []
 //              "assets": ['.' + path.normalize(assetEP.replace(baseOutputDir, ''))]
 //                    "dependencies": ["react"],
 //                    "test": false,
