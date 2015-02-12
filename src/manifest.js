@@ -380,8 +380,9 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
        * that the developer does not have to require a component, but can reference
        * it via pellet.components.###.
        *
-       * in addition look for the asset config and merge it into the assets
-       * endpoint so a developer does not have to include full paths to config
+       * in addition look for the assetConfig and styleMain so we can build
+       * intermediate files that can handle the problem we have with stylus NIB
+       * needed to only be included one time at the head of the file.
        */
 
       var subNode, manifestIndex = ourManifest.manifest;
@@ -433,7 +434,6 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
       var intermediateStyleFiles = {};
       var intermediateAssetFiles = {};
       var assetFallbackPaths = [];
-      var nonParity = [];
 
       for(ix in translationFiles) {
         try {
@@ -504,7 +504,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           .replace(/[{\[":,]/g, ""));
       }
 
-      /* if a manifests has an asset config of type "less or stylus" we need to build an
+      /* if a manifests has an assetConfig of type "less or stylus" we need to build an
        * intermediate file because if each asset includes the config that could included
        * NIB, globes, mixins, and resets the outputted webpack css would have duplicate styles,
        * resets, etc. To fix this we create a style file that imports the "asset configs" and
@@ -606,31 +606,13 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         }
       }
 
-      // nuke the style endpoint because it broken up
-      // into intermediate style files in a format that
-      // can be turned into a string.
-      delete ourManifest.webpackEP.style;
-
       for(j in intermediateStyleFiles) {
         intermediateStyleFiles[j] = '// intermediate file (so no duplicate globes/mixins/etc)\n@import "' + intermediateStyleFiles[j].join('"\n@import "') + '"\n';
       }
 
-      // now dump the static intermediate styles to disk
-      // so the server can load the file
-      if(options.useIntermediateStyle) {
-        for(j in intermediateStyleFiles) {
-          var intermediateStylePath = path.resolve(__dirname, options.useIntermediateStyle) + '.static-' + j;
-
-          fs.outputFileSync(intermediateStylePath, intermediateStyleFiles[j]);
-          var styleEP = '_style!' + j;
-
-          if(!ourManifest.webpackEP[styleEP]) {
-            ourManifest.webpackEP[styleEP] = [];
-          }
-
-          ourManifest.webpackEP[styleEP].push(intermediateStylePath);
-        }
-      }
+      // nuke the style endpoint because we broken up
+      // and merged the styles into intermediate files
+      delete ourManifest.webpackEP.style;
 
       // merge in pellet into the components so its loaded and can bootstrap environment
       var pelletEntryPointPath = path.resolve(__dirname, './pellet.js');
@@ -765,6 +747,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         };
       }
 
+      // load the intl code that defines the way that each lang date, formatting, etc is configured
       if(options.intlLocaleDataPath && fs.existsSync(path.resolve(options.intlLocaleDataPath, 'complete.js'))) {
         externalDependencies.intl = path.join(externalDependencies.intl, 'Intl.complete.js');
         config.resolve.alias['intl/locale-data/complete.js'] = path.resolve(options.intlLocaleDataPath, 'complete.js');
@@ -814,8 +797,6 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           browser.entry.component = ourManifest.webpackEP['client-dependencies'].concat(browser.entry.component);
         }
 
-        nonParity = nonParity.concat(ourManifest.webpackEP['client-dependencies']);
-
         delete ourManifest.webpackEP['client-dependencies'];
         delete browser.entry['client-dependencies'];
         delete node.entry['client-dependencies'];
@@ -828,23 +809,29 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           node.entry.component = ourManifest.webpackEP['server-dependencies'].concat(node.entry.component);
         }
 
-        nonParity = nonParity.concat(ourManifest.webpackEP['server-dependencies']);
-
         delete ourManifest.webpackEP['server-dependencies'];
         delete browser.entry['server-dependencies'];
         delete node.entry['server-dependencies'];
       }
 
       //
-      // Now pull the style from the server webpack because we only need the styles
-      // on the browser. This is a special case because we will do additional processing
-      // of the styles to turn them into a static file.
+      // now dump the static intermediate styles to disk
+      // and add it to the browser entry point. This will
+      // include all style types less, stylus,and css
       //
+      if(options.useIntermediateStyle) {
+        for(j in intermediateStyleFiles) {
+          var intermediateStylePath = path.resolve(__dirname, options.useIntermediateStyle) + '.static-' + j;
 
-      if(ourManifest.webpackEP['_style!css'] || ourManifest.webpackEP['_style!less'] || ourManifest.webpackEP['_style!styl']) {
-        delete node.entry['_style!css'];
-        delete node.entry['_style!less'];
-        delete node.entry['_style!styl'];
+          fs.outputFileSync(intermediateStylePath, intermediateStyleFiles[j]);
+
+          var styleEP = '_style_' + j;
+          if(!browser.entry[styleEP]) {
+            browser.entry[styleEP] = [];
+          }
+
+          browser.entry[styleEP].push(intermediateStylePath);
+        }
       }
 
       // for the browser version change to true source maps and minify the js
@@ -913,7 +900,6 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         intermediateStyleFiles: intermediateStyleFiles,
         intermediateAssetFiles: intermediateAssetFiles,
         indexScript: indexScript,
-        nonParity: nonParity,
         baseConfig: config,
         browserConfig: browser,
         serverConfig: node
@@ -939,7 +925,11 @@ manifestParser.prototype.convertStyleEPToStaticFile = function(browserStats, out
     , styleFileOutput
     , styleFileName= false;
 
-  staticStyles = [browserStats.assetsByChunkName['_style!css'], browserStats.assetsByChunkName['_style!less'], browserStats.assetsByChunkName['_style!styl']];
+  staticStyles = [
+    browserStats.assetsByChunkName['_style_css'],
+    browserStats.assetsByChunkName['_style_less'],
+    browserStats.assetsByChunkName['_style_styl']
+  ];
 
   for(i = 0; i < staticStyles.length; i++) {
     if(staticStyles[i]) {
@@ -952,10 +942,13 @@ manifestParser.prototype.convertStyleEPToStaticFile = function(browserStats, out
         }
 
         styleFileOutput = styleFileName.replace(/\.js.*$/, '.css').replace(/^[^\-]*\-/,'style-');
+        if(styleFileOutput.indexOf('style-') !== 0) {
+          styleFileOutput = 'style.css';
+        }
 
         styleFileOutputPath = path.join(outputPath, styleFileOutput);
 
-        if (fs.existsSync(styleFileOutputPath)) {
+        if(fs.existsSync(styleFileOutputPath)) {
           fs.unlinkSync(styleFileOutputPath);
         }
       }
@@ -963,13 +956,16 @@ manifestParser.prototype.convertStyleEPToStaticFile = function(browserStats, out
       styleFile = path.join(outputPath, styleFileName);
 
       try {
-        fs.appendFileSync(styleFileOutputPath, require(styleFile).toString()+'\n\n', {flag:'a+'});
+        var styleCode = fs.readFileSync(styleFile).toString();
+
+        // because the webpack minified version (i.e in prod mode) has a funny output we need to
+        // update it so that we can eval it the same way as the normal webpack version
+        styleCode = styleCode.replace(/!function\((\w+)\)\s*{/, 'ret=function ___($1){');
+        fs.appendFileSync(styleFileOutputPath, eval(styleCode).toString()+'\n\n', {flag:'a+'});
       } catch(ex) {
         console.error('Cannot build webpack files because style output error:', ex.message);
         return false;
       }
-
-      delete require.cache[styleFile];
     }
   }
 

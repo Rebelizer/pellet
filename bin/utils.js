@@ -75,47 +75,19 @@ var exports = module.exports = {
    * @param next
    * @returns {Function}
    */
-  syncNodeAndBrowserBuilds: function(config, next) {
-    var stacks = [[],[]];
-    var statusMap = {};
-
-    // use a stack of both node & browser build hash
-    // to track when both complete with out errors
-    function sync(err, info) {
-      if(err) {
-        if(next) {
-          next(err);
-        }
-      } else {
-        for(var i in stacks[0]) {
-          for(var j in stacks[1]) {
-            if(stacks[0][i] === stacks[1][j]) {
-              var _key, browserStats, nodeStats;
-
-              _key = stacks[0].splice(i,1) + 0;
-              browserStats = statusMap[_key];
-              delete statusMap[_key];
-
-              _key = stacks[1].splice(j,1) + 1;
-              nodeStats = statusMap[_key];
-              delete statusMap[_key];
-
-              if(next) {
-                next(null, browserStats, nodeStats);
-              }
-
-              return;
-            }
-          }
-        }
-      }
-    }
+  syncNodeAndBrowserBuilds: function(next) {
+    var browserStats
+      , nodeStats
+      , browserTimestamps = null
+      , serverTimestamps = null;
 
     // return a helper function to make tracking easy
     return function(type) {
       return function(err, info) {
         if(err) {
-          sync(err);
+          if(next) {
+            next(err);
+          }
         } else if(info) {
           var stats = info.toJson({
             hash: true,
@@ -141,37 +113,46 @@ var exports = module.exports = {
           }
 
           if(stats.errors.length > 0) {
-            sync(new Error(stats.errors.join('\n\n')));
+            if(next) {
+              next(new Error(stats.errors.join('\n\n')));
+            }
             return;
           }
 
-          // because webpack processes the node and browser files differently
-          // the webpack build hash (info.hash) will be different and cannot
-          // be used to match up the two build passes so we need to build a
-          // hash based on all the input files and their sizes.
-          var safeHash='', file;
-          for(var i in stats.modules) {
-            file = stats.modules[i].identifier.split('!').pop();
-            /*if(file[0] == path.sep) {
-              if(config.nonParity.indexOf(file) !== -1) {
-                continue;
-              }
+          var i, baseTimestamps, changedTimestamps;
 
-              safeHash += file + fs.statSync(file).mtime + "!!";
-            }*/
+          if(type === 0) {
+            changedTimestamps = browserTimestamps = info.compilation.fileTimestamps;
+            baseTimestamps = serverTimestamps;
+            browserStats = stats;
+            console.info('Browser Pack -------------------------');
+          } else {
+            changedTimestamps = serverTimestamps = info.compilation.fileTimestamps;
+            baseTimestamps = browserTimestamps;
+            nodeStats = stats;
+            console.info('Server Pack -------------------------');
           }
 
-          safeHash = exports.md5(safeHash);
+          console.info(info.toString({chunkModules:false, chunks:false}), '\n');
 
-          console.info('\n\n-------------------------', type === 0 ? 'browser' : 'server', safeHash);
-          console.info(info.toString({chunkModules:false, chunks:false}));
+          if(!baseTimestamps || !changedTimestamps) {
+            return;
+          }
 
-          stacks[type].push(safeHash);
-          statusMap[safeHash+type] = stats;
+          var isSafeRun = true;
+          for(i in changedTimestamps) {
+            if(baseTimestamps[i] && baseTimestamps[i] !== changedTimestamps[i]) {
+              isSafeRun = false;
+              break;
+            }
+          }
 
-          sync(null, stats);
-        } else {
-          sync(null);
+          if(isSafeRun) {
+            if(next) {
+              console.info('Isomorphic packing in done');
+              next(null, browserStats, nodeStats);
+            }
+          }
         }
       }
     }
@@ -203,7 +184,7 @@ var exports = module.exports = {
       try {
         var profileFilePath = path.resolve(options.output, '_PROFILE#.json');
 
-        // flush the profile file to dist. use http://webpack.github.io/analyse/ for additional help
+        // flush the profile file to disk. use http://webpack.github.io/analyse/ for additional help
         fs.writeFileSync(profileFilePath.replace('#', '_BROWSER'), JSON.stringify(browserStats, null, 2));
         fs.writeFileSync(profileFilePath.replace('#', '_NODE'), JSON.stringify(nodeStats, null, 2));
 

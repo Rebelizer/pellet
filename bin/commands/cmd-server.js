@@ -804,7 +804,7 @@ module.exports = function(program, addToReadyQue) {
 
           // build a function that sync the two step build into a single step that
           // builds the manifest profile and map. This also handles duplicate errors
-          var doneFn = utils.syncNodeAndBrowserBuilds(config, utils.buildManifestProfileAndMap(
+          var doneFn = utils.syncNodeAndBrowserBuilds(utils.buildManifestProfileAndMap(
             options, function (err, buildManifestMap, browserStats, nodeStats) {
               if(browserStats) {
                 instrument.timing('pellet_launch.browser_pack_time', browserStats.time);
@@ -818,9 +818,12 @@ module.exports = function(program, addToReadyQue) {
                 console.error('Cannot build webpack files because:', err.message, err.trace);
                 return;
               }
-              // now build the static css file if we have a style endpoint
-              if(!(buildManifestMap.browser.style = ourManifest.convertStyleEPToStaticFile(browserStats, options.outputBrowser))) {
-                return;
+
+              // now build a static css file using the webpack js version. This is done by eval the js to get a string version
+              // and saving it to disk. We just add the filename (output name) to our manifest.
+              buildManifestMap.browser.style = ourManifest.convertStyleEPToStaticFile(browserStats, options.outputBrowser);
+              if(!buildManifestMap.browser.style) {
+                delete buildManifestMap.browser.style;
               }
 
               if(options.exitOnBuild) {
@@ -844,25 +847,35 @@ module.exports = function(program, addToReadyQue) {
                 if (lastManifestDetails) {
                   console.log('Clean up last build', lastManifestDetails.browser.hash, lastManifestDetails.server.hash);
 
-                  fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets));
-                  fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component));
-                  fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.assets + '.map'));
-                  fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.component + '.map'));
-                  fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.assets));
-                  fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, lastManifestDetails.server.component));
+                  var filesToCleanUp = [];
 
-                  //todo make this a look that will auto del map and stuff
-                  if(lastManifestDetails.browser.style) {
-                    fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.style));
+                  if(lastManifestDetails.browser.hash !== buildManifestMap.browser.hash) {
+                    filesToCleanUp = filesToCleanUp.concat([
+                      lastManifestDetails.browser.assets,
+                      lastManifestDetails.browser.component,
+                      lastManifestDetails.browser.style,
+                      lastManifestDetails.browser['_style_styl'],
+                      lastManifestDetails.browser['_style_less'],
+                      lastManifestDetails.browser['_style_css']
+                    ]);
                   }
 
-                  //if(lastManifestDetails.browser['_style!styl'])
-                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!styl']));
-                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!styl'] + '.map'));
-                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!css']));
-                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!css'] + '.map'));
-                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!less']));
-                  //fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser['_style!less'] + '.map'));
+                  if(lastManifestDetails.server.hash !== buildManifestMap.server.hash) {
+                    filesToCleanUp = filesToCleanUp.concat([
+                      lastManifestDetails.server.assets,
+                      lastManifestDetails.server.component,
+                    ]);
+                  }
+
+                  var i = filesToCleanUp.length;
+                  while(i--) {
+                    if(filesToCleanUp[i]) {
+                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, filesToCleanUp[i]));
+                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, filesToCleanUp[i] + '.map'));
+                      fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, filesToCleanUp[i]));
+                      fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, filesToCleanUp[i]) + '.map');
+                    }
+                  }
                 }
               }
 
@@ -870,7 +883,7 @@ module.exports = function(program, addToReadyQue) {
                 startServer(buildManifestMap);
               }
 
-              if (lastManifestDetails && lastManifestDetails.browser.hash != buildManifestMap.browser.hash && options['cluster:count'] > 0) {
+              if (lastManifestDetails && lastManifestDetails.server.hash != buildManifestMap.server.hash && options['cluster:count'] > 0) {
                 cluster.restart();
               }
 
