@@ -1,3 +1,23 @@
+### 0.0.64 (2015-02-12)
+
+
+#### Bug Fixes
+
+* as a dev I want the clean up in watch mode to work better ([5c34fd34](https://github.com/Rebelizer/pellet/commit/5c34fd34c9be2b526c6915e1b794cfa614e6bb8a))
+* update the interface to syncNodeAndBrowserBuilds we need to pass in the manifest ([c32ee7f4](https://github.com/Rebelizer/pellet/commit/c32ee7f46cce8b01cfa94b101e0856a8eb34d05f))
+* when using server/client-dependencies in the manifest it was triggering bad webp ([45d53250](https://github.com/Rebelizer/pellet/commit/45d5325014929f35c85290a2e5bc3834f5ea6e80))
+* update jshint to allow for leading , to match coding style ([50e60e93](https://github.com/Rebelizer/pellet/commit/50e60e938f828c888d02abc05a0e6ed00676dd29))
+
+
+#### Features
+
+* as a dev I want a better build sync and static css file implementation ([27fab107](https://github.com/Rebelizer/pellet/commit/27fab10738d6e254059dff3e4340644f3ab872ef))
+* as a dev I want a manifest entry that would generate a static css file using web ([b4e8d8c9](https://github.com/Rebelizer/pellet/commit/b4e8d8c9fc833fa71ffcb69b18943ff7156ccdd9))
+* as a dev I want a better template that show more options for the manifest ([cdaaf7a7](https://github.com/Rebelizer/pellet/commit/cdaaf7a7121fe3cdd30801e4cf9eba513a240e43))
+* as a dev I want an easy way to turn on instrumentation logging ([91f21978](https://github.com/Rebelizer/pellet/commit/91f219782097335c8c2f7bfb1d467aec0cce38f2))
+* as a dev I want the webpack config more flexible so remove hardcoded values and  ([49a95cd4](https://github.com/Rebelizer/pellet/commit/49a95cd4266027eb390b2943d1d4472e5dbb8dac))
+
+
 ### 0.0.63 (2015-02-06)
 
 
