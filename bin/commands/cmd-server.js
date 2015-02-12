@@ -800,7 +800,9 @@ module.exports = function(program, addToReadyQue) {
           mesureLaunch.mark('build_translation');
 
           // cache to help clean up build files
-          var lastManifestDetails = false;
+          var lastManifestDetails = false
+            , lastBrowserAssets
+            , lastNodeAssets;
 
           // build a function that sync the two step build into a single step that
           // builds the manifest profile and map. This also handles duplicate errors
@@ -847,33 +849,35 @@ module.exports = function(program, addToReadyQue) {
                 if (lastManifestDetails) {
                   console.log('Clean up last build', lastManifestDetails.browser.hash, lastManifestDetails.server.hash);
 
-                  var filesToCleanUp = [];
+                  var i, j, assets;
 
                   if(lastManifestDetails.browser.hash !== buildManifestMap.browser.hash) {
-                    filesToCleanUp = filesToCleanUp.concat([
-                      lastManifestDetails.browser.assets,
-                      lastManifestDetails.browser.component,
-                      lastManifestDetails.browser.style,
-                      lastManifestDetails.browser['_style_styl'],
-                      lastManifestDetails.browser['_style_less'],
-                      lastManifestDetails.browser['_style_css']
-                    ]);
+                    for(i in lastBrowserAssets) {
+                      if(Array.isArray(assets = lastBrowserAssets[i])) {
+                        j = assets.length;
+                        while(j--) {
+                          fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, assets[j]));
+                        }
+                      } else {
+                        fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, assets));
+                      }
+                    }
+
+                    if(lastManifestDetails.browser.style) {
+                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, lastManifestDetails.browser.style));
+                    }
                   }
 
                   if(lastManifestDetails.server.hash !== buildManifestMap.server.hash) {
-                    filesToCleanUp = filesToCleanUp.concat([
-                      lastManifestDetails.server.assets,
-                      lastManifestDetails.server.component,
-                    ]);
-                  }
-
-                  var i = filesToCleanUp.length;
-                  while(i--) {
-                    if(filesToCleanUp[i]) {
-                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, filesToCleanUp[i]));
-                      fs.remove(path.resolve(options.output, lastManifestDetails.browser.relativePath, filesToCleanUp[i] + '.map'));
-                      fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, filesToCleanUp[i]));
-                      fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, filesToCleanUp[i]) + '.map');
+                    for(i in lastNodeAssets) {
+                      if(Array.isArray(assets = lastNodeAssets[i])) {
+                        j = assets.length;
+                        while(j--) {
+                          fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, assets[j]));
+                        }
+                      } else {
+                        fs.remove(path.resolve(options.output, lastManifestDetails.server.relativePath, assets));
+                      }
                     }
                   }
                 }
@@ -888,6 +892,8 @@ module.exports = function(program, addToReadyQue) {
               }
 
               lastManifestDetails = buildManifestMap;
+              lastBrowserAssets = browserStats.assetsByChunkName;
+              lastNodeAssets = nodeStats.assetsByChunkName;
             }));
 
           // merge in our webpack override config
