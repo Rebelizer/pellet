@@ -29,7 +29,7 @@ gulp.task('clean', 'Clean all the build files', function(next) {
 // ###############################################
 
 gulp.task('document', 'Build js documentation for the doghouse', function() {
-  gulp.src(['./src/**/*.js', './docs/README.md'])
+  gulp.src(['./src/**/*.js', '!**/*.min.js', './docs/README.md'])
     .pipe((function(cb) {
       var files = [];
 
