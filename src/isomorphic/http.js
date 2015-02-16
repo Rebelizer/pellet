@@ -3,6 +3,14 @@ if(process.env.BROWSER_ENV) {
   browserCookie = require('./cookie');
 }
 
+/**
+ * Isomorphic http used by both server and browser.
+ *
+ * @class
+ * @param request
+ * @param respose
+ * @param next
+ */
 function isomorphicHttp (request, respose, next) {
   this.request = request;
   this.respose = respose;
@@ -12,6 +20,13 @@ function isomorphicHttp (request, respose, next) {
 }
 
 isomorphicHttp.prototype = {
+  /**
+   * Set the http status code.
+   *
+   * This only has an effect on the server.
+   *
+   * @param {number} code
+   */
   status: function(code) {
     if(process.env.BROWSER_ENV) {
       return;
@@ -20,6 +35,15 @@ isomorphicHttp.prototype = {
     this.respose.status(code);
   },
 
+  /**
+   * Adds a header to the http response.
+   *
+   * This only has an effect on the server.
+   *
+   * @param field
+   * @param val
+   * @returns {*}
+   */
   headers: function(field, val) {
     if(process.env.BROWSER_ENV) {
       return;
@@ -43,6 +67,22 @@ isomorphicHttp.prototype = {
     }
   },
 
+  /**
+   * Set _Content-Type_ response header with `type` through `mime.lookup()`
+   * when it does not contain "/", or set the Content-Type to `type` otherwise.
+   *
+   * This only has an effect on the server.
+   *
+   * Examples:
+   *
+   *     http.type('.html');
+   *     http.type('html');
+   *     http.type('json');
+   *     http.type('application/json');
+   *     http.type('png');
+   *
+   * @param {string} type
+   */
   type: function(type) {
     if(process.env.BROWSER_ENV) {
       return;
@@ -51,15 +91,47 @@ isomorphicHttp.prototype = {
     this.respose.type(type);
   },
 
-  redirect: function(url) {
+  /**
+   * Redirect to the given `url` with optional response `status`
+   * defaulting to 302.
+   *
+   * This only has an effect on the server.
+   *
+   * The resulting `url` is determined by `res.location()`, so
+   * it will play nicely with mounted apps, relative paths,
+   * `"back"` etc.
+   *
+   * Examples:
+   *
+   *     http.redirect('/foo/bar');
+   *     http.redirect('http://example.com');
+   *     http.redirect(301, 'http://example.com');
+   *     http.redirect('../login'); // /blog/post/1 -> /blog/login
+   *
+   * @param {number} [status]
+   * @param {string} url
+   */
+  redirect: function(status, url) {
     if(process.env.BROWSER_ENV) {
       // todo: look at redirect logic and redirect using history.push
       return;
     }
 
-    this.respose.redirect(url);
+    // todo: I need to make this a nodejs version not express
+    this.respose.redirect.apply(this.respose, Array.prototype.slice.call(arguments, 0));
   },
 
+  /**
+   * Add to the header.
+   *
+   * Options:
+   *  * meta
+   *  * link
+   *  * title
+   *
+   * @param type
+   * @param fields
+   */
   addToHead: function(type, fields) {
     if(process.env.BROWSER_ENV) {
       if(type == 'title') {
@@ -167,7 +239,7 @@ isomorphicHttp.prototype = {
    *   domain
    *   expires
    *   secure
-   *     - server side only
+   *     server side only
    *   httpOnly
    *   maxAge
    *
