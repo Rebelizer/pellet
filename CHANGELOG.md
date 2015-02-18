@@ -1,3 +1,21 @@
+### 0.0.65 (2015-02-18)
+
+
+#### Bug Fixes
+
+* rename unit test for the pipeline ([08297972](https://github.com/Rebelizer/pellet/commit/0829797217d304c48cb4c05f8c07290fa3d76d6f))
+
+
+#### Features
+
+* as a dev I want a orchestrate cache-layer ([d7926789](https://github.com/Rebelizer/pellet/commit/d792678907f7f4927c2d665f7f4b0d8cc25c242e))
+* as a dev I want a in-memory cache-layer ([9aa963cb](https://github.com/Rebelizer/pellet/commit/9aa963cb3c597406f2a72960704af4653acff031))
+* as a dev I want a redis cache-layer ([bbe26e2c](https://github.com/Rebelizer/pellet/commit/bbe26e2c428b2e3a4ffc90e08057570b88bf5782))
+* as a dev I want a page caching layer to speedup react renders ([bbf3fb45](https://github.com/Rebelizer/pellet/commit/bbf3fb4558e609450c0650d9401b0aa752e9e7b5))
+* as a dev I want to send status code with http redirect ([27566913](https://github.com/Rebelizer/pellet/commit/2756691333257c2fa1ff630be8b4536158799c3e))
+* as a dev I want jsdoc to skip **/*.min.js files so we do not get error or double ([151276ad](https://github.com/Rebelizer/pellet/commit/151276ad2fae27d7a9b74a97618519a2eb3a1adf))
+
+
 ### 0.0.64 (2015-02-12)
 
 
