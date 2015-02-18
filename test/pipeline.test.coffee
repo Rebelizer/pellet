@@ -280,3 +280,7 @@ describe "Isomorphic Context", ->
 
             expect(container.props).eql({field1:"f1", field2:"f2"})
             expect(container.serialize).eql({field1:"f1"})
+
+    # TODO: add test for $ make sure parent/child namespace are shared
+    # add test for setTitle, setCanonical, etc
+    # add test for for caching interace (i.e add cachekey,etc)
