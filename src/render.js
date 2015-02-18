@@ -78,7 +78,24 @@ var pelletRender = module.exports = {
         return;
       }
 
+      // update the cache with the latest render markup and ctx data if the pipeline
+      // is use the serveFromCache.
+      if(ctx.$ && ctx.$.cacheNeedsUpdating && ctx.$.cacheKey && ctx.updateCache) {
+        pellet.instrumentation.increment('isorender.cacheUpdate');
+        ctx.updateCache(result, function(err) {
+          if(err) {
+            pellet.instrumentation.increment('isorender.cacheError');
+            console.error('Cannot update cache key', ctx.$.cacheKey, 'because:', err.message||err);
+          }
+        });
+      }
+
       next(null, result, ctx);
+    }
+
+    function cacheHitFn(html, ctx) {
+      pellet.instrumentation.increment('isorender.cacheHit');
+      next(null, html, {toJSON:function() {return ctx;}});
     }
 
     var componentWithContext;
@@ -90,7 +107,7 @@ var pelletRender = module.exports = {
         // create a pipeline to render the component and track its state.
         // options.context is the serialized data from the server
         // options.http is isomorphic req/res to
-        var pipe = new pipeline(options.context, options.http, options.isolatedConfig, options.requestContext, options.locales);
+        var pipe = new pipeline(options.context, options.http, options.isolatedConfig, options.requestContext, options.locales, cacheHitFn);
 
         // update the pipe props because we got them in our options
         // the route function sets things like originalUrl, params, etc.
@@ -112,7 +129,15 @@ var pelletRender = module.exports = {
             return next(err);
           }
 
-          if(pipe.abortRender) {
+          // TODO: need to think about this!
+          if(pipe.$.cacheHitCalled) {
+            pipe.release();
+            mesure.mark('release');
+            instrument.increment('isorender.cacheSkip');
+            return;
+          }
+
+          if(pipe.$.abortRender) {
             pipe.release();
             mesure.mark('release');
             instrument.increment('isorender.abort');

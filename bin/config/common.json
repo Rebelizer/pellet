@@ -70,6 +70,22 @@
       //"chunkSize": 16384,
       //"memLevel": 8,
       //"strategy": 0
+    },
+    "pageCacheLayer": {
+      // use orchestrate
+      //"type": "orchestrate",
+      //"host": "api.aws-us-east-1.orchestrate.io",
+      //"token": "#####"
+
+      // in memory LRU
+      //"type": "memory",
+      //"max": 500,
+
+      //"type": "redis",
+      //"host": "127.0.0.1",
+      //"port": 6379,
+      //"options": {
+      //}
     }
   },
 

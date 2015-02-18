@@ -2,14 +2,20 @@ var pellet = require('./../pellet')
   , isolator = require('./../isolator')
   , utils = require('./../utils');
 
+var defaultCacheInterface = null;
+
 /**
  * context to merge the two environments
  *
  * @class
  * @param initData
  * @param http
+ * @param isolatedConfig
+ * @param requestContext
+ * @param locales
+ * @param {function} [cacheHitFn] called to send a cached data
  */
-function pipeline(initData, http, isolatedConfig, requestContext, locales) {
+function pipeline(initData, http, isolatedConfig, requestContext, locales, cacheHitFn) {
   this.http = http;
   this.serialize = {};
   this.props = {};
@@ -17,7 +23,19 @@ function pipeline(initData, http, isolatedConfig, requestContext, locales) {
   this.locales = locales;
   this.rootIsolator = new isolator(null, null, null, isolatedConfig);
   this.coordinatorNameTypeMap = {};
-  this.abortRender = false;
+
+  // because the pipeline used Object.create to clone the namespace
+  // we create a shared object that will not lose updates. for example
+  // if you create a new namespace and update this.abortRender it update
+  // only the namespace version not the owner/parent.
+  this.$ = {
+    abortRender: false,
+    cacheInterface: defaultCacheInterface,    // the interace used to cache request
+    cacheHitFn: cacheHitFn || null,           // a fn called to send the cached data to the clint
+    cacheNeedsUpdating: false,                // true will update the cache at the end of the render
+    cacheHitCalled: false,                    // this is if the cache hit was sent to the client
+    cacheKey: ''
+  };
 
   if(initData) {
     utils.objectUnion([initData.props], this.props);
@@ -54,6 +72,19 @@ pipeline.prototype.LINK = 'link';
 pipeline.prototype.META = 'meta';
 pipeline.prototype.TITLE = 'title';
 
+/**
+ * Add header to the http response.
+ *
+ * Please refer to {@link isomorphicHttp#addToHead} for full list of supported tags
+ *
+ * Examples:
+ *
+ *     this.addToHead('title', 'My page title here')
+ *     this.addToHead('meta', {name: 'description', content:'My SEO SERP description'})
+ *
+ * @param field
+ * @param val
+ */
 pipeline.prototype.addToHead = function(field, val) {
   this.http.addToHead(field, val);
 };
@@ -80,7 +111,7 @@ pipeline.prototype.cookie = function() {
 
 pipeline.prototype.redirect = function(url) {
   this.http.redirect(url);
-  this.abortRender = true;
+  this.$.abortRender = true;
 };
 
 pipeline.prototype.event = function(name) {
@@ -229,6 +260,120 @@ pipeline.prototype.set = function(key, value) {
   utils.objectUnion([mergeObj], this.serialize, {deleteUndefined:true});
 };
 
+/**
+ * Adds evidence to cache key.
+ * Use this to build up the cache key used to xxx
+ *
+ * @param {string} evidence addition evidence used to build the cache key
+ */
+pipeline.prototype.addCacheKey = function(evidence) {
+  this.$.cacheKey += evidence;
+};
+
+/**
+ * Used to transform the data send to the client
+ *
+ * @callback transformCtxFn
+ * @param ctx This is an options with
+ */
+
+/**
+ * Used to transform the data send to the client
+ *
+ * @callback sendCachedCB
+ * @param err
+ * @param cachedData
+ */
+
+/**
+ * Use pipeline cache to  .
+ *
+ * let the pipeline lookup
+ *
+ * @param {boolean} dirtyRead use a potentially dirty version to immediately send markup for speed
+ * @param {transformCtxFn} transformCtxFn used to modify serialize data
+ * @param {sendCachedCB} next
+ */
+pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
+  if(process.env.BROWSER_ENV || !this.$.cacheInterface) {
+    if(next) {
+      next(null, null, null);
+    }
+  } else {
+    var _this = this;
+
+    // turn on cache updating, because we are
+    // trying to return a cached version.
+    this.$.cacheNeedsUpdating = true;
+
+    // check the cache for the cacheKey and if found transform ctx and
+    // render the cached version if dirtyRead == true
+    this.$.cacheInterface.get(this.$.cacheKey, function(err, data, metaData) {
+      if(err) {
+        next(err, null, null);
+        return;
+      }
+
+      if(data) {
+        if(transformCtxFn) {
+          transformCtxFn(data.ctx, metaData, function(err, ctx) {
+            if(!dirtyRead) {
+              _this.$.cacheHitCalled = true;
+              _this.$.cacheHitFn(data.html, ctx);
+            }
+
+            next(null, data, metaData);
+          });
+        } else {
+          if(!dirtyRead) {
+            _this.$.cacheHitCalled = true;
+            _this.$.cacheHitFn(data.html, data.ctx);
+          }
+
+          next(null, data, metaData);
+        }
+      } else {
+        next(null, null, null);
+      }
+    });
+  }
+};
+
+/**
+ * Update the cache with both the html and serialize data
+ *
+ * @param html
+ * @param next
+ */
+pipeline.prototype.updateCache = function(html, next) {
+  if(process.env.BROWSER_ENV || !this.$.cacheInterface) {
+    if(next) {
+      next(null, null, null);
+    }
+  } else {
+    try {
+      // update the cache with the HTML and ctx
+      this.$.cacheInterface.set(this.$.cacheKey, {
+        html: html,
+        ctx: this.toJSON()
+      }, next);
+    } catch(ex) {
+      if (next) {
+        next(ex);
+      }
+    }
+  }
+};
+
+/**
+ * Set the cache interface this pipeline should use.
+ *
+ * @param cacheInterface
+ */
+pipeline.prototype.setCacheInterface = function(cacheInterface) {
+  this.$.cacheInterface = cacheInterface;
+};
+
 pipeline.prototype.addChildComponent = function(namespace, component, options, next) {
   var context = this;
 
@@ -265,5 +410,14 @@ pipeline.prototype.toJSON = function() {
 pipeline.prototype.release = function() {
   this.rootIsolator.release();
 };
+
+/**
+ * Set the cache interface used by the pipeline.
+ *
+ * @param cacheInterface
+ */
+pellet.setDefaultPipelineCacheInterface = function(cacheInterface) {
+  defaultCacheInterface = cacheInterface;
+}
 
 module.exports = pipeline;
