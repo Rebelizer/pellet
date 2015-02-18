@@ -6,6 +6,8 @@ function redisCacheLayer(config, instrument, cb) {
     this.instrument = instrument.namespace('cache-layer.redis');
   }
 
+  this.prefix = config.database.prefix || '';
+
   this.client = redis.createClient(config.port, config.host, config.options);
   if(config.password) {
     this.client.auth(config.password, function(err) {
@@ -13,6 +15,10 @@ function redisCacheLayer(config, instrument, cb) {
         console.error('Error in signing in the redis cache layer because:', err.message||err);
       }
     });
+  }
+
+  if(config.database) {
+    this.client.select(config.database);
   }
 
   /*
@@ -76,7 +82,7 @@ redisCacheLayer.prototype.get = function(key, cb) {
     var start = process.hrtime();
   }
 
-  this.client.get(utils.djb2(key).toString(32), function(err, value) {
+  this.client.get(this.prefix + utils.djb2(key).toString(32), function(err, value) {
     if(err) {
       cb(err);
       return;
@@ -114,7 +120,7 @@ redisCacheLayer.prototype.set = function(key, data, cb) {
     }
   });
 
-  this.client.set(utils.djb2(key).toString(32), data, cb);
+  this.client.set(this.prefix + utils.djb2(key).toString(32), data, cb);
 }
 
 module.exports = redisCacheLayer;
