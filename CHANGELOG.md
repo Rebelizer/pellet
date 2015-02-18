@@ -1,3 +1,11 @@
+### 0.0.67 (2015-02-18)
+
+
+#### Bug Fixes
+
+* typo the config holds prefix at the root ([b9929f24](https://github.com/Rebelizer/pellet/commit/b9929f24e4ca86435f53dc1a94e5571d64dd52fe))
+
+
 ### 0.0.66 (2015-02-18)
 
 
