@@ -1,3 +1,11 @@
+### 0.0.66 (2015-02-18)
+
+
+#### Features
+
+* as a dev I want to configure redis cache-layer to use a database and add a prefi ([9e814a25](https://github.com/Rebelizer/pellet/commit/9e814a25bc35292afc031bc0f60ff8bcf392310d))
+
+
 ### 0.0.65 (2015-02-18)
 
 
