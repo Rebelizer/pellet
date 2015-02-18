@@ -6,7 +6,7 @@ function redisCacheLayer(config, instrument, cb) {
     this.instrument = instrument.namespace('cache-layer.redis');
   }
 
-  this.prefix = config.database.prefix || '';
+  this.prefix = config.prefix || '';
 
   this.client = redis.createClient(config.port, config.host, config.options);
   if(config.password) {
