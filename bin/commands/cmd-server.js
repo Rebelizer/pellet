@@ -17,6 +17,9 @@ var path = require('path')
   , react = require('react')
   , instrumentation = require('../../src/instrumentation')
   , manifest = require('../../src/manifest')
+  , redisCacheLayer = require('../../src/cache-layer/redis')
+  , memoryCacheLayer = require('../../src/cache-layer/memory')
+  , orchestrateCacheLayer = require('../../src/cache-layer/orchestrate')
   , utils = require('../utils')
   , url = require('url')
   , pelletUtils = require('../../src/utils');
@@ -406,6 +409,18 @@ module.exports = function(program, addToReadyQue) {
       }
 
       mesureServerLaunch.mark('load_translation');
+
+      // setup the page caching layer and default the pipe to use it
+      var pageCacheLayer = nconf.get('server:pageCacheLayer')
+      if(pageCacheLayer) {
+        if(pageCacheLayer.type === 'redis') {
+          pellet.setDefaultPipelineCacheInterface(new redisCacheLayer(pageCacheLayer, instrument));
+        } else if(pageCacheLayer.type === 'memory') {
+          pellet.setDefaultPipelineCacheInterface(new memoryCacheLayer(pageCacheLayer, instrument));
+        } else if(pageCacheLayer.type === 'orchestrate') {
+          pellet.setDefaultPipelineCacheInterface(new orchestrateCacheLayer(pageCacheLayer, instrument));
+        }
+      }
 
       // using Koa for ES6 mode else express
       if ('function' === typeof Map) {
