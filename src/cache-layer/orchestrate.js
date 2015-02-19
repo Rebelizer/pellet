@@ -1,9 +1,10 @@
 var orchestrate = require('orchestrate')
+  , zlib = require('zlib')
   , utils = require('../utils');
 
 function orchestrateCacheLayer(config, instrument, cb) {
   if(instrument) {
-    this.instrument = instrument.namespace('cache-layer.redis');
+    this.instrument = instrument.namespace('cache-layer.orchestrate');
   }
 
   this.collection = config.collection || 'page-cache';
