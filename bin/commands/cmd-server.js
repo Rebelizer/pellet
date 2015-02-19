@@ -72,6 +72,8 @@ module.exports = function(program, addToReadyQue) {
 
     if (nconf.get('verbose')) {
       nconf.set('winston:containers:console:console:level', nconf.get('verbose'));
+      nconf.set('winston:containers:httplogger:console:level', nconf.get('verbose'));
+      nconf.set('winston:containers:instrumentation:console:level', nconf.get('verbose'));
     }
 
     if(!nconf.get('application:config:jsMountPoint')) {
