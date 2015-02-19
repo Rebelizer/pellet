@@ -172,7 +172,7 @@ var exports = module.exports = {
         // we get 2 errors most of the time so just air bag the second error
         if (lastError !== err.message) {
           console.error('Error in webpack passes (browser|server) because:', err.message);
-          console.log('Try deleting your webpack output directory');
+          console.verbose('Try deleting your webpack output directory');
           lastError = err.message
         } else {
           lastError = false;

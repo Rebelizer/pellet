@@ -44,7 +44,7 @@ var transportFn = function(sessionId, type, namespace, payload) {
     var trackPixel = new Image();
     trackPixel.src = url;
   } else {
-    console.log('instrument:', sessionId, type, namespace, JSON.stringify(payload));
+    console.debug('instrument:', sessionId, type, namespace, JSON.stringify(payload));
   }
 };
 
@@ -62,7 +62,7 @@ function wrap(command) {
     }
 
     if(configDetails && configDetails.log) {
-      console.log('instrument:', command, args);
+      console.debug('instrument:', command, args);
     }
 
     if(!this.statsd) {

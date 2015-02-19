@@ -20,7 +20,7 @@ module.exports = {
 
   event: function(name) {
     if(!this._$isolator) {
-      console.log('add local isolator because event:', name);
+      console.verbose('add local isolator because event:', name);
       this._$isolator = this.context.rootIsolator.createChild();
     }
 
@@ -29,7 +29,7 @@ module.exports = {
 
   coordinator: function(name, type) {
     if(!this._$isolator) {
-      console.log('add local isolator because isolator:', name, type);
+      console.verbose('add local isolator because isolator:', name, type);
       this._$isolator = this.context.rootIsolator.createChild();
     }
 
@@ -57,10 +57,10 @@ module.exports = {
     // else check if local isolator that we need to
     // release.
     if(!this._owner) {
-      console.log('release rootIsolator');
+      console.verbose('release rootIsolator');
       this.context.rootIsolator.release();
     } else if(this._$isolator) {
-      console.log('release local isolator');
+      console.verbose('release local isolator');
       this._$isolator.release();
     }
   },

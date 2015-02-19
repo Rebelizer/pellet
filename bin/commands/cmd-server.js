@@ -214,8 +214,8 @@ module.exports = function(program, addToReadyQue) {
       options.startStatsD = resolveConfigPaths(nconf.get('statsd').serverConfig||'');
       statsdCommand = path.join(PELLET_BIN_PATH, '..', 'node_modules','statsd', 'bin', 'statsd') + ' ' + options.startStatsD;
 
-      console.info('Starting StatsD:', options.startStatsD);
-      console.info('  NOTE: nc 127.0.0.1 8126 (StatsD CLI)');
+      console.verbose('Starting StatsD:', options.startStatsD);
+      console.verbose('  NOTE: nc 127.0.0.1 8126 (StatsD CLI)');
       osexec(statsdCommand, function(error, stdout, stderr) {
         if(stderr && stderr.trim() != '') {
           console.error('StatsD stderr: ' + stderr);
@@ -303,10 +303,10 @@ module.exports = function(program, addToReadyQue) {
           instrument.gauge(namespace + 'max', stats.max);
           instrument.gauge(namespace + 'usage_trend', stats.usage_trend);
 
-          console.info('GC:', os.loadavg(), 'runtime:', new Date() - LAUNCH_TIME);
-          console.info('  full_gc', stats.num_full_gc, 'inc_gc', stats.num_full_gc, 'heap_compactions', stats.num_full_gc)
-          console.info('  estimated_base', stats.estimated_base, 'current_base', stats.current_base, 'min', stats.min, 'max', stats.max);
-          console.info('  usage_trend', stats.usage_trend);
+          console.verbose('GC:', os.loadavg(), 'runtime:', new Date() - LAUNCH_TIME);
+          console.verbose('  full_gc', stats.num_full_gc, 'inc_gc', stats.num_full_gc, 'heap_compactions', stats.num_full_gc)
+          console.verbose('  estimated_base', stats.estimated_base, 'current_base', stats.current_base, 'min', stats.min, 'max', stats.max);
+          console.verbose('  usage_trend', stats.usage_trend);
         });
 
         memwatch.on('leak', function(info) {
@@ -331,11 +331,11 @@ module.exports = function(program, addToReadyQue) {
           instrument.gauge(namespace + 'heapTotal', memoryUsage.heapTotal);
           instrument.gauge(namespace + 'heapUsed', memoryUsage.heapUsed);
 
-          console.info('Interval sample loadavg:', os.loadavg());
-          console.info('  totalmem:', os.totalmem(), 'freemem:', os.freemem(), 'runtime:', new Date() - LAUNCH_TIME);
-          console.info('  rss:', memoryUsage.rss, 'heapTotal:', memoryUsage.heapTotal, 'heapUsed:', memoryUsage.heapUsed);
+          console.verbose('Interval sample loadavg:', os.loadavg());
+          console.verbose('  totalmem:', os.totalmem(), 'freemem:', os.freemem(), 'runtime:', new Date() - LAUNCH_TIME);
+          console.verbose('  rss:', memoryUsage.rss, 'heapTotal:', memoryUsage.heapTotal, 'heapUsed:', memoryUsage.heapUsed);
           if(lastRSS && heapTotal) {
-            console.info('  ^delta rss:', memoryUsage.rss - lastRSS, 'heapTotal:', memoryUsage.heapTotal - heapTotal);
+            console.verbose('  ^delta rss:', memoryUsage.rss - lastRSS, 'heapTotal:', memoryUsage.heapTotal - heapTotal);
           }
 
           lastRSS = memoryUsage.rss; heapTotal = memoryUsage.heapTotal;
@@ -354,8 +354,8 @@ module.exports = function(program, addToReadyQue) {
         var nextThreshold = process.memoryUsage().rss + heapSnapshotThreshold
           , heapdump = require('heapdump')
 
-        console.info('Enabled strongloop heapdump: to snapshot "kill -USR2', process.pid + '"');
-        console.info('  Read http://strongloop.com/strongblog/how-to-heap-snapshots/');
+        console.verbose('Enabled strongloop heapdump: to snapshot "kill -USR2', process.pid + '"');
+        console.verbose('  Read http://strongloop.com/strongblog/how-to-heap-snapshots/');
 
         // default to 30sec if not set
         if(!sampleInterval) {
@@ -363,7 +363,7 @@ module.exports = function(program, addToReadyQue) {
         }
 
         if(heapSnapshotThreshold > 1) { // i.e not false or true but a value
-          console.info('  Start watching: threshold', heapSnapshotThreshold, 'interval:', sampleInterval);
+          console.verbose('  Start watching: threshold', heapSnapshotThreshold, 'interval:', sampleInterval);
 
           setInterval(function () {
             rss = process.memoryUsage().rss;
@@ -373,7 +373,7 @@ module.exports = function(program, addToReadyQue) {
                   console.error('Can not write heap snapshot because:', err.message || err);
                 }
 
-                console.log('Take a heap snapshot:',  path.join(process.cwd(), filename));
+                console.debug('Take a heap snapshot:',  path.join(process.cwd(), filename));
               });
 
               nextThreshold = rss + heapSnapshotThreshold;
@@ -385,7 +385,7 @@ module.exports = function(program, addToReadyQue) {
       mesureServerLaunch.mark('heap_snapshot');
 
       try {
-        console.log('Loading', componentFile, 'webpack into pellet server.');
+        console.verbose('Loading', componentFile, 'webpack into pellet server.');
         require('source-map-support').install({handleUncaughtExceptions: false});
         global.__pellet__bootstrap = {config:appConfig, options:appOptions};
         pellet = require(componentFile);
@@ -401,7 +401,7 @@ module.exports = function(program, addToReadyQue) {
         var translationFile = path.join(baseServerDir, componentModule.server.translation);
 
         try {
-          console.log('Loading', translationFile, 'translation into pellet server.');
+          console.verbose('Loading', translationFile, 'translation into pellet server.');
           require(translationFile);
         } catch (ex) {
           console.error('Cannot load', translationFile, 'because:', ex.message);
@@ -427,7 +427,7 @@ module.exports = function(program, addToReadyQue) {
       // using Koa for ES6 mode else express
       if ('function' === typeof Map) {
         if (!nconf.get('silent')) {
-          console.info('Running in ES6 mode');
+          console.verbose('Running in ES6 mode');
         }
 
         // create Koa server
@@ -436,7 +436,7 @@ module.exports = function(program, addToReadyQue) {
 
       } else {
         if (!nconf.get('silent')) {
-          console.info('Running in ES5 mode');
+          console.verbose('Running in ES5 mode');
         }
 
         // create express server
@@ -566,7 +566,7 @@ module.exports = function(program, addToReadyQue) {
         polyfillOptions.cache = resolveConfigPaths(polyfillOptions.cache);
 
         if (!nconf.get('silent')) {
-          console.info('Polyfill:', polyfillOptions);
+          console.verbose('Polyfill:', polyfillOptions);
         }
 
         var _polyfill = polyfill();
@@ -742,7 +742,7 @@ module.exports = function(program, addToReadyQue) {
     mesureLaunch.mark('config');
 
     if (options.clean) {
-      console.log('Cleaning:', options.output);
+      console.debug('Cleaning:', options.output);
       fs.deleteSync(options.output);
 
       glob(path.join(LAUNCH_CWD, 'heapdump-*.*.heapsnapshot'), function (err, fileList) {
@@ -752,7 +752,7 @@ module.exports = function(program, addToReadyQue) {
 
         if(fileList && fileList.length) {
           for(var i in fileList) {
-            console.log('Cleaning:', fileList[i]);
+            console.debug('Cleaning:', fileList[i]);
             fs.deleteSync(fileList[i]);
           }
         }
@@ -851,7 +851,7 @@ module.exports = function(program, addToReadyQue) {
                   return;
                 }
 
-                console.log('Build done with out errors');
+                console.verbose('Build done with out errors');
                 process.exit(0);
               }
 
@@ -864,7 +864,7 @@ module.exports = function(program, addToReadyQue) {
               // from the previous build
               if (options.mode === 'production') {
                 if (lastManifestDetails) {
-                  console.log('Clean up last build', lastManifestDetails.browser.hash, lastManifestDetails.server.hash);
+                  console.verbose('Clean up last build', lastManifestDetails.browser.hash, lastManifestDetails.server.hash);
 
                   var i, j, assets;
 
@@ -949,13 +949,13 @@ module.exports = function(program, addToReadyQue) {
           config.serverConfig.bail = false;
 
           /*
-           console.info('[Browser webpack config]');
-           console.info(JSON.stringify(config.browserConfig, null, 2)
+           console.verbose('[Browser webpack config]');
+           console.verbose(JSON.stringify(config.browserConfig, null, 2)
            .replace(/\s+[{},\]]+/g, "")
            .replace(/[{\[":,]/g, ""));
 
-           console.info('[Server webpack config]');
-           console.info(JSON.stringify(config.serverConfig, null, 2)
+           console.verbose('[Server webpack config]');
+           console.verbose(JSON.stringify(config.serverConfig, null, 2)
            .replace(/\s+[{},\]]+/g, "")
            .replace(/[{\[":,]/g, ""));
            */

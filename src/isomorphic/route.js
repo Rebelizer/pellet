@@ -189,12 +189,12 @@ if(process.env.SERVER_ENV) {
 
     var match = pellet.routes.parse(url);
     if(!match) {
-      console.log('set via window.location')
+      console.debug('set via window.location')
       window.location = url;
       return;
     }
 
-    console.log('set via window.History.pushState')
+    console.debug('set via window.History.pushState')
     window.History.pushState(data || null, title || '', url);
   }
 
