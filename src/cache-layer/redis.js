@@ -1,4 +1,5 @@
 var redis = require('redis')
+  , zlib = require('zlib')
   , utils = require('../utils');
 
 function redisCacheLayer(config, instrument, cb) {
@@ -7,6 +8,13 @@ function redisCacheLayer(config, instrument, cb) {
   }
 
   this.prefix = config.prefix || '';
+
+  if(config.compressed === true) {
+    config.options.return_buffers = true;
+    this.compressed = true;
+  } else {
+    this.compressed = false;
+  }
 
   this.client = redis.createClient(config.port, config.host, config.options);
   if(config.password) {
@@ -95,6 +103,28 @@ redisCacheLayer.prototype.get = function(key, cb) {
 
       cb(null, null, null);
     } else {
+      if(_this.compressed) {
+        zlib.gunzip(new Buffer(value, 'binary'), function(err, value) {
+          if(err) {
+            cb(err);
+            console.error('Error unziping redis data because:', err.message||err);
+            return;
+          }
+
+          value = JSON.parse(value);
+
+          if(_this.instrument) {
+            var end = process.hrtime();
+            _this.instrument.timing('get', (((end[0]-start[0])*1e9) + (end[1]-start[1]))/1e6);
+            _this.instrument.increment('hit');
+          }
+
+          cb(null, value.data, value.meta);
+        });
+
+        return;
+      }
+
       value = JSON.parse(value);
 
       if(_this.instrument) {
@@ -120,7 +150,16 @@ redisCacheLayer.prototype.set = function(key, data, cb) {
     }
   });
 
-  this.client.set(this.prefix + utils.djb2(key).toString(32), data, cb);
+  if(this.compressed) {
+    var _this = this;
+    data = new Buffer(data);
+    zlib.gzip(data, function(err, compressedData) {
+      _this.client.set(_this.prefix + utils.djb2(key).toString(32), compressedData, cb);
+      console.debug('Compression:', data.length, compressedData.length, 'savings', data.length - compressedData.length, (100-Math.floor((1/(data.length/compressedData.length))*100))+'%')
+    });
+  } else {
+    this.client.set(this.prefix + utils.djb2(key).toString(32), data, cb);
+  }
 }
 
 module.exports = redisCacheLayer;
