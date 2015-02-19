@@ -1,3 +1,19 @@
+### 0.0.68 (2015-02-19)
+
+
+#### Bug Fixes
+
+* update the instrumentation namespace so its different then redis ([df6a8c56](https://github.com/Rebelizer/pellet/commit/df6a8c5633efd16189fc836cbbaa833a5ac1b821))
+* as a dev I want the redis cache layer to support compression to minimize network ([c148f4bb](https://github.com/Rebelizer/pellet/commit/c148f4bbe526f1de409ac44c4913fbb5b112b735))
+* the instrumentation namespace so its not shared by redis ([85017ba2](https://github.com/Rebelizer/pellet/commit/85017ba2df5d41423607605d3a001c8b904dc127))
+* for the --verbose flag update all winston logger levels except for the alert log ([87e7f477](https://github.com/Rebelizer/pellet/commit/87e7f4776627dcad324d9679d6ac659b873d0e92))
+
+
+#### Features
+
+* as a dev I want pellet logging to be less noisey and use the full range of level ([9c1f40f8](https://github.com/Rebelizer/pellet/commit/9c1f40f83d736c94a859c09ca21eb68fd5abfb00))
+
+
 ### 0.0.67 (2015-02-18)
 
 
