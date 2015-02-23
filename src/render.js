@@ -81,15 +81,18 @@ var pelletRender = module.exports = {
       next(null, result, ctx);
 
       // update the cache with the latest render markup (if needed)
-      ctx.updateCache(result, function(err) {
-        if(err) {
-          pellet.instrumentation.increment('isorender.cacheUpdateError');
-          console.error('Cannot update cache key', ctx.$.cacheKey, 'because:', err.message||err);
-          return;
-        }
+      // requires a pipeline else we can not cache pages
+      if(ctx.updateCache) {
+        ctx.updateCache(result, function (err) {
+          if (err) {
+            pellet.instrumentation.increment('isorender.cacheUpdateError');
+            console.error('Cannot update cache key', ctx.$.cacheKey, 'because:', err.message || err);
+            return;
+          }
 
-        instrument.increment('isorender.cacheUpdate');
-      });
+          instrument.increment('isorender.cacheUpdate');
+        });
+      }
     }
 
     function cacheHitFn(html, ctx) {
