@@ -21,14 +21,21 @@ function defaultRender(html, ctx, renderOptions) {
   var _locales = renderOptions.locales || pellet.config.locales || 'en-US';
   var locales = pellet.config.jsMountPoint + _locales + '.js';
 
-  var ourBodyScripts = '<script src="'+pellet.options.reactCDNUrl+'"></script>'+
-    '<script>window.__pellet__config = ' + JSON.stringify(pellet.config) + ';</script>'+
-    '<script src="' + appPath + '"></script>'+
-    '<script src="' + locales + '"></script>';
-
+  var ourBodyScripts = '<script>window.__pellet__config = ' + JSON.stringify(pellet.config) + ';';
   if(ctx) {
-    ourBodyScripts += '<script>window.__pellet__ctx = ' + ctx.toJSON() + ';</script>';
+    ourBodyScripts += 'window.__pellet__ctx = ' + ctx.toJSON() + ';</script>';
+  } else {
+    ourBodyScripts += '</script>';
   }
+
+  ourBodyScripts += '<script>!function(e,t,r){function n(){for(;d[0]&&"loaded"==d[0][f];)c=d.shift(),c[o]=!i.parentNode.insertBefore(c,i)}for(var s,a,c,d=[],i=e.scripts[0],o="onreadystatechange",f="readyState";s=r.shift();)a=e.createElement(t),"async"in i?(a.async=!1,e.head.appendChild(a)):i[f]?(d.push(a),a[o]=n):e.write("<"+t+\' src="\'+s+\'" defer></\'+t+">"),a.src=s}(document,"script",['+
+    '"' + pellet.options.polyfillPath + '?h=' + pellet.options.ushash + '",'+
+    '"' + assetPath + '",'+
+    '"' + pellet.options.reactCDNUrl + '",'+
+    '"' + appPath + '",'+
+    '"' + locales + '"' +
+  '])' +
+  '</script>';
 
   ourBodyScripts += '<!-- Google Analytics: change ' + pellet.options.googleTrackID + ' to be your site\'s ID. -->\n'+
   '<script>\n'+
@@ -49,9 +56,15 @@ function defaultRender(html, ctx, renderOptions) {
       '<meta charset="utf-8">'+
       '<meta http-equiv="X-UA-Compatible" content="IE=edge">'+
       '<meta name="viewport" content="width=device-width, initial-scale=1">'+
-      '<script src="' + pellet.options.polyfillPath + '"></script>'+
-      '<script src="' + assetPath + '"></script>'+
+      '<link rel="stylesheet" type="text/css" href="' + pellet.config.jsMountPoint + pellet.options.styleFileName + '">'+
+      '<link rel="shortcut icon" type="image/ico" href="/favicon.ico" />'+
       renderOptions.http.headTags.join(' ')+
+      '<link rel="subresource" href="' + pellet.options.polyfillPath + '?h=' + pellet.options.ushash + '">'+
+      '<link rel="subresource" href="' + assetPath + '">'+
+      '<link rel="subresource" href="' + pellet.options.reactCDNUrl + '">'+
+      '<link rel="subresource" href="' + appPath + '">'+
+      '<link rel="subresource" href="' + locales + '">'+
+      ourBodyScripts+
     '</head>'+
     '<body class="lang '+_locales.substring(0,2)+'" locales="'+_locales+'">'+
       '<!--[if lt IE 7]>\n'+
@@ -60,7 +73,8 @@ function defaultRender(html, ctx, renderOptions) {
       '<div id="__PELLET__">'+
         html +
       '</div>'+
-      ourBodyScripts+
     '</body>'+
     '</html>';
 }
+
+

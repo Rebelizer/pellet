@@ -34,7 +34,9 @@ function pipeline(initData, http, isolatedConfig, requestContext, locales, cache
     cacheHitFn: cacheHitFn || null,           // a fn called to send the cached data to the clint
     cacheNeedsUpdating: false,                // true will update the cache at the end of the render
     cacheHitCalled: false,                    // this is if the cache hit was sent to the client
-    cacheKey: ''
+    cacheKey: '',
+    cacheDataSignature: '',                   // this is a data signature to help skip full renders
+    cacheHitDataSignature: ''                 // this is a last cached data signature to help skip full renders
   };
 
   if(initData) {
@@ -270,6 +272,24 @@ pipeline.prototype.addCacheKey = function(evidence) {
   this.$.cacheKey += evidence;
 };
 
+
+/**
+ * Adds evidence to around cached data
+ *
+ * Use this to help pellet skip full react renders. For example if the cached
+ * version was rendered with props {a:1, b:2} and the data from componentConstruction
+ * has not changed is safe to skip the render because the markup will be the same.
+ * This can safe pellet from having to render react markup and keep using the cached
+ * version.
+ *
+ * If you do not use this pellet will use the props
+ *
+ * @param evidence
+ */
+pipeline.prototype.signatureCacheData = function(evidence) {
+  this.$.cacheDataSignature += evidence;
+};
+
 /**
  * Used to transform the data send to the client
  *
@@ -290,11 +310,16 @@ pipeline.prototype.addCacheKey = function(evidence) {
  *
  * let the pipeline lookup
  *
- * @param {boolean} dirtyRead use a potentially dirty version to immediately send markup for speed
- * @param {transformCtxFn} transformCtxFn used to modify serialize data
+ * @param {number} dirtyRead use a potentially dirty version to ttl (in ms) if 0 do not server from the cache
+ * @param {transformCtxFn} [transformCtxFn] used to modify serialize data
  * @param {sendCachedCB} next
  */
 pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
+  if(arguments.length === 2) {
+    next = transformCtxFn;
+    transformCtxFn = null;
+  }
+
   if(process.env.BROWSER_ENV || !this.$.cacheInterface) {
     if(next) {
       next(null, null, null);
@@ -306,6 +331,8 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
     // trying to return a cached version.
     this.$.cacheNeedsUpdating = true;
 
+    console.debug('Try to serve from the cache layer (key):', this.$.cacheKey);
+
     // check the cache for the cacheKey and if found transform ctx and
     // render the cached version if dirtyRead == true
     this.$.cacheInterface.get(this.$.cacheKey, function(err, data, metaData) {
@@ -314,20 +341,35 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
         return;
       }
 
+      //console.debug('Cache layer found:', metaData||'nothing');
+      //console.debug('Cache layer DATA:', data||'nothing');
+      //console.debug('Cache layer DATA(hash):', data && data.ctx);
+
       if(data) {
+        // save off the data hash for the render step
+        // this allow use to the skip render if data signature
+        // has not changed. It most cases this is the props
+        _this.$.cacheHitDataSignature = data.hash;
+
         if(transformCtxFn) {
           transformCtxFn(data.ctx, metaData, function(err, ctx) {
-            if(!dirtyRead) {
+            console.debug('Cache layer dirty read:', dirtyRead, (Date.now() - metaData.lastModified));
+
+            if(dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead)) {
               _this.$.cacheHitCalled = true;
               _this.$.cacheHitFn(data.html, ctx);
+              return;
             }
 
             next(null, data, metaData);
           });
         } else {
-          if(!dirtyRead) {
+          console.debug('Cache layer dirty read:', dirtyRead, (Date.now() - metaData.lastModified));
+
+          if(dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead)) {
             _this.$.cacheHitCalled = true;
             _this.$.cacheHitFn(data.html, data.ctx);
+            return;
           }
 
           next(null, data, metaData);
@@ -341,29 +383,74 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
 
 /**
  * Update the cache with both the html and serialize data
+ * if we do not need to update the cache
  *
  * @param html
- * @param next
+ * @param {callback} next
+ * @return {boolean} if we need to update the cache
  */
 pipeline.prototype.updateCache = function(html, next) {
   if(process.env.BROWSER_ENV || !this.$.cacheInterface) {
-    if(next) {
-      next(null, null, null);
-    }
+    next(null, false);
   } else {
+    if(!this.$.cacheNeedsUpdating) {
+      next(null, false);
+      return;
+    }
+
     try {
+      var _this = this
+        , ctx = this.getJSON(true);
+
+      console.debug('Cache layout update (key):', this.$.cacheKey, 'with:', ctx.hash);
+      //console.debug('updateCache', ctx)
+
       // update the cache with the HTML and ctx
       this.$.cacheInterface.set(this.$.cacheKey, {
         html: html,
-        ctx: this.toJSON()
-      }, next);
+        hash: ctx.hash,
+        ctx: ctx.json
+      }, function(err) {
+        if(err) {
+          next(err);
+          return;
+        }
+
+        next(null);
+      });
     } catch(ex) {
-      if (next) {
-        next(ex);
-      }
+      next(ex);
     }
   }
 };
+
+/**
+ * Returns if the the render should be aborted
+ *
+ * This can be caused by the pipeline being aborted via an
+ * operation like a redirect or manual response. Additional
+ * if the caching layer does not require a render this will
+ * return false.
+ *
+ * @returns {boolean}
+ */
+pipeline.prototype.isRenderRequired = function() {
+  if(this.$.abortRender) {
+    console.debug('Abort render because manual response');
+    return false;
+  }
+
+  if(this.$.cacheHitCalled) {
+    console.log('start with', this.$.cacheDataSignature)
+    var hash = this.getJSON(true, true).hash
+      , needToRender = this.$.cacheHitDataSignature != hash;
+
+    console.debug('Cache layer data signature', this.$.cacheHitDataSignature, hash, 'needToRender:', needToRender);
+    return needToRender;
+  }
+
+  return true;
+}
 
 /**
  * Set the cache interface this pipeline should use.
@@ -394,17 +481,53 @@ if(pellet.options.includeUserAgentInfo) {
   }
 }
 
-pipeline.prototype.toJSON = function() {
+/**
+ *
+ * @param calcHash
+ * @param skipJSON
+ * @return {*}
+ */
+pipeline.prototype.getJSON = function(calcHash, skipJSON) {
   try {
-    return JSON.stringify({
-      requestContext: this.requestContext,
-      props: this.serialize,
-      coordinatorState: this.coordinatorState
-    });
+    // now make sure the coordinator serialized state is safe for hashing, because
+    // the data is async the order the data is stored in coordinatorState.*.items[*]
+    // is random and this will change the hash of ctx (toJSON) so sort the array
+    // via makeArrayHashSafe to make it perdurable
+    if(!pellet.options.cacheHashIgnoreArrayOrder) {
+      for (var i in this.coordinatorState) {
+        this.coordinatorState[i].items = utils.makeArrayHashSafe(this.coordinatorState[i].items);
+      }
+    }
+
+    var result = {}
+      , data = {
+        requestContext: this.requestContext,
+        props: this.serialize,
+        coordinatorState: this.coordinatorState
+      };
+
+    if(calcHash) {
+      result.hash = this.$.cacheDataSignature || utils.hashObject(data, {ignoreArrayOrder: pellet.options.cacheHashIgnoreArrayOrder});
+    }
+
+    if(!skipJSON) {
+      result.json = JSON.stringify(data);
+    }
+
+    return result;
   } catch(ex) {
     console.error("Cannot serialize isomorphic context because:", ex.message);
     throw ex;
   }
+}
+
+/**
+ * Returns a JSON string and a hash
+ *
+ * @return {string} returns the JSON string
+ */
+pipeline.prototype.toJSON = function() {
+  return this.getJSON(false).json;
 };
 
 pipeline.prototype.release = function() {

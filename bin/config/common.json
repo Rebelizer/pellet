@@ -20,6 +20,7 @@
       "polyfillPath": "/js/polyfills.js",
       "polyfillPathIO": "//polyfill.io",
       "includeUserAgentInfo": true,
+      "cacheHashIgnoreArrayOrder": false,
       "reactCDNUrl": "//cdnjs.cloudflare.com/ajax/libs/react/0.12.0/react-with-addons.js",
       "skeletonPage": "#PELLET_PROJECT_PATH#/src/page-skeleton.ejs",
       "missingPage": "#PELLET_PROJECT_PATH#/src/page-404.ejs",

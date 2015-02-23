@@ -426,3 +426,73 @@ describe "Utils", ->
 
       elapse = new Date() - start
       expect(elapse).to.be.at.most(700)
+
+  describe "hashing object", ->
+    it "handles primitive values", ->
+      expect(utils.hashObject(true)).to.equal(utils.hashObject(true));
+      expect(utils.hashObject(true)).to.not.equal(utils.hashObject(false));
+      expect(utils.hashObject(123)).to.equal(utils.hashObject(123));
+      expect(utils.hashObject(123)).to.not.equal(utils.hashObject(321));
+      expect(utils.hashObject('123')).to.equal(utils.hashObject('123'));
+      expect(utils.hashObject('123')).to.not.equal(utils.hashObject('321'));
+      expect(utils.hashObject(null)).to.equal(utils.hashObject(null));
+      expect(utils.hashObject(null)).to.not.equal(utils.hashObject(false));
+      expect(utils.hashObject(null)).to.not.equal(utils.hashObject(0));
+      expect(utils.hashObject(null)).to.not.equal(utils.hashObject(undefined));
+
+    it "hash both the type and value", ->
+      expect(utils.hashObject('123')).to.not.equal(utils.hashObject(123));
+      expect(utils.hashObject(true)).to.not.equal(utils.hashObject('true'));
+      expect(utils.hashObject(true)).to.not.equal(utils.hashObject(1));
+      expect(utils.hashObject(null)).to.not.equal(utils.hashObject('null'));
+      expect(utils.hashObject(null)).to.not.equal(utils.hashObject(0));
+      expect(utils.hashObject(null)).to.not.equal(utils.hashObject(false));
+      expect(utils.hashObject(undefined)).to.not.equal(utils.hashObject('undefined'));
+
+    it "ignore key order", ->
+      expect(utils.hashObject({a:1, b:2})).to.equal(utils.hashObject({b:2, a:1}));
+      expect(utils.hashObject({a:1, b:2})).to.equal(utils.hashObject({b:2, a:1}));
+      expect(utils.hashObject({a:1, b:{a:1, b:2}})).to.equal(utils.hashObject({b:{a:1, b:2}, a:1}));
+      expect(utils.hashObject({a:1, b:{a:1, b:2}})).to.equal(utils.hashObject({b:{b:2, a:1}, a:1}));
+
+    it "use array order", ->
+      expect(utils.hashObject([1,undefined,3])).to.equal(utils.hashObject([1,undefined,3]));
+      expect(utils.hashObject([1,2,3])).to.not.equal(utils.hashObject([2,1,3]));
+      expect(utils.hashObject({a:[1,2,3]})).to.not.equal(utils.hashObject({a:[2,1,3]}));
+      expect(utils.hashObject({a:[1,2,3]})).to.equal(utils.hashObject({a:[1,2,3]}));
+      expect(utils.hashObject({a:[1,2,3], b:[2,3]})).to.equal(utils.hashObject({b:[2,3], a:[1,2,3]}));
+
+    it "ignore array order", ->
+      expect(utils.hashObject([1,undefined,3], {ignoreArrayOrder:true})).to.equal(utils.hashObject([1,undefined,3], {ignoreArrayOrder:true}));
+      expect(utils.hashObject([1,2,3], {ignoreArrayOrder:true})).to.equal(utils.hashObject([2,1,3], {ignoreArrayOrder:true}));
+      expect(utils.hashObject({a:[1,2,3]}, {ignoreArrayOrder:true})).to.equal(utils.hashObject({a:[2,1,3]}, {ignoreArrayOrder:true}));
+      expect(utils.hashObject({a:[1,2,3]}, {ignoreArrayOrder:true})).to.equal(utils.hashObject({a:[1,2,3]}, {ignoreArrayOrder:true}));
+      expect(utils.hashObject({a:[1,2,3], b:[2,3]}, {ignoreArrayOrder:true})).to.equal(utils.hashObject({b:[3,2], a:[2,1,3]}, {ignoreArrayOrder:true}));
+      expect(utils.hashObject({a:[1,2,3], b:[2,3]}, {ignoreArrayOrder:true})).to.equal(utils.hashObject({b:[2,3], a:[1,2,3]}, {ignoreArrayOrder:true}));
+
+    it "ignore array order with complex values", ->
+      expect(utils.hashObject([{a:1, b:{c:2}},{a:2, b:{c:3}},{a:1},{d:5}], {ignoreArrayOrder:true})).to.equal(utils.hashObject([{a:1},{a:1, b:{c:2}},{d:5},{a:2, b:{c:3}}], {ignoreArrayOrder:true}));
+      expect(utils.hashObject({i:[{a:1, b:{c:2}},{a:2, b:{c:3}},{a:1},{d:5}]}, {ignoreArrayOrder:true})).to.equal(utils.hashObject({i:[{a:1},{a:1, b:{c:2}},{d:5},{a:2, b:{c:3}}]}, {ignoreArrayOrder:true}));
+
+    it "array order has no side effects (immutable)", ->
+      input = {a:[3,2,{a:1}]};
+      utils.hashObject(input, {ignoreArrayOrder:true});
+      expect(input).to.deep.equal({a:[3,2,{a:1}]})
+
+      utils.hashObject(input, {ignoreArrayOrder:false});
+      expect(input).to.deep.equal({a:[3,2,{a:1}]})
+
+    it "empty array order", ->
+      expect(utils.hashObject([])).to.equal(utils.hashObject([]));
+      expect(utils.hashObject({a:[]})).to.equal(utils.hashObject({a:[]}));
+      expect(utils.hashObject({a:[]})).to.not.equal(utils.hashObject({a:[1]}));
+
+    it "should be fast", ->
+      count = 100000
+      start = new Date()
+      while count--
+        a = {a:{aa:[1,true,false,null,'str',undefined,{a:1, b:[]}]}, b:'test', c:false, d:undefined, e:1234, f:null}
+        utils.hashObject(a)
+
+      elapse = new Date() - start
+      expect(elapse).to.be.at.most(900)

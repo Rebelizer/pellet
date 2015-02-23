@@ -1,9 +1,16 @@
 
+/**
+ * Pellet's common utilities
+ *
+ * @namespace utils
+ */
+
 var exports = module.exports = {
   noop: function() {},
 
   /**
    *
+   * @memberof utils
    * @param input
    * @returns {Object}
    */
@@ -14,7 +21,9 @@ var exports = module.exports = {
   },
 
   /**
+   * Hash a string using djb2
    *
+   * @memberof utils
    * @param str
    * @returns {number}
    */
@@ -29,7 +38,106 @@ var exports = module.exports = {
   },
 
   /**
+   * Hash a object is a safe way that ignores key order
    *
+   * @memberof utils
+   * @param obj
+   * @param options
+   *   ignoreArrayOrder:
+   * @returns {number}
+   */
+  hashObject: function(obj, options) {
+    var hash = 5381;
+
+    function walkArray(obj) {
+      var val, j = obj.length;
+
+      if(options && options.ignoreArrayOrder) {
+        var sorted = [];
+        while (j--) {
+          sorted[j] = exports.hashObject(obj[j], options);
+        }
+
+        val = sorted.sort().toString();
+
+        j = val.length;
+        while (j) {
+          hash = (hash * 33) ^ val.charCodeAt(--j);
+        }
+      } else {
+        while (j--) {
+          walk(obj[j]);
+        }
+      }
+    }
+
+    function walk(obj) {
+      var i, j, val, keys, type;
+
+      type = typeof(obj);
+      if(type === 'object' && obj !== null) {
+        if (Array.isArray(obj)) {
+          walkArray(obj);
+          return;
+        }
+
+        keys = Object.keys(obj);
+        i = keys.length;
+        keys.sort();
+      }
+
+      // we are a primitive or empty obj like Regex, Date, null, undefined, etc.
+      if(!i) {
+        val = type + (obj && obj.toString());
+        j = val.length;
+        while (j) {
+          hash = (hash * 33) ^ val.charCodeAt(--j);
+        }
+        return;
+      }
+
+      if (i = keys.length) {
+        while (i--) {
+          // now add the key to the hash
+          val = keys[i];
+          j = val.length;
+          while (j) {
+            hash = (hash * 33) ^ val.charCodeAt(--j);
+          }
+
+          walk(obj[keys[i]]);
+        }
+      }
+    }
+
+    walk(obj);
+
+    return hash >>> 0;
+  },
+
+  /**
+   * Order an array so the order will not effect the hash of
+   * the object. This is done via sorting the array values
+   * perdurable by their own hash.
+   *
+   * Use case:
+   *   When hashing an object that needs to be sorted in a cache
+   *   but the array order is not important, but you do not want
+   *   to change the hash.
+   *
+   * @memberof utils
+   * @param arr
+   * @return {Array}
+   */
+  makeArrayHashSafe: function(arr) {
+    return arr.sort(function(a, b) {
+      exports.hashObject(a) - exports.hashObject(b);
+    });
+  },
+
+  /**
+   *
+   * @memberof utils
    * @param one
    * @param two
    * @returns {Function}
@@ -43,6 +151,7 @@ var exports = module.exports = {
 
   /**
    *
+   * @memberof utils
    * @param dest
    * @param src
    * @param ignoreSpec
@@ -73,6 +182,7 @@ var exports = module.exports = {
   /**
    * deep merge/copy objects into a single union object
    *
+   * @memberof utils
    * @param objects
    * @param result
    * @param options

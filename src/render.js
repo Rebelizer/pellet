@@ -78,24 +78,27 @@ var pelletRender = module.exports = {
         return;
       }
 
-      // update the cache with the latest render markup and ctx data if the pipeline
-      // is use the serveFromCache.
-      if(ctx.$ && ctx.$.cacheNeedsUpdating && ctx.$.cacheKey && ctx.updateCache) {
-        pellet.instrumentation.increment('isorender.cacheUpdate');
-        ctx.updateCache(result, function(err) {
-          if(err) {
-            pellet.instrumentation.increment('isorender.cacheError');
-            console.error('Cannot update cache key', ctx.$.cacheKey, 'because:', err.message||err);
-          }
-        });
-      }
-
       next(null, result, ctx);
+
+      // update the cache with the latest render markup (if needed)
+      ctx.updateCache(result, function(err) {
+        if(err) {
+          pellet.instrumentation.increment('isorender.cacheUpdateError');
+          console.error('Cannot update cache key', ctx.$.cacheKey, 'because:', err.message||err);
+          return;
+        }
+
+        instrument.increment('isorender.cacheUpdate');
+      });
     }
 
     function cacheHitFn(html, ctx) {
       pellet.instrumentation.increment('isorender.cacheHit');
       next(null, html, {toJSON:function() {return ctx;}});
+
+      // we do not want to send 2 responses
+      // so no op the next call
+      next = utils.noop;
     }
 
     var componentWithContext;
@@ -129,46 +132,48 @@ var pelletRender = module.exports = {
             return next(err);
           }
 
-          // TODO: need to think about this!
-          if(pipe.$.cacheHitCalled) {
-            pipe.release();
-            mesure.mark('release');
-            instrument.increment('isorender.cacheSkip');
-            return;
-          }
-
-          if(pipe.$.abortRender) {
-            pipe.release();
-            mesure.mark('release');
-            instrument.increment('isorender.abort');
-            return next(null, null, pipe);
-          }
-
-          // make sure the react context has locales to pick the
-          // rendered language. Then render the element with the
-          // props from the __$onRoute.
-          try {
-            componentWithContext = react.withContext({
-              rootIsolator: new isolator(null, null, null, pipe.rootIsolator.isolatedConfig),
-              requestContext: options.requestContext,
-              locales: options.locales
-            }, function () {
-              return React.createElement(component, pipe.props);
-            });
-          } catch(ex) {
-            next(ex);
-            return;
-          }
-
-          mesure.mark('react_context');
-
           // wait a tick so all kefir emit get processed for the
           // pipe serialization.
-          //setTimeout(function() {
+          setTimeout(function() {
+
+            // stop rendering if aborted or
+            // the cache is up to date
+            if (!pipe.isRenderRequired()) {
+              pipe.release();
+              mesure.mark('release');
+
+              if (pipe.$.abortRender) {
+                instrument.increment('isorender.abort');
+              } else {
+                instrument.increment('isorender.cacheAbort');
+              }
+
+              next(null, null, pipe);
+              return;
+            }
+
+            // make sure the react context has locales to pick the
+            // rendered language. Then render the element with the
+            // props from the __$onRoute.
+            try {
+              componentWithContext = react.withContext({
+                rootIsolator: new isolator(null, null, null, pipe.rootIsolator.isolatedConfig),
+                requestContext: options.requestContext,
+                locales: options.locales
+              }, function () {
+                return React.createElement(component, pipe.props);
+              });
+            } catch (ex) {
+              next(ex);
+              return;
+            }
+
+            mesure.mark('react_context');
+
             pipe.release();
             mesure.mark('release');
             renderReactComponent(componentWithContext, pipe);
-          //}, 0);
+          }, 0);
         });
       } catch(ex) {
         console.error('Error in trying to render component because:', ex.message);
