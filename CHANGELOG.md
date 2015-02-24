@@ -1,3 +1,17 @@
+### 0.0.69 (2015-02-23)
+
+
+#### Bug Fixes
+
+* for non pipeline renders we need to skip the caching layer ([14108a5a](https://github.com/Rebelizer/pellet/commit/14108a5a54293216594f60c56b0d23ab69c22626))
+
+
+#### Features
+
+* as a dev I want to cache page render and do dirty reads while re-rendering in th ([c0f56ccb](https://github.com/Rebelizer/pellet/commit/c0f56ccbdd132b718fff947b172010bd8d8e2715))
+* as a dev I want a console polyfill to ensure silly, debug, verbose, info, warn,  ([738e12a0](https://github.com/Rebelizer/pellet/commit/738e12a009306551b1d412103d5ecba99ae3aa6f))
+
+
 ### 0.0.68 (2015-02-19)
 
 
