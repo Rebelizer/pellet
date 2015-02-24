@@ -327,11 +327,11 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
   } else {
     var _this = this;
 
+    console.debug('Cache layer: check if in cache (key):', this.$.cacheKey);
+
     // turn on cache updating, because we are
     // trying to return a cached version.
     this.$.cacheNeedsUpdating = true;
-
-    console.debug('Try to serve from the cache layer (key):', this.$.cacheKey);
 
     // check the cache for the cacheKey and if found transform ctx and
     // render the cached version if dirtyRead == true
@@ -341,9 +341,8 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
         return;
       }
 
-      //console.debug('Cache layer found:', metaData||'nothing');
-      //console.debug('Cache layer DATA:', data||'nothing');
-      //console.debug('Cache layer DATA(hash):', data && data.ctx);
+      console.debug('Cache layer: cache contains', !!(data && data.ctx), 'with meta data', !!metaData);
+      //console.debug('Cache layer: DATA:', data||'nothing');
 
       if(data) {
         // save off the data hash for the render step
@@ -353,7 +352,7 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
 
         if(transformCtxFn) {
           transformCtxFn(data.ctx, metaData, function(err, ctx) {
-            console.debug('Cache layer dirty read:', dirtyRead, (Date.now() - metaData.lastModified));
+            console.debug('Cache layer: use dirty read', dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead), 'ttl:', dirtyRead, 'elapse:', (Date.now() - metaData.lastModified));
 
             if(dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead)) {
               _this.$.cacheHitCalled = true;
@@ -364,7 +363,7 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
             next(null, data, metaData);
           });
         } else {
-          console.debug('Cache layer dirty read:', dirtyRead, (Date.now() - metaData.lastModified));
+          console.debug('Cache layer: use dirty read', dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead), 'ttl:', dirtyRead, 'elapse:',(Date.now() - metaData.lastModified));
 
           if(dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead)) {
             _this.$.cacheHitCalled = true;
@@ -393,6 +392,12 @@ pipeline.prototype.updateCache = function(html, next) {
   if(process.env.BROWSER_ENV || !this.$.cacheInterface) {
     next(null, false);
   } else {
+    console.debug('Cache layer: needs to update:', this.$.cacheNeedsUpdating);
+
+    // this is tied to the serveFromCache call so if
+    // during a request serveFromCache is not called
+    // we do not update the cache because it will never
+    // get used.
     if(!this.$.cacheNeedsUpdating) {
       next(null, false);
       return;
@@ -402,7 +407,7 @@ pipeline.prototype.updateCache = function(html, next) {
       var _this = this
         , ctx = this.getJSON(true);
 
-      console.debug('Cache layout update (key):', this.$.cacheKey, 'with:', ctx.hash);
+      console.debug('Cache layer: update (key):', this.$.cacheKey, 'html hash:', ctx.hash);
       //console.debug('updateCache', ctx)
 
       // update the cache with the HTML and ctx
@@ -412,6 +417,7 @@ pipeline.prototype.updateCache = function(html, next) {
         ctx: ctx.json
       }, function(err) {
         if(err) {
+          console.error('Error updating cache layer', _this.$.cacheKey, 'because:', err||err.message);
           next(err);
           return;
         }
@@ -419,6 +425,7 @@ pipeline.prototype.updateCache = function(html, next) {
         next(null);
       });
     } catch(ex) {
+      console.error('Error updating cache layer', this.$.cacheKey, 'because:', ex||ex.message);
       next(ex);
     }
   }
@@ -435,21 +442,18 @@ pipeline.prototype.updateCache = function(html, next) {
  * @returns {boolean}
  */
 pipeline.prototype.isRenderRequired = function() {
+  console.debug('Cache layer: isRenderRequired', this.$.abortRender, this.$.cacheHitCalled, this.$.cacheHitDataSignature)
+
   if(this.$.abortRender) {
-    console.debug('Abort render because manual response');
+    console.debug('Abort render because manual about in response');
     return false;
   }
 
-  if(this.$.cacheHitCalled) {
-    console.log('start with', this.$.cacheDataSignature)
-    var hash = this.getJSON(true, true).hash
-      , needToRender = this.$.cacheHitDataSignature != hash;
+  var hash = this.getJSON(true, true).hash
+    , needToRender = this.$.cacheHitDataSignature != hash;
 
-    console.debug('Cache layer data signature', this.$.cacheHitDataSignature, hash, 'needToRender:', needToRender);
-    return needToRender;
-  }
-
-  return true;
+  console.debug('Cache layer: render required', needToRender, 'from cache (hash):', this.$.cacheHitDataSignature, 'current:', hash);
+  return needToRender;
 }
 
 /**
