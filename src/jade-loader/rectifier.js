@@ -685,6 +685,27 @@ Rectifier.prototype = {
                   b.identifier('pellet'),
                   b.identifier('components'), false),
                 b.identifier(domType.name), false);
+
+              // if pellet component has only one argument and it has
+              // "." in it i.e. this.props just treat this as the props
+              if(call.arguments && call.arguments.length === 1) {
+                var props = call.arguments[0];
+                if(props.type === 'ObjectExpression') {
+                  props = props.properties;
+                  if(props && props.length === 1) {
+                    props = props[0];
+                    if (props.kind === 'init' &&
+                      props.type === 'Property' &&
+                      props.key.type === 'Literal' &&
+                      props.value.type === 'Literal') {
+
+                      if (~props.key.value.indexOf('.') && props.value.value === true) {
+                        call._swapargs_ = b.identifier(props.key.value);
+                      }
+                    }
+                  }
+                }
+              }
             }
           } else {
             call.callee = b.identifier(domType);
@@ -734,6 +755,10 @@ Rectifier.prototype = {
           if(call._swap_) {
             args.unshift(call._swap_);
             delete call._swap_;
+          }
+          if(call._swapargs_) {
+            args[1] = call._swapargs_;
+            delete call._swapargs_;
           }
           // ### END
 
