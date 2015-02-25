@@ -1,6 +1,3 @@
-// THANKS TO "Michael Phan-Ba" for this code https://github.com/mikepb/jade-react-compiler
-// We modified it slightly to support react 0.12 but Michael did all the hard work!
-
 var React = require('react');
 var b = require('./builder');
 
@@ -20,9 +17,11 @@ var Rectifier = module.exports = function Rectifier (program, options) {
   this.visit = this.visit.bind(this);
   this.visitFunction = this.visitFunction.bind(this);
 
+  // ### PELLET ADDED - in jade elements that match regex will become components
   if(!this.PELLET_COMPONENT) {
     this.PELLET_COMPONENT = /pellet_/i;
   }
+  // ### END
 }
 
 /**
@@ -101,7 +100,9 @@ Rectifier.prototype = {
     // console.log(new Array(this.depth).join('  ') + node.type);
     var visitor = this['visit' + node.type];
     if (visitor) node = visitor.call(this, node);
-    //else console.warn('WARNING: missing visitor for ' + node.type);
+    // ### PELLET: REMOVED - clean up you log
+    // else console.warn('WARNING: missing visitor for ' + node.type);
+    // ### END
     // this.depth--;
     return node;
   },
@@ -118,8 +119,23 @@ Rectifier.prototype = {
       var requires = this.scope.requires;
       this.scope.requires = [];
 
+      // recursively visit nodes
+      var body = this.amalgamate(program.body).map(this.visit).filter(notEmpty);
+
+      // wrap in span if naked text
+      if (!body.some(b.isCallExpression)) {
+        // ### PELLET: update
+        //body = [b.callExpression(this.domCall('span'),
+        //        [b.objectExpression()].concat(body))];
+        // ### with
+        body = [b.callExpression(b.memberExpression(
+          b.identifier('React'),
+          b.identifier('createElement'), false),
+        [b.literal('span'), b.objectExpression()].concat(body))];
+        // ### END
+      }
+
       // wrap in CommonJS module
-      var body = this.amalgamate(program.body).map(this.visit);
       program.body = this.commonJS(this.returnable(body));
 
       // hoist require declarations
@@ -459,7 +475,11 @@ Rectifier.prototype = {
    */
 
   visitThisExpression: function (self) {
+    // ### PELLET: CHANGE
+    // return self;
+    // ### TO
     return  b.identifier('__$this');
+    // ### END
   },
 
   /**
@@ -624,36 +644,52 @@ Rectifier.prototype = {
   visitCallExpression: function (call) {
     var args = call.arguments;
     var attrs;
-    var domType, isCreateElement;
 
     if (b.isIdentifier(call.callee)) {
       switch (call.callee.name) {
         case 'ǃDOM＿':
           this.scope.returns = null;
-
+          // callee
+          // ### PELLET: CHANGE -
+          //call.callee = this.domCall(this.visit(args.shift()));
+          // ### to
           domType = this.visit(args.shift());
-          isCreateElement = false;
+          call._swap_ = false;
 
           if (typeof domType === 'string') {
-            call.callee = b.identifier(domType);
-          } else if(this.PELLET_COMPONENT.test(domType.name)) {
-            call.callee = b.memberExpression(
-              b.identifier('React'),
-              b.identifier('createElement'), false);
-
-            isCreateElement = b.memberExpression(
-              b.memberExpression(
-                b.identifier('pellet'),
-                b.identifier('components'), false),
-              b.identifier(domType.name.replace(this.PELLET_COMPONENT,'')), false);
+            call.callee = b.identifier(property);
           } else if (domType.name in React.DOM) {
             call.callee = b.memberExpression(
               b.identifier('React'),
               b.identifier('createElement'), false);
-            isCreateElement = b.literal(domType.name);
+
+            call._swap_ = b.literal(domType.name);
+          } else if(domType.name) {
+            if(this.PELLET_COMPONENT.test(domType.name)) {
+              domType.name = domType.name.replace(this.PELLET_COMPONENT,'');
+            }
+
+            if(domType.name === 'intl') {
+              call.callee = b.memberExpression(
+                b.identifier('pellet'),
+                b.identifier('intl'), false);
+
+              call._swap_ = b.identifier('__$this');
+            } else {
+              call.callee = b.memberExpression(
+                b.identifier('React'),
+                b.identifier('createElement'), false);
+
+              call._swap_ = b.memberExpression(
+                b.memberExpression(
+                  b.identifier('pellet'),
+                  b.identifier('components'), false),
+                b.identifier(domType.name), false);
+            }
           } else {
-            call.callee = domType;
+            call.callee = b.identifier(domType);
           }
+          // ### END
 
           // attributes
           attrs = this.filterAttrs(this.visit(args.shift()));
@@ -694,9 +730,12 @@ Rectifier.prototype = {
           // if there are attributes or there are arguments
           if (notNull(attrs) || args.length) args.unshift(attrs);
 
-          if(isCreateElement) {
-            args.unshift(isCreateElement);
+          // ### PELLET: add
+          if(call._swap_) {
+            args.unshift(call._swap_);
+            delete call._swap_;
           }
+          // ### END
 
           // put args back
           call.arguments = args;
@@ -708,22 +747,17 @@ Rectifier.prototype = {
         case 'ǃunescape＿':
           this.scope.returns = null;
           if (!args.length) return;
-
-          if(args[0].type == 'MemberExpression') {
-            var deepScan = args[0];
-            while(deepScan && deepScan.type == 'MemberExpression') {
-              deepScan = deepScan.object;
-            }
-            if(deepScan.type == 'ThisExpression') {
-              deepScan.type = 'Identifier';
-              deepScan.name = '__$this';
-            }
-            return args[0];
-          }
-
-          call.callee = this.domCall('text');
-          call.arguments = [
+          // ### PELLET: replace
+          //call.callee = this.domCall('text');
+          //call.arguments = [
+          //  this.escape(this.concat(args.map(this.visit), '\n'))];
+          // ### with
+          call.callee = b.memberExpression(
+            b.identifier('React'),
+            b.identifier('createElement'), false)
+          call.arguments = [b.literal('text'),
             this.escape(this.concat(args.map(this.visit), '\n'))];
+          // ### end
           return call;
           break;
         case 'ǃmap＿':
@@ -763,11 +797,13 @@ Rectifier.prototype = {
    */
 
   visitIdentifier: function (id) {
+    // ### PELLET: add - convert jade intl elements into pellet.intl
     if(id.name === 'intl') {
       return b.memberExpression(
         b.identifier('pellet'),
         b.identifier('intl'), false)
     }
+    // ### END
 
     return id;
   },
@@ -949,15 +985,17 @@ Rectifier.prototype = {
    * @api public
    */
 
-  domCall: function (property) {
-    if (typeof property === 'string') property = b.identifier(property);
-    if (!(property.name in React.DOM)) return property;
-    return b.memberExpression(
-      b.memberExpression(
-        b.identifier('React'),
-        b.identifier('DOM'), false),
-      property);
-  },
+  // ### PELLET: REMOVE
+  //domCall: function (property) {
+  //  if (typeof property === 'string') property = b.identifier(property);
+  //  if (!(property.name in React.DOM)) return property;
+  //  return b.memberExpression(
+  //    b.memberExpression(
+  //      b.identifier('React'),
+  //      b.identifier('DOM'), false),
+  //    property);
+  //},
+  // ### END
 
   /**
    * Make React HTML escape object.
@@ -1052,7 +1090,7 @@ function unwrap (it) {
  */
 
 function isNull (it) {
-  return !it || b.isLiteral(it, 'null');
+  return !it || b.isLiteral(it, 'null') || b.isUndefined(it);
 }
 
 /**
@@ -1063,7 +1101,7 @@ function isNull (it) {
  */
 
 function notNull (it) {
-  return it && !b.isLiteral(it, 'null');
+  return !isNull(it);
 }
 
 /**
@@ -1074,7 +1112,7 @@ function notNull (it) {
  */
 
 function isEmpty (it) {
-  return !it || b.isEmptyStatement(it) || b.isLiteral(it, 'null');
+  return !it || b.isEmptyStatement(it) || b.isEmpty(it);
 }
 
 /**
@@ -1085,7 +1123,7 @@ function isEmpty (it) {
  */
 
 function notEmpty (it) {
-  return it && !b.isEmptyStatement(it) && !b.isLiteral(it, 'null');
+  return !isEmpty(it);
 }
 
 /**

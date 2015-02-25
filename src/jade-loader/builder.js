@@ -1048,7 +1048,7 @@ exports.isArrayExpression = function (node) {
 exports.objectExpression = function (props, loc) {
   return {
     type: 'ObjectExpression',
-    properties: props,
+    properties: props || [],
     loc: loc || null
   };
 };
@@ -1179,4 +1179,26 @@ exports.isLiteral = function (node, type) {
     type == null || typeof node.value === type ||
     type === 'null' && node.value == null ||
     type === 'RegExp' && node.value instanceof RegExp);
+};
+
+/**
+ * Is `node` `undefined`?
+ *
+ * @param {Node} node
+ * @api public
+ */
+
+exports.isUndefined = function (node) {
+  return node && node.type === 'Identifier' && node.name == 'undefined';
+};
+
+/**
+ * Is `node` `null` or `undefined`?
+ *
+ * @param {Node} node
+ * @api public
+ */
+
+exports.isEmpty = function (node) {
+  return exports.isUndefined(node) || exports.isLiteral(node, 'null');
 };

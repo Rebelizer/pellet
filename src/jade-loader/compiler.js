@@ -1,13 +1,9 @@
-// THANKS TO "Michael Phan-Ba" for this code https://github.com/mikepb/jade-react-compiler
-// We modified it slightly to support react 0.12 but Michael did all the hard work!
-
 var esprima = require('esprima')
   , escodegen = require('escodegen')
   , parseJSExpression = require('character-parser').parseMax
-  , transformJadeAST = require('./transform-ast')
+  , Rectifier = require('./rectifier')
   , UglifyJS = require('uglify-js')
-  , b = require('./builder')
-  , path = require('path');
+  , b = require('./builder');
 
 /**
  * Initialize `Compiler` with the given `token` and `options`.
@@ -19,13 +15,19 @@ var esprima = require('esprima')
 
 var Compiler = module.exports = function Compiler (node, options) {
   this.visit = this.visit.bind(this)
+  // ### PELLET: REPLACE
+  //this.options = options = options || {};
+  // ### with
   this.options = options || {};
-  this.dependentFiles = [];
+  // ### DONE
   this.node = node;
 
+  // ### PELLET: ADDED
+  this.dependentFiles = [];
   if(this.options.filename) {
     this.dependentFiles.push(this.options.filename);
   }
+  // ### DONE
 };
 
 /**
@@ -61,10 +63,10 @@ Compiler.prototype = {
     if (!this.ast) this.rectify();
     if (!this.ugly) this.uglify();
 
-    var js = this.ugly.print_to_string({
+    var js = this.ugly.print_to_string(this.options.pretty ? {
       beautify: true,
       indent_level: 2
-    });
+    } : null);
 
     return [js].concat(this.helpers).join('\n');
   },
@@ -90,9 +92,17 @@ Compiler.prototype = {
 
   rectify: function () {
     this.ast = esprima.parse(this.buf);
-    var transformer = new transformJadeAST(this.ast);
-    this.ast = transformer.rectify();
+    var rectifier = new this.rectifier(this.ast);
+    this.ast = rectifier.rectify();
   },
+
+  /**
+   * Rectifier class.
+   *
+   * @api public
+   */
+
+  rectifier: Rectifier,
 
   /**
    * Convert to UglifyJS AST and compress.
@@ -239,6 +249,9 @@ Compiler.prototype = {
    */
 
   visitBlock: function (block, start) {
+    // ### PELLET: REPLACED
+    // block.nodes.forEach(this.visit);
+    // ### WITH - so we can track dependent files for webpack
     block.nodes.forEach(function(val, index, visited) {
       this.visit(val, index, visited);
 
@@ -249,6 +262,7 @@ Compiler.prototype = {
         }
       }
     }, this);
+    // ### END
   },
 
   /**
@@ -427,14 +441,8 @@ Compiler.prototype = {
         var val = this.attrs(attrs);
         attributeBlocks.unshift(val);
       }
-      if (!this.hasAttrsHelper) {
-        this.helpers.push(ǃattrs＿.toString());
-        this.hasAttrsHelper = true;
-      }
-      if (!this.hasClassHelper) {
-        this.helpers.push(ǃclass＿.toString());
-        this.hasClassHelper = true;
-      }
+      this.injectAttrsHelper();
+      this.injectClassHelper();
       this.buf += 'ǃattrs＿(' + attributeBlocks.join(',') + ')';
     } else if (attrs.length) {
       this.attrs(attrs, true);
@@ -448,36 +456,49 @@ Compiler.prototype = {
    */
 
   attrs: function (attrs, buffer) {
+    var self = this;
     var classes = [];
     var buf = [];
     var ast;
 
-    attrs.forEach(function (attr) {
-      if (!attr.escaped) {
-        //console.warn('WARNING: unescaped attributes not supported');
+    function addClass (ast, val) {
+      if (b.isEmpty(ast) || b.isLiteral(ast, 'string') && !ast.value.trim()) {
+        // no-op
+      } else if (b.isLiteral(ast)) {
+        classes.push(JSON.stringify(ǃclass＿(eval(val))));
+      } else {
+        self.injectClassHelper();
+        classes.push('ǃclass＿(' + val + ')');
       }
+    }
+
+    attrs.forEach(function (attr) {
+      // ### PELLET removed
+      //if (!attr.escaped) {
+      //  console.warn('WARNING: unescaped attributes not supported');
+      //}
+      // ### END
 
       var key = attr.name;
       var val = attr.val;
 
       switch (key) {
         case 'class':
+        case 'className':
           ast = esprima.parse(val).body[0].expression;
           if (b.isArrayExpression(ast)) {
-            classes = classes.concat(
-              ast.elements.map(escodegen.generate).map(function (it) {
-                return 'ǃclass＿(' + it + ')';
-              }));
-          } else if (b.isLiteral(ast)) {
-            if (ast.value == null || ast.value === '') return;
-            classes.push(val);
-          } else {
-            if (!this.hasClassHelper) {
-              this.helpers.push(ǃclass＿.toString());
-              this.hasClassHelper = true;
+            switch (ast.elements.length) {
+              case 0: return;
+              case 1: ast = ast.elements[0];
+              default:
+                ast.elements.forEach(function (ast) {
+                  var it = escodegen.generate(ast);
+                  addClass(ast, it);
+                });
+                return;
             }
-            classes.push('ǃclass＿(' + val + ')');
           }
+          addClass(ast, val);
           return;
         case 'for':
           key = 'htmlFor';
@@ -502,6 +523,24 @@ Compiler.prototype = {
     buf = '{' + buf.join(',') + '}';
     if (buffer) this.buf += buf;
     return buf;
+  },
+
+  /**
+   * Inject attrs helper.
+   */
+
+  injectAttrsHelper: function () {
+    this.helpers.push(ǃattrs＿.toString());
+    this.injectAttrsHelper = function(){};
+  },
+
+  /**
+   * Inject class helper.
+   */
+
+  injectClassHelper: function () {
+    this.helpers.push(ǃclass＿.toString());
+    this.injectClassHelper = function(){};
   }
 
 };
