@@ -1,3 +1,17 @@
+### 0.0.70 (2015-02-25)
+
+
+#### Bug Fixes
+
+* update the cache layer update logic so it will not render unless different hashs ([a949759a](https://github.com/Rebelizer/pellet/commit/a949759abc680438a3ae38823c8351b8e6285f9d))
+
+
+#### Features
+
+* as a dev I want to pass this.props or inline variable with the format "{foo}.{fo ([fa527036](https://github.com/Rebelizer/pellet/commit/fa527036010e5810a674e99a85041b82bb51c06a))
+* as a dev I want better support for inline classes and components ([3097aacd](https://github.com/Rebelizer/pellet/commit/3097aacdc197ac46f7c3ad9ffa46dd2c7e01266e))
+
+
 ### 0.0.69 (2015-02-23)
 
 
