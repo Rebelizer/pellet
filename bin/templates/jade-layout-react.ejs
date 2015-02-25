@@ -2,7 +2,7 @@
   header
     h1 My <%- name %> layout header
 
-  |!{this.layoutContent}
+  =this.layoutContent
 
   footer
     p Copyright #{new Date().toJSON()}
