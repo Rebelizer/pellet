@@ -1,4 +1,5 @@
-var lru = require ('lru-cache');
+var lru = require('lru-cache')
+  , utils = require('../utils');
 
 /**
  *
