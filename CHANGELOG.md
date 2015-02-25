@@ -1,3 +1,11 @@
+### 0.0.71 (2015-02-25)
+
+
+#### Features
+
+* update the templates ([4170b06d](https://github.com/Rebelizer/pellet/commit/4170b06d12685f9f5e4acbc2c2ee1d7514b488ec))
+
+
 ### 0.0.70 (2015-02-25)
 
 
