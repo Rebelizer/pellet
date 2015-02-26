@@ -208,6 +208,33 @@ var exports = module.exports = {
           }
         };
 
+        // NOTE: If you update this you will need to update this in manifest.js!
+        var i, styleFileName, staticStyles = [
+          browserStats.assetsByChunkName['_style_css'],
+          browserStats.assetsByChunkName['_style_less'],
+          browserStats.assetsByChunkName['_style_styl']
+        ];
+
+        for(i = 0; i < staticStyles.length; i++) {
+          if (staticStyles[i]) {
+            if (!styleFileName) {
+              if (typeof staticStyles[i] === 'string') {
+                styleFileName = staticStyles[i];
+              } else {
+                styleFileName = staticStyles[i][0];
+              }
+
+              styleFileOutput = styleFileName.replace(/\.js.*$/, '.css').replace(/^[^\-]*\-/, 'style-');
+              if (styleFileOutput.indexOf('style-') !== 0) {
+                styleFileOutput = 'style.css';
+              }
+
+              buildManifestMap.browser.style = styleFileOutput;
+              break;
+            }
+          }
+        }
+
         if(options.translationDetails) {
           buildManifestMap.browser.translations = options.translationDetails.browser;
           buildManifestMap.server.translation = options.translationDetails.server;

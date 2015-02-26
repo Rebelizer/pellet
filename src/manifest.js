@@ -931,6 +931,7 @@ manifestParser.prototype.convertStyleEPToStaticFile = function(browserStats, out
     browserStats.assetsByChunkName['_style_styl']
   ];
 
+  // NOTE: If you update this you will need to update this in utils.js!
   for(i = 0; i < staticStyles.length; i++) {
     if(staticStyles[i]) {
 
