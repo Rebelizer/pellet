@@ -1,3 +1,12 @@
+### 0.0.72 (2015-02-25)
+
+
+#### Bug Fixes
+
+* need to add the style to the _MANIFEST.json so non runtime builds can find the s ([a7501bf9](https://github.com/Rebelizer/pellet/commit/a7501bf9ca8bae5e99436419d1670cc37b8e471d))
+* missing require to get pellets utils ([368e9651](https://github.com/Rebelizer/pellet/commit/368e96511c7ee326580abf858277d73eba1425a0))
+
+
 ### 0.0.71 (2015-02-25)
 
 
