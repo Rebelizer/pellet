@@ -15,6 +15,8 @@ module.exports = {
   childContextTypes: spec,
 
   getInitialState: function() {
+    // create a local  instrument with our isolatedConfig. This is like having our own constructor
+    this.instrument = require('pellet').instrumentation.addIsolatedConfig(this.context.rootIsolator.isolatedConfig);
     return (this.props && this.props.__initState) || {};
   },
 

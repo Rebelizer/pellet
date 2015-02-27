@@ -24,6 +24,9 @@ function pipeline(initData, http, isolatedConfig, requestContext, locales, cache
   this.rootIsolator = new isolator(null, null, null, isolatedConfig);
   this.coordinatorNameTypeMap = {};
 
+  // create a instrument interface that will embed our isolatedConfig info
+  this.instrument = pellet.instrumentation.addIsolatedConfig(isolatedConfig);
+
   // because the pipeline used Object.create to clone the namespace
   // we create a shared object that will not lose updates. for example
   // if you create a new namespace and update this.abortRender it update

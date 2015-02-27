@@ -1,3 +1,5 @@
+var observables = require('./observables');
+
 // default transport function
 var transportFn = function(sessionId, type, namespace, payload) {
   if(process.env.BROWSER_ENV && __pellet__ref.config &&
@@ -80,6 +82,9 @@ function wrap(command) {
 function instrumentation(config) {
   this._namespace = '';
   this.statsd = null;
+  this.isolatedConfig = null;
+
+  this.bus = new observables.autoRelease(null, this);
 
   if(process.env.SERVER_ENV) {
     this.statsd = new (require('node-statsd'))(config);
@@ -132,7 +137,7 @@ instrumentation.prototype.elapseTimer = function(startAt, namespace) {
 }
 
 /**
- * log data unstructured
+ * log unstructured data to the system
  *
  * @param type
  * @param payload
@@ -140,11 +145,17 @@ instrumentation.prototype.elapseTimer = function(startAt, namespace) {
  * @param namespace
  */
 instrumentation.prototype.console = function(type, payload, sessionId, namespace) {
+  type = type || 'info';
+  namespace = namespace || this._namespace || 'NA';
+  payload = payload || {};
+
+  this.emit(type, payload, namespace);
+
   if(!transportFn) {
     return;
   }
 
-  transportFn(sessionId, type || 'info', namespace || this._namespace || 'NA', payload || {});
+  transportFn(sessionId, type, namespace, payload);
 }
 
 instrumentation.prototype.log = instrumentation.prototype.info = function(data) {
@@ -190,6 +201,29 @@ instrumentation.prototype.setInstrumentationTransport = function(fn, flushFn) {
       }
     }
   }
+}
+
+/**
+ * Broadcast instrumentation details to all listeners
+ *
+ * @param type
+ * @param data
+ * @param isolatedConfig
+ */
+instrumentation.prototype.emit = function(type, details, namespace) {
+  this.bus.emit({
+    type: type,
+    namespace: namespace || this._namespace || 'NA',
+    details: details
+  }, this, this.isolatedConfig);
+
+  //console.debug('instrument emit:', type, 'ns:',namespace, 'isolated:', this.isolatedConfig, 'details:', JSON.stringify(details));
+}
+
+instrumentation.prototype.addIsolatedConfig = function(isolatedConfig) {
+  var wrapper = Object.create(this);
+  wrapper.isolatedConfig = isolatedConfig;
+  return wrapper;
 }
 
 module.exports = instrumentation;
