@@ -73,6 +73,14 @@ var pelletRender = module.exports = {
 
             options.targetEl._loadedAndInitialized = true;
           }
+
+          if(!document.body._loadedAndInitialized) {
+            if(document.body.className) {
+              document.body.className = document.body.className.replace('uninitialized', '').trim();
+            }
+
+            document.body._loadedAndInitialized = true;
+          }
         } else if(options.mode == pelletRender.MODE_STRING) {
           result = react.renderToStaticMarkup(component);
         } else if(options.mode == pelletRender.MODE_HTML) {

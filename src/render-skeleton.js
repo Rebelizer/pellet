@@ -66,7 +66,7 @@ function defaultRender(html, ctx, renderOptions) {
       '<link rel="subresource" href="' + locales + '">'+
       ourBodyScripts+
     '</head>'+
-    '<body class="lang '+_locales.substring(0,2)+'" locales="'+_locales+'">'+
+    '<body class="uninitialized lang '+_locales.substring(0,2)+'" locales="'+_locales+'">'+
       '<!--[if lt IE 7]>\n'+
       '<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>\n'+
       '<![endif]-->\n'+
