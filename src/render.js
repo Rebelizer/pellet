@@ -65,6 +65,14 @@ var pelletRender = module.exports = {
           }
 
           result = react.render(component, options.targetEl);
+
+          if(!options.targetEl._loadedAndInitialized) {
+            if(options.targetEl.className) {
+              options.targetEl.className = options.targetEl.className.replace('loading_and_uninitialized', '').trim();
+            }
+
+            options.targetEl._loadedAndInitialized = true;
+          }
         } else if(options.mode == pelletRender.MODE_STRING) {
           result = react.renderToStaticMarkup(component);
         } else if(options.mode == pelletRender.MODE_HTML) {

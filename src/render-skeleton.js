@@ -70,7 +70,7 @@ function defaultRender(html, ctx, renderOptions) {
       '<!--[if lt IE 7]>\n'+
       '<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>\n'+
       '<![endif]-->\n'+
-      '<div id="__PELLET__">'+
+      '<div id="__PELLET__" class="loading_and_uninitialized">'+
         html +
       '</div>'+
     '</body>'+
