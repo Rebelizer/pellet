@@ -5,7 +5,11 @@
     "component": "./internationalization/internationalization.jsx",
     "assets": [
       "./internationalization/internationalization.styl"
-    ],
+    ]
+  },
+  {
+    "name": "pellet-core",
+    "version": "0.0.0",
     "code": [
       "../isomorphic/route.js",
       "../instrumentation.js",
@@ -17,7 +21,8 @@
     ],
     "server-dependencies": [
       "../render-skeleton.js",
-      "./user-agent-middleware.js"
+      "./user-agent-middleware.js",
+      "./multivariate-testing/ga-experiment-middleware.js"
     ]
   }
 ]

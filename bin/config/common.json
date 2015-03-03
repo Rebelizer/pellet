@@ -25,7 +25,10 @@
       "skeletonPage": "#PELLET_PROJECT_PATH#/src/page-skeleton.ejs",
       "missingPage": "#PELLET_PROJECT_PATH#/src/page-404.ejs",
       "errorPage": "#PELLET_PROJECT_PATH#/src/page-500.ejs",
-      "googleTrackID": "UA-XXXXX-X"
+      "googleTrackID": "UA-XXXXX-X",
+      "googleExperiments": {
+        "bootloaderPath": "/_ga_abn/"
+      }
     }
   },
 

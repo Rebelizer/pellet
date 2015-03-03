@@ -686,6 +686,11 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           chunkFilename: options.chunkFilename,
           hashDigestLength: 8
         },
+        resolve: {
+          alias: {
+            superagent:'superagent/superagent'
+          }
+        },
         externals:[{
           React: 'React',
           react: 'React',
@@ -737,11 +742,18 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         } else {
           externalDependencies.messageformat = path.resolve(__dirname, '..', 'node_modules', 'messageformat');
         }
+
+        if(fs.existsSync(path.resolve(options.projectRootPath, 'node_modules', 'pellet', 'node_modules', 'superagent'))) {
+          externalDependencies.superagent = path.join('pellet', 'node_modules', 'superagent');
+        } else {
+          externalDependencies.superagent = path.resolve(__dirname, '..', 'node_modules', 'superagent');
+        }
       } else {
         externalDependencies = {
           React: 'react/addons',
           react: 'react/addons',
           intl: 'intl',
+          superagent:'superagent',
           messageformat: 'messageformat',
           ejs: 'ejs'
         };

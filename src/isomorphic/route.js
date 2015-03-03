@@ -33,6 +33,7 @@ pellet.addComponentRoute = function(route, component, options) {
       , renderOptions = {props:{}, isolatedConfig:runtimeIsolatedConfig, requestContext:runtimeRequestContext};
 
     try {
+
       if(process.env.SERVER_ENV) {
         if(options && typeof options.mode) {
           renderOptions.mode = options.mode;
@@ -78,6 +79,13 @@ pellet.addComponentRoute = function(route, component, options) {
       renderOptions.props.params = routeContext.params;
       renderOptions.props.query = routeContext.query;
       renderOptions.props.url = routeContext.url;
+
+      // now check if the page component is apart of a experiment
+      // and get the correct variation if
+      //var componentName = pellet.componentLookup[_component];
+      //if(componentName) {
+      //  pellet.experiment.componentFor(componentName, renderOptions.isolatedConfig, options.experimentId, renderOptions)
+      //}
 
       // if a layout is defined we swap the component with its layout component
       // and pass the component to the layout using layoutContent props.

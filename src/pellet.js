@@ -3,6 +3,7 @@ var react = require('react')
   , observables = require('./observables')
   , isolator = require('./isolator')
   , instrumentation = require('./instrumentation')
+  , experimentInterface = require('./components/multivariate-testing/experiment-interface')
   , pelletReactMixin = require('./component-mixin')
   , cookie = require('./isomorphic/cookie');
 
@@ -15,12 +16,16 @@ function pellet(config, options) {
   this.initFnQue = [];
   this.coordinators = {};
   this.coordinatorSpecs = {};
+  this.componentLookup = {};
   this.components = {};
   this.locales = {};
 
   this.middlewareStack = [];
   this.config = config || {};
   this.options = options || {};
+
+  // setup the experiment interface (passthru mode)
+  this.experiment = new experimentInterface();
 
   if (this.options.instrumentation) {
     this.instrumentation = this.options.instrumentation;
@@ -105,6 +110,10 @@ pellet.prototype.createClass = function(spec) {
   return reactClass;
 };
 
+pellet.prototype.setExperimentInterface = function(api) {
+  this.experiment = api;
+}
+
 pellet.prototype.setLocaleLookupFn = function(lookupFn) {
   this.suggestLocales = lookupFn;
 };
@@ -137,6 +146,7 @@ pellet.prototype.loadManifestComponents = function(manifest) {
       }
 
       this.components[key] = manifest[key];
+      this.componentLookup[manifest[key]] = key;
     }
   }
 };
