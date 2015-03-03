@@ -3,7 +3,6 @@ var react = require('react')
   , observables = require('./observables')
   , isolator = require('./isolator')
   , instrumentation = require('./instrumentation')
-  , experimentInterface = require('./components/multivariate-testing/experiment-interface')
   , pelletReactMixin = require('./component-mixin')
   , cookie = require('./isomorphic/cookie');
 
@@ -341,4 +340,18 @@ if(process.env.SERVER_ENV) {
   });
 } else {
   module.exports = new pellet();
+}
+
+/**
+ *
+ * @interface experimentI
+ * @class
+ */
+function experimentInterface() {}
+experimentInterface.prototype.componentFor = function(name, ctx, experimentId, _renderOptions) {
+  if(typeof name === 'object') {
+    return name;
+  }
+
+  return module.exports.components[name];
 }
