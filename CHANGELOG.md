@@ -1,3 +1,15 @@
+### 0.0.73 (2015-03-03)
+
+
+#### Features
+
+* as a dev I want experiment interface in pellet, because unit test have problem ([7ce56322](https://github.com/Rebelizer/pellet/commit/7ce56322b6383eafdcbfa426251ab9e2f25afef8))
+* as a dev I want basic plumbing for a/b/n multibanded testing ([07af4298](https://github.com/Rebelizer/pellet/commit/07af4298ee46914014c3b487c20d42eb7e94da01))
+* as a dev I want a css class to indicate if react/pellet is initialized on the pa ([60dcfc14](https://github.com/Rebelizer/pellet/commit/60dcfc148bb641add0760512a8b67d41d0e6737e))
+* as a dev I want a css class to indicate if react/pellet is initialized and the a ([2905a547](https://github.com/Rebelizer/pellet/commit/2905a547f5400ee8da693abbade65f3b02c7f268))
+* as a dev I want all instrumentation data evented on a globe bus for 3-party anal ([cec6ab70](https://github.com/Rebelizer/pellet/commit/cec6ab704aa37ad5f6826f43ef7ef0caaa87b73f))
+
+
 ### 0.0.72 (2015-02-25)
 
 
