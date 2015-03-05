@@ -106,7 +106,7 @@ module.exports = function(program, addToReadyQue) {
 
           baseTemplateNames = baseTemplateNames[CREATE_TYPES.indexOf(answer.type)];
 
-          var componentEP, assetEP, jadeEP;
+          var translationEP, componentEP, assetEP, jadeEP;
 
           // now build up the work needed to render/generate the template output
           if(answer.templateType === 'Jade') {
@@ -144,6 +144,13 @@ module.exports = function(program, addToReadyQue) {
             renderFile(outputFiles, assetEP, path.join(options.templateDir, baseTemplateNames[1]+'-css.ejs'), answer);
           }
 
+          if(answer.translation) {
+            translationEP = path.join(baseOutputDir, 'translations.json');
+            outputFiles[translationEP] = function(next) {
+              fs.copy(path.join(options.templateDir, 'translations.json'), translationEP, next);
+            };
+          }
+
           // todo: add test types i.e. karma vs moka
           if (answer.test) {
             renderFile(outputFiles, path.join(baseOutputDir, answer.fileName + '.test.js'), path.join(options.templateDir, baseTemplateNames[2]+'-test.ejs'), answer);
@@ -174,6 +181,10 @@ module.exports = function(program, addToReadyQue) {
 //                    "test": false,
 //                    "docs": false
                 };
+
+                if(answer.translation) {
+                  newComponent.translations = '.' + path.sep + path.relative(manifestOutputDir, translationEP);
+                }
 
                 if(answer.mergeManifest[0] === 'Create') {
                   newManifest.merge(manifestOutputPath, newComponent, {ignoreUpdatingWebpackEP:true}, function(err) {
@@ -290,7 +301,7 @@ module.exports = function(program, addToReadyQue) {
 
           renderFile(outputFiles, path.join(baseOutputDir, '.pellet'), path.join(options.templateDir, 'pellet.ejs'), answer);
 
-          var componentEP, assetEP, jadeEP, templateType, resetFile;
+          var translationEP, componentEP, assetEP, jadeEP, templateType, resetFile, translationFile;
 
           // we should add a example into /src that is server only, client only, etc.
 
@@ -322,6 +333,11 @@ module.exports = function(program, addToReadyQue) {
             resetFile = path.join(baseOutputDir, 'assets', 'reset.css');
           }
 
+          translationEP = path.join(baseOutputDir, 'assets', 'translations.json');
+          outputFiles[translationEP] = function(next) {
+            fs.copy(path.join(options.templateDir, 'translations.json'), translationEP, next);
+          };
+
           outputFiles[resetFile] = function(next) {
             fs.copy(path.join(options.templateDir, 'project-assets-reset.css'), resetFile, next);
           };
@@ -333,6 +349,7 @@ module.exports = function(program, addToReadyQue) {
             var newComponent = {
               "name": answer.name,
               "version": answer.version,
+              "translations": '.' + path.sep + path.relative(baseOutputDir, translationEP),
               "component": '.' + path.sep + path.relative(baseOutputDir, componentEP),
               "styleMain": '.' + path.normalize(assetEP.replace(baseOutputDir, '')),
               "excluded": false,
@@ -494,6 +511,11 @@ module.exports = function(program, addToReadyQue) {
         function switchTypes(answer) {
           if(['Component', 'Page', 'Layout'].indexOf(answer.type) !== -1) {
             inquirer.prompt([{
+              type: 'confirm',
+              name: 'translation',
+              'default': program.pelletConfig && program.pelletConfig.defaults.translation,
+              message: 'Include translations'
+            },{
               type: 'confirm',
               name: 'test',
               'default': program.pelletConfig && program.pelletConfig.defaults.test,

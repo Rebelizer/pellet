@@ -1,0 +1,10 @@
+{
+  "myMessageFormat": {
+    "en-US":"{GENDER, select, male {He} female {She} other {They}} found {NUM_RESULTS, plural, one {1 result} other {# results}} in {NUM_CATEGORIES, plural, one {1 category} other {# categories}}."
+  },
+  "myKey": {
+    "en-US": "The us value for myKey",
+    "fr": "La valeur nous pour myKey",
+    "ja": "MYKEY米国の価値"
+  }
+}
