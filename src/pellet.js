@@ -336,7 +336,11 @@ if(process.env.SERVER_ENV) {
   }
 
   module.exports.addWindowOnreadyEvent(function() {
-    window.__pellet__ref.startInit();
+    // we need to simulate async load (this is needed
+    // so the webpack browser version can registerInitFn
+    setTimeout(function() {
+      window.__pellet__ref.startInit();
+    }, 1);
   });
 } else {
   module.exports = new pellet();
