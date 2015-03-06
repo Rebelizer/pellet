@@ -44,7 +44,7 @@ function defaultRender(html, ctx, renderOptions) {
     'e=o.createElement(i);r=o.getElementsByTagName(i)[0];\n'+
     'e.src=\'//www.google-analytics.com/analytics.js\';\n'+
     'r.parentNode.insertBefore(e,r)}(window,document,\'script\',\'ga\'));\n'+
-    'ga(\'create\',\'' + pellet.options.googleTrackID + '\');ga(\'send\',\'pageview\');\n'+
+    'ga(\'create\',\'' + pellet.options.googleTrackID + '\');\n'+
   '</script>';
 
   return '<!DOCTYPE html>\n'+

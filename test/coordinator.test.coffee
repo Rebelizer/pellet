@@ -1,379 +1,384 @@
-#mocha --compilers coffee:coffee-script test/route.test.coffee
+#mocha --compilers coffee:coffee-script/register test/coordinator.test.coffee
 
 chai = require "chai"
 chai.should()
 expect = chai.expect
 
-isolator = require "../src/isolator.js"
-observables = require "../src/observables.js"
-
-############ BOOTSTRAP PELLET (with a clean envirment)
-delete require.cache[require.resolve('../src/pellet')]
-process.env.SERVER_ENV = false;
-process.env.BROWSER_ENV = false;
-global.__pellet__bootstrap = {config:{},options:{}}; global.window={__pellet__bootstrap:global.__pellet__bootstrap};
-pellet = require "../src/pellet"
-############
-
-pellet.registerCoordinatorSpec "testCoordinator",
-  initialize: ->
-    @fire = @event "test"
-  go: (data)->
-    @fire.emit(data)
+pellet = null
+isolator = null
+observables = null
 
 describe "Coordinator", ->
-    describe "event", ->
-        it "create event ondemand", ->
-          isolate = new isolator()
+  before ->
+    ############ BOOTSTRAP PELLET (with a clean envirment)
+    delete require.cache[require.resolve('../src/isolator')]
+    delete require.cache[require.resolve('../src/observables')]
+    delete require.cache[require.resolve('../src/pellet')]
+    process.env.SERVER_ENV = false;
+    process.env.BROWSER_ENV = false;
+    global.__pellet__bootstrap = {config:{},options:{}}; global.window={__pellet__bootstrap:global.__pellet__bootstrap};
+    pellet = require "../src/pellet"
+    isolator = require "../src/isolator.js"
+    observables = require "../src/observables.js"
 
-          foobarE = isolate.event("foobar")
+    pellet.registerCoordinatorSpec "testCoordinator",
+      initialize: ->
+        @fire = @event "test"
+      go: (data)->
+        @fire.emit(data)
+    ############
 
-          expect(foobarE).to.be.an.instanceof(observables.autoRelease)
-          expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
+  describe "event", ->
+      it "create event ondemand", ->
+        isolate = new isolator()
 
-        it "register bad emitter event", ->
-          isolate = new isolator()
+        foobarE = isolate.event("foobar")
 
-          expect(isolate.registerEmitter.bind(isolate, "foobar")).to.throw('Cannot register a non emitter/autorelease')
-          expect(isolate.registerEmitter.bind(isolate, "foobar", null)).to.throw('Cannot register a non emitter/autorelease')
-          expect(isolate.registerEmitter.bind(isolate, "foobar", "foo")).to.throw('Cannot register a non emitter/autorelease')
-          expect(isolate.registerEmitter.bind(isolate, "foobar", {})).to.throw('Cannot register a non emitter/autorelease')
+        expect(foobarE).to.be.an.instanceof(observables.autoRelease)
+        expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
 
-          foobarE = isolate.event("foobar")
+      it "register bad emitter event", ->
+        isolate = new isolator()
 
-          expect(foobarE).to.be.an.instanceof(observables.autoRelease)
-          expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
+        expect(isolate.registerEmitter.bind(isolate, "foobar")).to.throw('Cannot register a non emitter/autorelease')
+        expect(isolate.registerEmitter.bind(isolate, "foobar", null)).to.throw('Cannot register a non emitter/autorelease')
+        expect(isolate.registerEmitter.bind(isolate, "foobar", "foo")).to.throw('Cannot register a non emitter/autorelease')
+        expect(isolate.registerEmitter.bind(isolate, "foobar", {})).to.throw('Cannot register a non emitter/autorelease')
 
-          expect(isolate.registerEmitter.bind(isolate, "foobar")).to.throw('Conflict with existing key')
+        foobarE = isolate.event("foobar")
 
-        it "register emitter event", ->
-          isolate = new isolator()
+        expect(foobarE).to.be.an.instanceof(observables.autoRelease)
+        expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
 
-          newEmitter = new observables.emitter()
-          console.log "newEmitter", newEmitter instanceof observables.emitter ? 't':'f'
-          foobarE = isolate.registerEmitter("foobar", newEmitter)
+        expect(isolate.registerEmitter.bind(isolate, "foobar")).to.throw('Conflict with existing key')
 
-          expect(foobarE).to.be.an.instanceof(observables.autoRelease)
-          expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
+      it "register emitter event", ->
+        isolate = new isolator()
 
-          isolate = new isolator()
-          newEmitter = new observables.autoRelease(new observables.emitter())
-          foobarE2 = isolate.registerEmitter("foobar2", newEmitter)
+        newEmitter = new observables.emitter()
+        foobarE = isolate.registerEmitter("foobar", newEmitter)
 
-          expect(foobarE2).to.be.an.instanceof(observables.autoRelease)
-          expect(isolate._releaseList).to.deep.equal({foobar2:foobarE2})
+        expect(foobarE).to.be.an.instanceof(observables.autoRelease)
+        expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
 
-        it "getting an event (in a isolate) always return identical reference", ->
-          isolate = new isolator()
+        isolate = new isolator()
+        newEmitter = new observables.autoRelease(new observables.emitter())
+        foobarE2 = isolate.registerEmitter("foobar2", newEmitter)
 
-          foobarE = isolate.event("foobar")
-          expect(foobarE).to.be.an.instanceof(observables.autoRelease)
+        expect(foobarE2).to.be.an.instanceof(observables.autoRelease)
+        expect(isolate._releaseList).to.deep.equal({foobar2:foobarE2})
 
-          foobarE_2 = isolate.event("foobar")
-          expect(foobarE_2).to.be.an.instanceof(observables.autoRelease)
+      it "getting an event (in a isolate) always return identical reference", ->
+        isolate = new isolator()
 
-          expect(foobarE_2).to.equal(foobarE)
+        foobarE = isolate.event("foobar")
+        expect(foobarE).to.be.an.instanceof(observables.autoRelease)
 
-          expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
+        foobarE_2 = isolate.event("foobar")
+        expect(foobarE_2).to.be.an.instanceof(observables.autoRelease)
 
-        it "getting an event (in a child isolate) always return wrapped reference", ->
-          isolate = new isolator()
-          childIsolate = isolate.createChild()
+        expect(foobarE_2).to.equal(foobarE)
 
-          foobarE = isolate.event("foobar")
-          expect(foobarE).to.be.an.instanceof(observables.autoRelease)
+        expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
 
-          foobarE_2 = childIsolate.event("foobar")
-          expect(foobarE_2).to.be.an.instanceof(observables.autoRelease)
+      it "getting an event (in a child isolate) always return wrapped reference", ->
+        isolate = new isolator()
+        childIsolate = isolate.createChild()
 
-          expect(foobarE_2).to.not.equal(foobarE)
+        foobarE = isolate.event("foobar")
+        expect(foobarE).to.be.an.instanceof(observables.autoRelease)
 
-          expect(isolate._releaseList).to.deep.equal({foobar:foobarE, _$0:childIsolate})
-          expect(childIsolate._releaseList).to.deep.equal({foobar:foobarE_2})
+        foobarE_2 = childIsolate.event("foobar")
+        expect(foobarE_2).to.be.an.instanceof(observables.autoRelease)
 
-        it "allow multiple events (by name)", ->
-          isolate = new isolator()
+        expect(foobarE_2).to.not.equal(foobarE)
 
-          foobarE = isolate.event("foobar")
-          expect(foobarE).to.be.an.instanceof(observables.autoRelease)
+        expect(isolate._releaseList).to.deep.equal({foobar:foobarE, _$0:childIsolate})
+        expect(childIsolate._releaseList).to.deep.equal({foobar:foobarE_2})
 
-          foobarE_2 = isolate.event("foobar2")
-          expect(foobarE_2).to.be.an.instanceof(observables.autoRelease)
+      it "allow multiple events (by name)", ->
+        isolate = new isolator()
 
-          expect(foobarE_2).to.not.equal(foobarE)
+        foobarE = isolate.event("foobar")
+        expect(foobarE).to.be.an.instanceof(observables.autoRelease)
 
-          expect(isolate._releaseList).to.deep.equal({foobar:foobarE, foobar2:foobarE_2})
+        foobarE_2 = isolate.event("foobar2")
+        expect(foobarE_2).to.be.an.instanceof(observables.autoRelease)
 
-        it "throw exception if event trying to overwrite existing key of wrong type", ->
-          isolate = new isolator()
-          childIsolate = isolate.createChild()
+        expect(foobarE_2).to.not.equal(foobarE)
 
-          expect(isolate.event.bind(isolate, "_$0")).to.throw('Conflict with existing key')
+        expect(isolate._releaseList).to.deep.equal({foobar:foobarE, foobar2:foobarE_2})
 
-          foobarE = isolate.event("foobar")
+      it "throw exception if event trying to overwrite existing key of wrong type", ->
+        isolate = new isolator()
+        childIsolate = isolate.createChild()
 
-          expect(isolate.coordinator.bind(isolate, "foobar", "testCoordinator")).to.throw('Conflict with existing key')
+        expect(isolate.event.bind(isolate, "_$0")).to.throw('Conflict with existing key')
 
-          testCoordinator = isolate.coordinator("foobar2", "testCoordinator")
+        foobarE = isolate.event("foobar")
 
-          expect(isolate.event.bind(isolate, "foobar2")).to.throw('Conflict with existing key')
+        expect(isolate.coordinator.bind(isolate, "foobar", "testCoordinator")).to.throw('Conflict with existing key')
 
-        it "track emits and auto release", ->
-          isolate = new isolator()
+        testCoordinator = isolate.coordinator("foobar2", "testCoordinator")
 
-          cbCount = 0
+        expect(isolate.event.bind(isolate, "foobar2")).to.throw('Conflict with existing key')
 
-          foobarE = isolate.event('foobar')
-          foobarE.on ()->
-            cbCount++
+      it "track emits and auto release", ->
+        isolate = new isolator()
 
-          foobarE.emit()
-          foobarE.emit()
-          foobarE.emit()
+        cbCount = 0
 
-          expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
-          expect(cbCount).to.equal(3)
+        foobarE = isolate.event('foobar')
+        foobarE.on ()->
+          cbCount++
 
-          isolate.release()
+        foobarE.emit()
+        foobarE.emit()
+        foobarE.emit()
 
-          expect(isolate._releaseList).to.deep.equal({})
-          foobarE.emit()
+        expect(isolate._releaseList).to.deep.equal({foobar:foobarE})
+        expect(cbCount).to.equal(3)
 
-          expect(cbCount).to.equal(3)
+        isolate.release()
 
-        it "on release do not destroy the emitter", ->
-          isolate = new isolator()
+        expect(isolate._releaseList).to.deep.equal({})
+        foobarE.emit()
 
-          cbCount = 0
-          cbCount_raw = 0
+        expect(cbCount).to.equal(3)
 
-          foobarE = isolate.event('foobar')
-          foobarE.__obs.onValue ()->
-            cbCount_raw++
+      it "on release do not destroy the emitter", ->
+        isolate = new isolator()
 
-          foobarE.on ()->
-            cbCount++
+        cbCount = 0
+        cbCount_raw = 0
 
-          foobarE.emit()
-          foobarE.emit()
+        foobarE = isolate.event('foobar')
+        foobarE.__obs.onValue ()->
+          cbCount_raw++
 
-          expect(cbCount).to.equal(2)
-          expect(cbCount_raw).to.equal(2)
+        foobarE.on ()->
+          cbCount++
 
-          isolate.release()
+        foobarE.emit()
+        foobarE.emit()
 
-          foobarE_2 = isolate.event('foobar')
+        expect(cbCount).to.equal(2)
+        expect(cbCount_raw).to.equal(2)
 
-          expect(foobarE_2).to.not.equal(foobarE)
+        isolate.release()
 
-          foobarE_2.emit()
-          foobarE.emit()
+        foobarE_2 = isolate.event('foobar')
 
-          expect(cbCount).to.equal(2)
-          expect(cbCount_raw).to.equal(4)
+        expect(foobarE_2).to.not.equal(foobarE)
 
-        it "child share parent events", ->
-          isolate = new isolator()
-          childIsolate = isolate.createChild()
+        foobarE_2.emit()
+        foobarE.emit()
 
-          cbCount = 0
-          propCount = 0
+        expect(cbCount).to.equal(2)
+        expect(cbCount_raw).to.equal(4)
 
-          isolate.prop2 = ->
-            propCount++
+      it "child share parent events", ->
+        isolate = new isolator()
+        childIsolate = isolate.createChild()
 
-          foobarE = isolate.event('foobar')
-          foobarE.on ->
-            cbCount++
+        cbCount = 0
+        propCount = 0
 
-          isolate.event('foobar').emit()
-          isolate.prop2()
+        isolate.prop2 = ->
+          propCount++
 
-          expect(cbCount).to.equal(1)
-          expect(propCount).to.equal(1)
+        foobarE = isolate.event('foobar')
+        foobarE.on ->
+          cbCount++
 
-          childIsolate.event('foobar').emit();
-          childIsolate.prop2();
+        isolate.event('foobar').emit()
+        isolate.prop2()
 
-          expect(cbCount).to.equal(2)
-          expect(propCount).to.equal(2)
+        expect(cbCount).to.equal(1)
+        expect(propCount).to.equal(1)
 
-          isolate.event('foobar').emit()
-          foobarE.emit()
-          isolate.prop2()
+        childIsolate.event('foobar').emit();
+        childIsolate.prop2();
 
-          expect(cbCount).to.equal(4)
-          expect(propCount).to.equal(3)
+        expect(cbCount).to.equal(2)
+        expect(propCount).to.equal(2)
 
-        it "child isolate share event with parent", ->
-          isolate = new isolator()
-          childIsolate = isolate.createChild()
+        isolate.event('foobar').emit()
+        foobarE.emit()
+        isolate.prop2()
 
-          cbCount = 0
-          cbCount_2 = 0
+        expect(cbCount).to.equal(4)
+        expect(propCount).to.equal(3)
 
-          foobarE = isolate.event('foobar')
-          foobarE.on ->
-            cbCount++
+      it "child isolate share event with parent", ->
+        isolate = new isolator()
+        childIsolate = isolate.createChild()
 
-          foobarE_2 = childIsolate.event('foobar')
-          foobarE_2.on ->
-            cbCount_2++
+        cbCount = 0
+        cbCount_2 = 0
 
-          foobarE.emit()
-          expect(cbCount).to.equal(1)
-          expect(cbCount_2).to.equal(1)
+        foobarE = isolate.event('foobar')
+        foobarE.on ->
+          cbCount++
 
-          foobarE_2.emit()
-          expect(cbCount).to.equal(2)
-          expect(cbCount_2).to.equal(2)
+        foobarE_2 = childIsolate.event('foobar')
+        foobarE_2.on ->
+          cbCount_2++
 
+        foobarE.emit()
+        expect(cbCount).to.equal(1)
+        expect(cbCount_2).to.equal(1)
 
-        # child isolate do not share properies! ie if you update a child it will not update parent!
+        foobarE_2.emit()
+        expect(cbCount).to.equal(2)
+        expect(cbCount_2).to.equal(2)
 
-        it "child isolate define event on root isolate", ->
-          isolate = new isolator()
-          childIsolate = isolate.createChild()
 
-          cbCount = 0
-          cbCount_2 = 0
+      # child isolate do not share properies! ie if you update a child it will not update parent!
 
-          foobarE_2 = childIsolate.event('foobar')
-          foobarE_2.on ->
-            cbCount_2++
+      it "child isolate define event on root isolate", ->
+        isolate = new isolator()
+        childIsolate = isolate.createChild()
 
-          foobarE = isolate.event('foobar')
-          foobarE.on ->
-            cbCount++
+        cbCount = 0
+        cbCount_2 = 0
 
-          foobarE.emit()
-          expect(cbCount).to.equal(1)
-          expect(cbCount_2).to.equal(1)
+        foobarE_2 = childIsolate.event('foobar')
+        foobarE_2.on ->
+          cbCount_2++
 
-          foobarE_2.emit()
-          expect(cbCount).to.equal(2)
-          expect(cbCount_2).to.equal(2)
+        foobarE = isolate.event('foobar')
+        foobarE.on ->
+          cbCount++
 
-        it "child isolate track auto release separately", ->
-          isolate = new isolator()
-          childIsolate = isolate.createChild()
+        foobarE.emit()
+        expect(cbCount).to.equal(1)
+        expect(cbCount_2).to.equal(1)
 
-          cbCount = 0
-          cbCount_2 = 0
+        foobarE_2.emit()
+        expect(cbCount).to.equal(2)
+        expect(cbCount_2).to.equal(2)
 
-          foobarE = isolate.event('foobar')
-          foobarE.on ->
-            cbCount++
+      it "child isolate track auto release separately", ->
+        isolate = new isolator()
+        childIsolate = isolate.createChild()
 
-          foobarE_2 = childIsolate.event('foobar')
-          foobarE_2.on ->
-            cbCount_2++
+        cbCount = 0
+        cbCount_2 = 0
 
-          foobarE.emit()
-          expect(cbCount).to.equal(1)
-          expect(cbCount_2).to.equal(1)
+        foobarE = isolate.event('foobar')
+        foobarE.on ->
+          cbCount++
 
-          childIsolate.release()
+        foobarE_2 = childIsolate.event('foobar')
+        foobarE_2.on ->
+          cbCount_2++
 
-          foobarE_2.emit()
-          expect(cbCount).to.equal(2)
-          expect(cbCount_2).to.equal(1)
+        foobarE.emit()
+        expect(cbCount).to.equal(1)
+        expect(cbCount_2).to.equal(1)
 
-          foobarE.emit()
-          expect(cbCount).to.equal(3)
-          expect(cbCount_2).to.equal(1)
+        childIsolate.release()
 
-          isolate.release()
+        foobarE_2.emit()
+        expect(cbCount).to.equal(2)
+        expect(cbCount_2).to.equal(1)
 
-          foobarE.emit()
-          foobarE_2.emit()
-          expect(cbCount).to.equal(3)
-          expect(cbCount_2).to.equal(1)
+        foobarE.emit()
+        expect(cbCount).to.equal(3)
+        expect(cbCount_2).to.equal(1)
 
-          foobarE.on ->
-            cbCount++
+        isolate.release()
 
-          foobarE_2.on ->
-            cbCount_2++
+        foobarE.emit()
+        foobarE_2.emit()
+        expect(cbCount).to.equal(3)
+        expect(cbCount_2).to.equal(1)
 
-          foobarE.emit()
-          expect(cbCount).to.equal(4)
-          expect(cbCount_2).to.equal(2)
+        foobarE.on ->
+          cbCount++
 
-          foobarE_2.emit()
-          expect(cbCount).to.equal(5)
-          expect(cbCount_2).to.equal(3)
+        foobarE_2.on ->
+          cbCount_2++
 
-          isolate.event('foobar').emit()
-          childIsolate.event('foobar').emit()
-          expect(cbCount).to.equal(7)
-          expect(cbCount_2).to.equal(5)
+        foobarE.emit()
+        expect(cbCount).to.equal(4)
+        expect(cbCount_2).to.equal(2)
 
-        it "track auto release via pellet register isolate", ->
-          isolate = new isolator()
+        foobarE_2.emit()
+        expect(cbCount).to.equal(5)
+        expect(cbCount_2).to.equal(3)
 
-          cbCount = 0
-          cbCount_2 = 0
+        isolate.event('foobar').emit()
+        childIsolate.event('foobar').emit()
+        expect(cbCount).to.equal(7)
+        expect(cbCount_2).to.equal(5)
 
-          testCoordinator = isolate.coordinator("foobar", "testCoordinator")
+      it "track auto release via pellet register isolate", ->
+        isolate = new isolator()
 
-          foobarE = testCoordinator.event("test")
-          foobarE.on ->
-            cbCount++
+        cbCount = 0
+        cbCount_2 = 0
 
-          testCoordinator.go()
-          expect(cbCount).to.equal(1)
+        testCoordinator = isolate.coordinator("foobar", "testCoordinator")
 
-          isolate.release()
+        foobarE = testCoordinator.event("test")
+        foobarE.on ->
+          cbCount++
 
-          testCoordinator.go()
-          expect(cbCount).to.equal(1)
+        testCoordinator.go()
+        expect(cbCount).to.equal(1)
 
-        it "pellet register isolate are independent to all isolate", ->
-          isolate = new isolator()
-          childIsolate = isolate.createChild()
+        isolate.release()
 
-          testCoordinator = isolate.coordinator("foobar", "testCoordinator")
-          testCoordinator_2 = childIsolate.coordinator("foobar", "testCoordinator")
+        testCoordinator.go()
+        expect(cbCount).to.equal(1)
 
-          expect(testCoordinator).to.not.equal(testCoordinator_2)
+      it "pellet register isolate are independent to all isolate", ->
+        isolate = new isolator()
+        childIsolate = isolate.createChild()
 
-        it "pellet register isolate auto relaese is tracked", ->
-          isolate = new isolator()
-          childIsolate = isolate.createChild()
+        testCoordinator = isolate.coordinator("foobar", "testCoordinator")
+        testCoordinator_2 = childIsolate.coordinator("foobar", "testCoordinator")
 
-          testCoordinator = isolate.coordinator("foobar", "testCoordinator")
-          testCoordinator_2 = childIsolate.coordinator("foobar", "testCoordinator")
+        expect(testCoordinator).to.not.equal(testCoordinator_2)
 
-          cbCount = 0
-          cbCount_2 = 0
+      it "pellet register isolate auto relaese is tracked", ->
+        isolate = new isolator()
+        childIsolate = isolate.createChild()
 
-          testCoordinator.event("test").on ->
-            cbCount++
+        testCoordinator = isolate.coordinator("foobar", "testCoordinator")
+        testCoordinator_2 = childIsolate.coordinator("foobar", "testCoordinator")
 
-          testCoordinator_2.event("test").on ->
-            cbCount_2++
+        cbCount = 0
+        cbCount_2 = 0
 
-          testCoordinator.go()
-          expect(cbCount).to.equal(1)
-          expect(cbCount_2).to.equal(1)
+        testCoordinator.event("test").on ->
+          cbCount++
 
-          testCoordinator_2.go()
-          expect(cbCount).to.equal(2)
-          expect(cbCount_2).to.equal(2)
+        testCoordinator_2.event("test").on ->
+          cbCount_2++
 
-          isolate = pellet.getCoordinator("foobar")
-          isolate.go()
+        testCoordinator.go()
+        expect(cbCount).to.equal(1)
+        expect(cbCount_2).to.equal(1)
 
-          expect(cbCount).to.equal(3)
-          expect(cbCount_2).to.equal(3)
+        testCoordinator_2.go()
+        expect(cbCount).to.equal(2)
+        expect(cbCount_2).to.equal(2)
 
-          testCoordinator.release()
-          testCoordinator_2.release()
+        isolate = pellet.getCoordinator("foobar")
+        isolate.go()
 
-          isolate.go()
-          testCoordinator.go()
-          testCoordinator_2.go()
+        expect(cbCount).to.equal(3)
+        expect(cbCount_2).to.equal(3)
 
-          expect(cbCount).to.equal(3)
-          expect(cbCount_2).to.equal(3)
+        testCoordinator.release()
+        testCoordinator_2.release()
+
+        isolate.go()
+        testCoordinator.go()
+        testCoordinator_2.go()
+
+        expect(cbCount).to.equal(3)
+        expect(cbCount_2).to.equal(3)

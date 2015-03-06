@@ -13,6 +13,7 @@
     "code": [
       "../isomorphic/route.js",
       "../instrumentation.js",
+      "../components/multivariate-testing/ga-experiment.js",
       "./user-agent-mixin.js"
     ],
     "client-dependencies": [

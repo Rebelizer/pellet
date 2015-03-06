@@ -28,7 +28,8 @@ pellet.addComponentRoute = function(route, component, options) {
   var _this = this;
 
   this.routes.add(route, function() {
-    var routeContext = this
+    var _experiment
+      , routeContext = this
       , _component = component
       , renderOptions = {props:{}, isolatedConfig:runtimeIsolatedConfig, requestContext:runtimeRequestContext};
 
@@ -80,12 +81,10 @@ pellet.addComponentRoute = function(route, component, options) {
       renderOptions.props.query = routeContext.query;
       renderOptions.props.url = routeContext.url;
 
-      // now check if the page component is apart of a experiment
-      // and get the correct variation if
-      //var componentName = pellet.componentLookup[_component];
-      //if(componentName) {
-      //  pellet.experiment.componentFor(componentName, renderOptions.isolatedConfig, options.experimentId, renderOptions)
-      //}
+      // now check if the page component is apart of a experiment and get the correct variation
+      if((_experiment = pellet.experiment.select(_component, renderOptions.isolatedConfig, options.experimentId, renderOptions))) {
+        _component = _experiment;
+      }
 
       // if a layout is defined we swap the component with its layout component
       // and pass the component to the layout using layoutContent props.
@@ -134,6 +133,19 @@ pellet.addComponentRoute = function(route, component, options) {
           if(err) {
             console.error('Error trying to render because:', err.message, err.stack);
           }
+
+          // TODO: think about broadcasting the event so we do not need ga code
+          //pellet.instrumentation.emit('render', ctx);
+          if(process.env.BROWSER_ENV) {
+            if(typeof ga !== 'undefined') {
+              ga('send', {
+                hitType: 'pageview',
+                page: renderOptions.props.originalUrl,
+                title: document.title
+              });
+            }
+          }
+
         }
       });
     } catch(ex) {
