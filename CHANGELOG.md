@@ -1,3 +1,20 @@
+### 0.0.74 (2015-03-06)
+
+
+#### Bug Fixes
+
+* update unit test to isolate pellet each time a unit is tested ([ad4bd93e](https://github.com/Rebelizer/pellet/commit/ad4bd93e428699197ec765a6658e55a73f1bbaaa))
+* clean up unit test ([e60602c1](https://github.com/Rebelizer/pellet/commit/e60602c1edfa49ac47d5bac93b5b794aa437c7ca))
+* on the client the startInit run before webpack is all loaded so simulate async c ([6c8420c4](https://github.com/Rebelizer/pellet/commit/6c8420c4708edfc5d5543f6e25cf7c2985cea737))
+* add more explicit error information on route ([11c2b540](https://github.com/Rebelizer/pellet/commit/11c2b540bc5146e41bc4a866a43f7c50c7b42e22))
+
+
+#### Features
+
+* as a dev I want to run GA experiment on my pellet pages ([02bf3d61](https://github.com/Rebelizer/pellet/commit/02bf3d610fd6ad75de96382a3b3b96b71faf321e))
+* as a dev I want pellet to add translations when creating a project/page/componen ([9e9ecbc8](https://github.com/Rebelizer/pellet/commit/9e9ecbc8a6f43d7edbe8859b8df06baaa7feb26b))
+
+
 ### 0.0.73 (2015-03-03)
 
 
