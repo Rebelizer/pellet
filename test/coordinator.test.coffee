@@ -6,7 +6,14 @@ expect = chai.expect
 
 isolator = require "../src/isolator.js"
 observables = require "../src/observables.js"
-pellet = require "../src/pellet.js"
+
+############ BOOTSTRAP PELLET (with a clean envirment)
+delete require.cache[require.resolve('../src/pellet')]
+process.env.SERVER_ENV = false;
+process.env.BROWSER_ENV = false;
+global.__pellet__bootstrap = {config:{},options:{}}; global.window={__pellet__bootstrap:global.__pellet__bootstrap};
+pellet = require "../src/pellet"
+############
 
 pellet.registerCoordinatorSpec "testCoordinator",
   initialize: ->
