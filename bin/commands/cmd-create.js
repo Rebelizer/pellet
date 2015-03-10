@@ -144,7 +144,7 @@ module.exports = function(program, addToReadyQue) {
             renderFile(outputFiles, assetEP, path.join(options.templateDir, baseTemplateNames[1]+'-css.ejs'), answer);
           }
 
-          if(answer.translation) {
+          if(answer.translation /*&& answer.type !== 'Project'*/) {
             translationEP = path.join(baseOutputDir, 'translations.json');
             outputFiles[translationEP] = function(next) {
               fs.copy(path.join(options.templateDir, 'translations.json'), translationEP, next);
@@ -506,7 +506,29 @@ module.exports = function(program, addToReadyQue) {
           message: 'Styles',
           'default': program.pelletConfig && program.pelletConfig.defaults.assets,
           choices: ['stylus', 'css', 'none']
-        }], switchTypes);
+        }], function(answer) {
+          if(answer.type === 'Project') {
+            inquirer.prompt([{
+              type: 'confirm',
+              name: 'translation',
+              'default': true,
+              message: 'Support translations'
+            },{
+              type: 'confirm',
+              name: 'test',
+              'default': true,
+              message: 'Add unit tests'
+            }], function(projectAnswer) {
+              answer.translation = projectAnswer.translation;
+              answer.test = projectAnswer.test;
+              switchTypes(answer);
+            });
+
+            return;
+          }
+
+          switchTypes(answer);
+        });
 
         function switchTypes(answer) {
           if(['Component', 'Page', 'Layout'].indexOf(answer.type) !== -1) {
