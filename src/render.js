@@ -111,8 +111,21 @@ var pelletRender = module.exports = {
       }
     }
 
-    function cacheHitFn(html, ctx) {
+    function cacheHitFn(html, ctx, head) {
       pellet.instrumentation.increment('isorender.cacheHit');
+
+      //console.debug('Cache layer: cacheHitFn existing headTags', options.http.headTags)
+      // merge in cached header tags
+      if(head) {
+        var tag, i, len = head.length;
+        for(i = 0; i < len; i++) {
+          tag = head[i];
+          if(options.http.headTags.indexOf(tag) === -1) {
+            options.http.headTags.push(tag);
+          }
+        }
+      }
+
       next(null, html, {toJSON:function() {return ctx;}});
 
       // we do not want to send 2 responses

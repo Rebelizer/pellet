@@ -297,7 +297,10 @@ pipeline.prototype.signatureCacheData = function(evidence) {
  * Used to transform the data send to the client
  *
  * @callback transformCtxFn
- * @param ctx This is an options with
+ * @param ctx This is the cached ctx
+ * @param head This is the cached headers
+ * @param meta This is the caches meta data
+ * @callback next callback after your done with your transform
  */
 
 /**
@@ -344,8 +347,9 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
         return;
       }
 
-      console.debug('Cache layer: cache contains', !!(data && data.ctx), 'with meta data', !!metaData);
+      console.debug('Cache layer: cache contains ctx', !!(data && data.ctx), 'head:',!!(data && data.head), 'meta:', !!metaData);
       //console.debug('Cache layer: DATA:', data||'nothing');
+      //console.debug('Cache layer: head:', data && data.head);
 
       if(data) {
         // save off the data hash for the render step
@@ -354,12 +358,12 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
         _this.$.cacheHitDataSignature = data.hash;
 
         if(transformCtxFn) {
-          transformCtxFn(data.ctx, metaData, function(err, ctx) {
+          transformCtxFn((data && data.ctx && JSON.parse(data.ctx)), data.head, metaData, function(err, ctx, head) {
             console.debug('Cache layer: use dirty read', dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead), 'ttl:', dirtyRead, 'elapse:', (Date.now() - metaData.lastModified));
 
             if(dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead)) {
               _this.$.cacheHitCalled = true;
-              _this.$.cacheHitFn(data.html, ctx);
+              _this.$.cacheHitFn(data.html, ctx && JSON.stringify(ctx), head);
               return;
             }
 
@@ -370,7 +374,7 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
 
           if(dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead)) {
             _this.$.cacheHitCalled = true;
-            _this.$.cacheHitFn(data.html, data.ctx);
+            _this.$.cacheHitFn(data.html, data.ctx, data.head);
             return;
           }
 
@@ -411,13 +415,14 @@ pipeline.prototype.updateCache = function(html, next) {
         , ctx = this.getJSON(true);
 
       console.debug('Cache layer: update (key):', this.$.cacheKey, 'html hash:', ctx.hash);
-      //console.debug('updateCache', ctx)
+      //console.debug('Cache layer: ctx:', JSON.stringify(ctx,null,2))
 
       // update the cache with the HTML and ctx
       this.$.cacheInterface.set(this.$.cacheKey, {
         html: html,
         hash: ctx.hash,
-        ctx: ctx.json
+        ctx: ctx.json,
+        head: this.http.headTags
       }, function(err) {
         if(err) {
           console.error('Error updating cache layer', _this.$.cacheKey, 'because:', err||err.message);
@@ -445,10 +450,10 @@ pipeline.prototype.updateCache = function(html, next) {
  * @returns {boolean}
  */
 pipeline.prototype.isRenderRequired = function() {
-  console.debug('Cache layer: isRenderRequired', this.$.abortRender, this.$.cacheHitCalled, this.$.cacheHitDataSignature)
+  console.debug('Cache layer: isRenderRequired abortRender:', this.$.abortRender, 'cacheHitCalled:', this.$.cacheHitCalled, 'cacheHitDataSignature:', this.$.cacheHitDataSignature)
 
   if(this.$.abortRender) {
-    console.debug('Abort render because manual about in response');
+    console.debug('Abort render because manual abort in response (i.e. redirect)');
     return false;
   }
 
