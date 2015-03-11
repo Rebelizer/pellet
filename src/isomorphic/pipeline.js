@@ -77,6 +77,10 @@ pipeline.prototype.LINK = 'link';
 pipeline.prototype.META = 'meta';
 pipeline.prototype.TITLE = 'title';
 
+pipeline.prototype.RENDER_ABORT = 'abort';
+pipeline.prototype.RENDER_NO_CHANGE = 'no-change';
+pipeline.prototype.RENDER_NEEDED = 'needed';
+
 /**
  * Add header to the http response.
  *
@@ -454,14 +458,14 @@ pipeline.prototype.isRenderRequired = function() {
 
   if(this.$.abortRender) {
     console.debug('Abort render because manual abort in response (i.e. redirect)');
-    return false;
+    return this.RENDER_ABORT;
   }
 
   var hash = this.getJSON(true, true).hash
     , needToRender = this.$.cacheHitDataSignature != hash;
 
   console.debug('Cache layer: render required', needToRender, 'from cache (hash):', this.$.cacheHitDataSignature, 'current:', hash);
-  return needToRender;
+  return needToRender ? this.RENDER_NEEDED : this.RENDER_NO_CHANGE;
 }
 
 /**

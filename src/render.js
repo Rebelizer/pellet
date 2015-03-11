@@ -170,13 +170,14 @@ var pelletRender = module.exports = {
 
             // stop rendering if aborted or
             // the cache is up to date
-            if (!pipe.isRenderRequired()) {
+            var renderAction = pipe.isRenderRequired();
+            if (renderAction !== pipe.RENDER_NEEDED) {
               pipe.release();
               mesure.mark('release');
 
-              if (pipe.$.abortRender) {
+              if (renderAction === this.RENDER_ABORT) {
                 instrument.increment('isorender.abort');
-              } else {
+              } else if (renderAction === this.RENDER_NO_CHANGE) {
                 instrument.increment('isorender.cacheAbort');
               }
 

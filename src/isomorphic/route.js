@@ -102,8 +102,6 @@ pellet.addComponentRoute = function(route, component, options) {
       // now render the component (using isomorphic render)
       pelletRender.renderComponent(_component, renderOptions, function(err, html, ctx) {
         if(process.env.SERVER_ENV) {
-          var markup;
-
           if(err) {
             console.error('Error rendering component because:', err.message);
             routeContext.next(err);
