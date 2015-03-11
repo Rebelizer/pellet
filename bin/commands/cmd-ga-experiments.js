@@ -72,7 +72,10 @@ module.exports = function(program, addToReadyQue) {
               config.accountId = answer.accountId;
               config.webPropertyId = answer.webPropertyId;
               config.profileId = answer.profileId;
+
+              var bk_access_token = config.access_token; delete config.access_token;
               fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+              config.access_token = bk_access_token;
 
               // now ask for all the experiments so we can extract (titles to build out abn details file)
               analytics.management.experiments.list(answer, function (err, body) {
@@ -253,7 +256,10 @@ module.exports = function(program, addToReadyQue) {
               message: 'Account Email'
             }], function(answer) {
               config.emailAccount = answer.emailAccount;
+
+              var bk_access_token = config.access_token; delete config.access_token;
               fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+              config.access_token = bk_access_token;
 
               var oauth2Client = new google.auth.OAuth2(config.client_id, config.client_secret, config.redirect_url);
               oauth2Client.getToken(answer.authorization_code, function(err, tokens) {
@@ -350,7 +356,11 @@ module.exports = function(program, addToReadyQue) {
             }], function(answer) {
               answer.account_email = answer2.account_email;
               answer.redirect_url = 'urn:ietf:wg:oauth:2.0:oob';
+
+              var bk_access_token = answer.access_token; delete answer.access_token;
               fs.writeFileSync(configPath, JSON.stringify(answer, null, 2));
+              answer.access_token = bk_access_token;
+
               accessGA(answer);
             });
           });
