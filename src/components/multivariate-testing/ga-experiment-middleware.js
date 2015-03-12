@@ -64,7 +64,7 @@ if(config) {
             res.writeHead(200, {'Content-Type': 'text/javascript'});
             gaCode = gaCode.replace(EXTRACT_EXPERIMENT_DATA, 'experiments_=window.__pellet_gaExperiments='+JSON.stringify(gaExperiments)+';$2.DEFAULT');
 
-            gaCode += ';console.log(window.__pellet_gaExperiments);';
+            gaCode += ';';
 
             res.end(gaCode);
 
