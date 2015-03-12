@@ -17,7 +17,6 @@
       "./user-agent-mixin.js"
     ],
     "client-dependencies": [
-      "./history-polyfill.browser.min.js",
       "./console-polyfill.js"
     ],
     "server-dependencies": [
