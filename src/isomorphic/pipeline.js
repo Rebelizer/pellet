@@ -39,7 +39,7 @@ function pipeline(initData, http, isolatedConfig, requestContext, locales, cache
     cacheHitCalled: false,                    // this is if the cache hit was sent to the client
     cacheKey: '',
     cacheDataSignature: '',                   // this is a data signature to help skip full renders
-    cacheHitDataSignature: ''                 // this is a last cached data signature to help skip full renders
+    cacheHitData: null                        // this is a last cached data to help skip full renders
   };
 
   if(initData) {
@@ -356,10 +356,10 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
       //console.debug('Cache layer: head:', data && data.head);
 
       if(data) {
-        // save off the data hash for the render step
+        // save off the data for the render step
         // this allow use to the skip render if data signature
         // has not changed. It most cases this is the props
-        _this.$.cacheHitDataSignature = data.hash;
+        _this.$.cacheHitData = data;
 
         if(transformCtxFn) {
           transformCtxFn((data && data.ctx && JSON.parse(data.ctx)), data.head, metaData, function(err, ctx, head) {
@@ -454,7 +454,7 @@ pipeline.prototype.updateCache = function(html, next) {
  * @returns {boolean}
  */
 pipeline.prototype.isRenderRequired = function() {
-  console.debug('Cache layer: isRenderRequired abortRender:', this.$.abortRender, 'cacheHitCalled:', this.$.cacheHitCalled, 'cacheHitDataSignature:', this.$.cacheHitDataSignature)
+  console.debug('Cache layer: isRenderRequired abortRender:', this.$.abortRender, 'cacheHitCalled:', this.$.cacheHitCalled, 'cacheHitData.hash:', this.$.cacheHitData && this.$.cacheHitData.hash)
 
   if(this.$.abortRender) {
     console.debug('Abort render because manual abort in response (i.e. redirect)');
@@ -462,10 +462,21 @@ pipeline.prototype.isRenderRequired = function() {
   }
 
   var hash = this.getJSON(true, true).hash
-    , needToRender = this.$.cacheHitDataSignature != hash;
+    , needToRender = ((this.$.cacheHitData && this.$.cacheHitData.hash) != hash) ? this.RENDER_NEEDED : this.RENDER_NO_CHANGE;
 
-  console.debug('Cache layer: render required', needToRender, 'from cache (hash):', this.$.cacheHitDataSignature, 'current:', hash);
-  return needToRender ? this.RENDER_NEEDED : this.RENDER_NO_CHANGE;
+  console.debug('Cache layer: render required:', needToRender, 'from cache (hash):', this.$.cacheHitData && this.$.cacheHitData.hash, 'current:', hash);
+
+  if(process.env.SERVER_ENV && this.$.cacheInterface && needToRender === this.RENDER_NO_CHANGE) {
+    // touch the cache to update its TTL data
+    this.$.cacheInterface.touch(this.$.cacheKey, this.$.cacheHitData, function(err) {
+      if(err) {
+        console.error('Error touching cache layer', _this.$.cacheKey, 'because:', err||err.message);
+        return;
+      }
+    });
+  }
+
+  return needToRender;
 }
 
 /**

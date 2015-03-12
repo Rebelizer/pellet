@@ -46,6 +46,10 @@ orchestrateCacheLayer.prototype.get = function(key, cb) {
   });
 }
 
+orchestrateCacheLayer.prototype.touch = function(key, data, cb) {
+  this.set(key, data, cb);
+}
+
 orchestrateCacheLayer.prototype.set = function(key, data, cb) {
   var _this = this;
 

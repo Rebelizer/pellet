@@ -49,6 +49,10 @@ filesystemCacheLayer.prototype.get = function(key, cb) {
   });
 }
 
+filesystemCacheLayer.prototype.touch = function(key, data, cb) {
+  this.set(key, data, cb);
+}
+
 filesystemCacheLayer.prototype.set = function(key, data, cb) {
   if(this.instrument) {
     this.instrument.increment('update');
