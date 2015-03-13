@@ -10,6 +10,10 @@ function redisCacheLayer(config, instrument, cb) {
   this.prefix = config.prefix || '';
 
   if(config.compressed === true) {
+    if(!config.options) {
+      config.options = {}
+    }
+
     config.options.return_buffers = true;
     this.compressed = true;
   } else {
