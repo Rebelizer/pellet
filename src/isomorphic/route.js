@@ -210,6 +210,13 @@ if(process.env.SERVER_ENV) {
     var node = e.target;
     while(node) {
       if (node.nodeName == 'A') {
+
+        if (node.hasAttribute('data-stop-propagation')) {
+          e.stopPropagation();
+          e.preventDefault();
+          return;
+        }
+
         if (node.getAttribute('data-externalLink') == 'true') {
           return;
         }
