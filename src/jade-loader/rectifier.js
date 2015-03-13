@@ -680,11 +680,13 @@ Rectifier.prototype = {
                 b.identifier('React'),
                 b.identifier('createElement'), false);
 
-              call._swap_ = b.memberExpression(
-                b.memberExpression(
-                  b.identifier('pellet'),
-                  b.identifier('components'), false),
-                b.identifier(domType.name), false);
+              call._swap_ = b.logicalExpression('||',
+                  b.memberExpression(
+                    b.memberExpression(
+                      b.identifier('pellet'),
+                      b.identifier('components'), false),
+                    b.identifier(domType.name), false)
+                , b.identifier(domType.name), false);
 
               // if pellet component has only one argument and it has
               // "." in it i.e. this.props just treat this as the props
