@@ -1,3 +1,19 @@
+### 0.0.76 (2015-03-13)
+
+
+#### Bug Fixes
+
+* jsx doesnt support camel case attribute names, so rename externalLink to externa ([9b0a7f40](https://github.com/Rebelizer/pellet/commit/9b0a7f40115b2928ff965dfb1373b8aaad681e76))
+* remove debug code ([f48eb14e](https://github.com/Rebelizer/pellet/commit/f48eb14e54a6df99a088d91d0e0f9b9b443202ae))
+* back button doesn't work when URL contains hash ([9adb1cf7](https://github.com/Rebelizer/pellet/commit/9adb1cf772d2c1992c32d7263b2e9c576dc6f052))
+
+
+#### Features
+
+* as a dev I want to include local ref react components into my jade ([577f99ff](https://github.com/Rebelizer/pellet/commit/577f99ff209837f9526b1bcc4b9f877a6ff66890))
+* added data-stop-propagation attribute to <a> onclick listener ([4b115b9b](https://github.com/Rebelizer/pellet/commit/4b115b9ba99a24af45c36e7e675c07b24335086e))
+
+
 ### 0.0.75 (2015-03-11)
 
 
