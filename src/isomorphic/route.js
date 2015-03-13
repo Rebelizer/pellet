@@ -217,7 +217,7 @@ if(process.env.SERVER_ENV) {
           return;
         }
 
-        if (node.getAttribute('data-externalLink') == 'true') {
+        if (node.getAttribute('data-external-link') == 'true') {
           return;
         }
 
