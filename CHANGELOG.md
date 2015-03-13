@@ -1,3 +1,37 @@
+### 0.0.75 (2015-03-11)
+
+
+#### Bug Fixes
+
+* clean up the isRenderRequired (cache layer) interface to be more declarative ([d6a54b03](https://github.com/Rebelizer/pellet/commit/d6a54b0321250582a763a20fc41c2e7e2668c9c8))
+* do not cache the ga access token in our config file ([7eb92e6f](https://github.com/Rebelizer/pellet/commit/7eb92e6f28f01fa920e38144366a9c2358ff5cf2))
+* can not create new empty project ([afdaa079](https://github.com/Rebelizer/pellet/commit/afdaa079a6fd456eca469fd94039630f3d25ea54))
+
+
+#### Features
+
+* as a dev I want the cache layer to support a touch function ([4663e1e8](https://github.com/Rebelizer/pellet/commit/4663e1e85e22b3ba6a835968f51ed9c503238133))
+* as a dev I want the page head tags to be included in the cache layer ([cf2bc37e](https://github.com/Rebelizer/pellet/commit/cf2bc37e3a0ee065160ddcda7db494b0360d4501))
+* as a dev I want creating a new project to persist my translation and test option ([d5b14dc2](https://github.com/Rebelizer/pellet/commit/d5b14dc262bb60425a2c43694593b7b37f1b9c16))
+
+
+### 0.0.74 (2015-03-06)
+
+
+#### Bug Fixes
+
+* update unit test to isolate pellet each time a unit is tested ([ad4bd93e](https://github.com/Rebelizer/pellet/commit/ad4bd93e428699197ec765a6658e55a73f1bbaaa))
+* clean up unit test ([e60602c1](https://github.com/Rebelizer/pellet/commit/e60602c1edfa49ac47d5bac93b5b794aa437c7ca))
+* on the client the startInit run before webpack is all loaded so simulate async c ([6c8420c4](https://github.com/Rebelizer/pellet/commit/6c8420c4708edfc5d5543f6e25cf7c2985cea737))
+* add more explicit error information on route ([11c2b540](https://github.com/Rebelizer/pellet/commit/11c2b540bc5146e41bc4a866a43f7c50c7b42e22))
+
+
+#### Features
+
+* as a dev I want to run GA experiment on my pellet pages ([02bf3d61](https://github.com/Rebelizer/pellet/commit/02bf3d610fd6ad75de96382a3b3b96b71faf321e))
+* as a dev I want pellet to add translations when creating a project/page/componen ([9e9ecbc8](https://github.com/Rebelizer/pellet/commit/9e9ecbc8a6f43d7edbe8859b8df06baaa7feb26b))
+
+
 ### 0.0.73 (2015-03-03)
 
 

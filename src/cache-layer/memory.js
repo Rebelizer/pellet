@@ -41,4 +41,8 @@ memoryCacheLayer.prototype.set = function(key, data, cb) {
   cb(null);
 }
 
+memoryCacheLayer.prototype.touch = function(key, data, cb) {
+  this.set(key, data, cb);
+}
+
 module.exports = memoryCacheLayer;

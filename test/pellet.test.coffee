@@ -1,13 +1,16 @@
-#mocha --compilers coffee:coffee-script test/pellet.test.coffee
-
-process.env.SERVER_ENV = true
-process.env.BROWSER_ENV = false
+#mocha --compilers coffee:coffee-script/register test/pellet.test.coffee
 
 chai = require "chai"
 chai.should()
 expect = chai.expect
 
+############ BOOTSTRAP PELLET (with a clean envirment)
+delete require.cache[require.resolve('../src/pellet')]
+process.env.SERVER_ENV = true
+process.env.BROWSER_ENV = false
+global.__pellet__bootstrap = {config:{},options:{}}; global.window={__pellet__bootstrap:global.__pellet__bootstrap};
 pellet = require "../src/pellet"
+############
 
 describe "Pellet", ->
     describe "load manifest components", ->

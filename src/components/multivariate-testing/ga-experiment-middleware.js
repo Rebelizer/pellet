@@ -14,13 +14,23 @@ if(config) {
   pellet.middlewareStack.push({
     priority: 7,
     fn: function(req, res, next) {
-      if (req.path.indexOf(config.bootloaderPath) !== 0) return next();
+      var experiments, experiment, gaCode, gaExperiments = {};
 
-      var experiments = req.path.substring(config.bootloaderPath.length).split(',');
-      var experiment
-        , gaCode
-        , gaExperiments = {}
-        , i = experiments.length
+      if (req.path.indexOf(config.bootloaderPath) !== 0) {
+        return next();
+      }
+
+      if(req.path === config.bootloaderPath) {
+        if(!pellet.__gaExperimentConfig) {
+          return next();
+        }
+
+        experiments = pellet.__gaExperimentConfig.experiments;
+      } else {
+        experiments = req.path.substring(config.bootloaderPath.length).split(',');
+      }
+
+      var i = experiments.length
         , count = i;
 
       console.debug('Google Experiments: bootloader:', experiments);
@@ -52,9 +62,9 @@ if(config) {
 
           if(count-- === 0) {
             res.writeHead(200, {'Content-Type': 'text/javascript'});
-            gaCode = gaCode.replace(EXTRACT_EXPERIMENT_DATA, 'experiments_=window.__pellet_gaexperiments='+JSON.stringify(gaExperiments)+';$2.DEFAULT');
+            gaCode = gaCode.replace(EXTRACT_EXPERIMENT_DATA, 'experiments_=window.__pellet_gaExperiments='+JSON.stringify(gaExperiments)+';$2.DEFAULT');
 
-            gaCode += ';console.log(window.__pellet_gaexperiments);';
+            gaCode += ';console.log(window.__pellet_gaExperiments);';
 
             res.end(gaCode);
 

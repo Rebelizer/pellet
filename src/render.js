@@ -111,8 +111,21 @@ var pelletRender = module.exports = {
       }
     }
 
-    function cacheHitFn(html, ctx) {
+    function cacheHitFn(html, ctx, head) {
       pellet.instrumentation.increment('isorender.cacheHit');
+
+      //console.debug('Cache layer: cacheHitFn existing headTags', options.http.headTags)
+      // merge in cached header tags
+      if(head) {
+        var tag, i, len = head.length;
+        for(i = 0; i < len; i++) {
+          tag = head[i];
+          if(options.http.headTags.indexOf(tag) === -1) {
+            options.http.headTags.push(tag);
+          }
+        }
+      }
+
       next(null, html, {toJSON:function() {return ctx;}});
 
       // we do not want to send 2 responses
@@ -157,13 +170,14 @@ var pelletRender = module.exports = {
 
             // stop rendering if aborted or
             // the cache is up to date
-            if (!pipe.isRenderRequired()) {
+            var renderAction = pipe.isRenderRequired();
+            if (renderAction !== pipe.RENDER_NEEDED) {
               pipe.release();
               mesure.mark('release');
 
-              if (pipe.$.abortRender) {
+              if (renderAction === this.RENDER_ABORT) {
                 instrument.increment('isorender.abort');
-              } else {
+              } else if (renderAction === this.RENDER_NO_CHANGE) {
                 instrument.increment('isorender.cacheAbort');
               }
 

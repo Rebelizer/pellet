@@ -4,6 +4,7 @@ var react = require('react')
   , isolator = require('./isolator')
   , instrumentation = require('./instrumentation')
   , pelletReactMixin = require('./component-mixin')
+  , experimentInterface = require('./experiment-interface')
   , cookie = require('./isomorphic/cookie');
 
 /**
@@ -15,7 +16,6 @@ function pellet(config, options) {
   this.initFnQue = [];
   this.coordinators = {};
   this.coordinatorSpecs = {};
-  this.componentLookup = {};
   this.components = {};
   this.locales = {};
 
@@ -24,7 +24,7 @@ function pellet(config, options) {
   this.options = options || {};
 
   // setup the experiment interface (passthru mode)
-  this.experiment = new experimentInterface();
+  this.experiment = new experimentInterface(this);
 
   if (this.options.instrumentation) {
     this.instrumentation = this.options.instrumentation;
@@ -145,7 +145,6 @@ pellet.prototype.loadManifestComponents = function(manifest) {
       }
 
       this.components[key] = manifest[key];
-      this.componentLookup[manifest[key]] = key;
     }
   }
 };
@@ -336,22 +335,12 @@ if(process.env.SERVER_ENV) {
   }
 
   module.exports.addWindowOnreadyEvent(function() {
-    window.__pellet__ref.startInit();
+    // we need to simulate async load (this is needed
+    // so the webpack browser version can registerInitFn
+    setTimeout(function() {
+      window.__pellet__ref.startInit();
+    }, 1);
   });
 } else {
   module.exports = new pellet();
-}
-
-/**
- *
- * @interface experimentI
- * @class
- */
-function experimentInterface() {}
-experimentInterface.prototype.componentFor = function(name, ctx, experimentId, _renderOptions) {
-  if(typeof name === 'object') {
-    return name;
-  }
-
-  return module.exports.components[name];
 }

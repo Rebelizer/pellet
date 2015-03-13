@@ -1,6 +1,6 @@
 {
   "name": "pellet",
-  "version": "0.0.74",
+  "version": "0.0.76",
   "description": "",
   "author": "Demetrius Johnson <contact@demetriusj.com> (http://demetriusj.com)",
   "repository": {
@@ -90,6 +90,7 @@
     "nconf": "^0.6.9",
     "node-statsd": "^0.1.1",
     "orchestrate": "^0.4.0",
+    "googleapis": "^1.1.5",
     "path-to-regexp": "^1.0.1",
     "polyfills": "^1.9.3",
     "progress": "^1.1.8",

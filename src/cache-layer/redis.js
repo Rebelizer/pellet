@@ -138,6 +138,11 @@ redisCacheLayer.prototype.get = function(key, cb) {
   });
 }
 
+
+redisCacheLayer.prototype.touch = function(key, data, cb) {
+  this.set(key, data, cb);
+}
+
 redisCacheLayer.prototype.set = function(key, data, cb) {
   if(this.instrument) {
     this.instrument.increment('update');
