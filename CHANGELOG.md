@@ -1,3 +1,11 @@
+### 0.0.77 (2015-03-13)
+
+
+#### Bug Fixes
+
+* make the options in the redis cache layer config optional ([4ed6a51a](https://github.com/Rebelizer/pellet/commit/4ed6a51a70e1d8cdfa9891b2de26d93e01ccb6f1))
+
+
 ### 0.0.76 (2015-03-13)
 
 
