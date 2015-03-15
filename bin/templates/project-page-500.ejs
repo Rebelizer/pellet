@@ -6,7 +6,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
+        <title>Server Error &middot; Pellet</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -41,7 +41,7 @@
         <![endif]-->
 
         <h1>500</h1>
-        <h2>Internal Error</h2>
+        <h2>Server Error</h2>
         <pre><%- err.stack %></pre>
 
         <!-- Google Analytics: change <%- ((config && config.googleTrackID) || 'UA-XXXXXX-X') %> to be your site's ID. -->
@@ -52,6 +52,7 @@
             e.src='//www.google-analytics.com/analytics.js';
             r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
             ga('create','<%- ((config && config.googleTrackID) || 'UA-XXXXXX-X') %>');ga('send','pageview');
+            ga('send', 'pageview', '/<%- (config && config.gaSyntheticPageUrl) || '_track' %>/500?url=' + window.location.pathname + window.location.search + '&refer=' + document.referrer);
         </script>
     </body>
 </html>
