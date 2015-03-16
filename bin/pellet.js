@@ -60,7 +60,7 @@ if(pelletConfigFile) {
 
 program
   .version(version)
-  .option('-e, --env <path>', 'environment config file (override common config)', process.env.NODE_ENV ? process.env.NODE_ENV : 'development')
+  .option('-e, --env <path>', 'environment config file (override common config)', process.env.NODE_ENV ? process.env.NODE_ENV : '')
   .option('--config-common <path>', 'path to common config file', 'common')
   .option('--config-dir <path>', 'path to config directory', process.env.PELLET_CONF_DIR ? path.resolve(process.cwd(), process.env.PELLET_CONF_DIR) : (pelletConfigFile ? path.resolve(pelletConfigFile, '..', program.pelletConfig.configDir) : path.join(__dirname, 'config')))
   .option('--command-dir <path>', 'path to directory containing additional commands', false)
@@ -114,12 +114,17 @@ if(program.env) {
 // the nconf. This is why we do not use the built in nconf load config file (nconf.add({type:'file'})) but use
 // the memory loader. The load order is arguments -> common config -> environment config
 var commonConfigFile = path.resolve(program.configDir, program.configCommon)
-  , configFile = path.resolve(program.configDir, program.env)
+  , configFile = (program.env ? path.resolve(program.configDir, program.env) : null)
   , commonConfig = utils.readConfigFile(commonConfigFile)
-  , config = utils.readConfigFile(configFile);
+  , config = (configFile ? utils.readConfigFile(configFile) : {});
 
-if(!commonConfig || !config) {
-  console.error('Cannot load common (', commonConfigFile, ') or environment (', configFile, ')');
+if(!commonConfig) {
+  console.error('Cannot load common config (', commonConfigFile, ')');
+  process.exit(1);
+}
+
+if(configFile && !config) {
+  console.error('Cannot load environment config (', configFile, ')');
   process.exit(1);
 }
 
