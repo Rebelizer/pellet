@@ -60,7 +60,7 @@ if(pelletConfigFile) {
 
 program
   .version(version)
-  .option('-e, --env <path>', 'environment config file (override common config)', process.env.NODE_ENV ? process.env.NODE_ENV : 'development')
+  .option('-e, --env <path>', 'environment config file (override common config)', process.env.NODE_ENV ? process.env.NODE_ENV : 'local')
   .option('--config-common <path>', 'path to common config file', 'common')
   .option('--config-dir <path>', 'path to config directory', process.env.PELLET_CONF_DIR ? path.resolve(process.cwd(), process.env.PELLET_CONF_DIR) : (pelletConfigFile ? path.resolve(pelletConfigFile, '..', program.pelletConfig.configDir) : path.join(__dirname, 'config')))
   .option('--command-dir <path>', 'path to directory containing additional commands', false)
