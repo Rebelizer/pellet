@@ -1,3 +1,28 @@
+### 0.0.78 (2015-03-17)
+
+
+#### Bug Fixes
+
+* add gard code so config can be optional ([0000b791](https://github.com/Rebelizer/pellet/commit/0000b791a168d736a209161ba8f0ba51980106d9))
+* change the default environment for pellet to local ([48043572](https://github.com/Rebelizer/pellet/commit/48043572ba4f6c26caf57b72a217213bc76fecd8))
+
+
+#### Features
+
+* as a dev I pellets instrumentation to support ga, local, and any other service l ([2cdcd0b6](https://github.com/Rebelizer/pellet/commit/2cdcd0b613973a0e95fe987cd70c6d87540324a2))
+* as a dev I want to track 404 and 500 in google analytics ([3d9022ae](https://github.com/Rebelizer/pellet/commit/3d9022ae6f22602960a5bd834a5cc051476ffe83))
+
+
+#### Breaking Changes
+
+* instrumentation uses events not a transport function
+
+ instrument.setInstrumentationTransport and  instrument.console are deprecated
+ please start using .emit or .event, .log, etc.
+
+ ([2cdcd0b6](https://github.com/Rebelizer/pellet/commit/2cdcd0b613973a0e95fe987cd70c6d87540324a2))
+
+
 ### 0.0.77 (2015-03-13)
 
 
