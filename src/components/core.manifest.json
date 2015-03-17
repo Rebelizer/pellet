@@ -17,7 +17,9 @@
       "./user-agent-mixin.js"
     ],
     "client-dependencies": [
-      "./console-polyfill.js"
+      "./console-polyfill.js",
+      "../instrumentation/google-analytics.js",
+      "../instrumentation/local.js"
     ],
     "server-dependencies": [
       "../render-skeleton.js",

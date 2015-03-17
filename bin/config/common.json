@@ -7,11 +7,13 @@
       // shared config for both client and server (do not include secrets this is public!)
       // "jsMountPoint": "/js/", is defaulted to server:webpackMountPoint if missing
       "instrumentation": {
-        "log": true,
-        "stats": true,
+        //"filter": "^(statsd|warn|error|info|uncaught-exception)$",  list of types sent back to the server from the client if not set return all
+        "debug": "^(statsd|warn|error|info|uncaught-exception)$", // list of type that should be sent to console.debug if not set do not debug
         "cookie": "_sid",
         "url": "/__idat" // or //foobar.com/__idat
       }
+      // "gaTimingFilterFn": "name of instrumentation filter fn",
+      // "gaEventFilterFn": "name of instrumentation filter fn"
     },
     "options": {
       "locales": "en-US",
@@ -203,6 +205,7 @@
         }
       },
       "instrumentation": {
+        "ignore": "^(statsd|routechange)$", // regex to ignore instrumentation types to exclude from the log
         "console": {
           "level": "info",
           "colorize": true,

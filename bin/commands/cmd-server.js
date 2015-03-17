@@ -21,7 +21,7 @@ var path = require('path')
   , memoryCacheLayer = require('../../src/cache-layer/memory')
   , orchestrateCacheLayer = require('../../src/cache-layer/orchestrate')
   , utils = require('../utils')
-  , url = require('url')
+  , localInstrumentationMiddleware = require('../../src/instrumentation/local-middleware')
   , pelletUtils = require('../../src/utils');
 
 var PELLET_BIN_PATH = path.resolve(__dirname, '..');
@@ -65,6 +65,42 @@ module.exports = function(program, addToReadyQue) {
 
   var PELLET_PROJECT_PATH = (program.pelletConfig && program.pelletConfig._filepath && path.dirname(program.pelletConfig._filepath)) || LAUNCH_CWD;
 
+  /**
+   * Build and run a pellet application
+   *
+   * STEP 1:   load the our config data from ./config and merge in arguments and environment
+   *           variables (some of the loading step are done in ../pellet.js)
+   * STEP 2:   setup winston loader so future steps can log to files, db, etc.
+   * STEP 3:   setup the instrumentation interface to use statsd and a winston logger.
+   * STEP 4:   cache all uncaught exception and send to a winston loader.
+   * STEP 5:   do house keeping like spawn StatsD server, turn on harmony mode,
+   *           resolve config paths, and clean up build files.
+   * STEP 6:   build the manifest
+   *           - save translation files for both client and server
+   *           - use webpack to build both the client and server bundles
+   *           - convert some of the webpack style files to static css files
+   *           NOTE: At this point we have all files needed to run a raw pellet application
+   *                 you can skip steps 5, 6 and use previously existing versions.
+   *
+   * STEP 7:   run startServer. This is main entry point to start a node web server.
+   * STEP 7.1: Start monitoring GC, basic health node stats, etc.
+   * STEP 7.2: Get ready to load the pellet application package so setup the appConfig,
+   *           appOptions and load the sourcemap files.
+   *           NOTE:
+   *
+   * STEP 7.2: Now load the pellet application and pass the app config and options via
+   *           global.__pellet__bootstrap
+   * STEP 7.3: Load all the translations to we have all i18n support
+   * STEP 8:   Start express
+   * STEP 8.1: Add http logging, favicon, static, pollyfill, etc. middleware
+   * STEP 8.2: Add the local instrument server that lets the client send data to our server.
+   * STEP 8.3: Add the pellet's applications middleware
+   * STEP 8.4: Add the 404 and 500 pages
+   * STEP 8.5: Start the web server!
+   *
+   * @param manifestGlob
+   * @param options
+   */
   function buildRunPackage(manifestGlob, options) {
     var logException = false;
 
@@ -90,28 +126,26 @@ module.exports = function(program, addToReadyQue) {
     console.log = pelletLogger.info;
 
     // now setup instrumentation using statsd and winston logger
-    var instrument = new instrumentation(nconf.get('statsd'));
-    if(nconf.get('winston:containers:instrumentation')) {
-      var instrumentationLogger = winston.loggers.add('instrumentation', nconf.get('winston:containers:instrumentation'));
+    var instrument = new instrumentation(nconf.get('statsd'), nconf.get('application:config:instrumentation'));
+    var instrumentationLogConfig = nconf.get('winston:containers:instrumentation');
+    if(instrumentationLogConfig) {
+      var instrumentationLogger = winston.loggers.add('instrumentation', instrumentationLogConfig);
+      var FILTER_INSTRUMENT_TYPE = new RegExp(instrumentationLogConfig.ignore || '^(statsd|routechange)$');
 
-      var instrumentClientSide = instrument;
-      if(nconf.get('statsd:browserNamespace')) {
-        var instrumentClientSide = instrument.namespace(nconf.get('statsd:browserNamespace'));
-      }
+      instrument.bus.on(function (data) {
+        if(!data || FILTER_INSTRUMENT_TYPE.test(data.type)) {
+          return;
+        }
 
-      instrument.setInstrumentationTransport(function (sessionId, type, namespace, payload) {
-        var level = 'info';
-        if(payload && payload._level) {
+        var payload = data.details
+          , level = 'info';
+
+        if (payload && payload._level) {
           level = payload._level;
           delete payload._level; // not a good idea to delete data but I think its ok for log data
         }
 
-        if(type === 'statsd') {
-          instrumentClientSide[payload.c].apply(instrumentClientSide, JSON.parse(payload.a));
-          return;
-        }
-
-        instrumentationLogger.log(level, {sid:sessionId, message:type, n:namespace, data:payload});
+        instrumentationLogger.log(level, {sid: data.sessionId, message: data.type, n: data.namespace, data: payload});
       });
     }
 
@@ -239,13 +273,18 @@ module.exports = function(program, addToReadyQue) {
       }
     }
 
-    /*
+    /**
+     * Setup and run a local web server to host a pellet
+     * application.
+     *
      * helper function called once we are done building
      * the webpack files. This will load and start pellet
      * so that we can start express or koa with pellet
      * middleware.
+     *
+     * @param componentModule the data from _MANIFEST.json (or manifest output)
+     * @param isManifestFile flag if componentModule is a path to _MANIFEST.json or just the data
      */
-
     function startServer(componentModule, isManifestFile) {
       var app, server, pellet, mesureServerLaunch;
 
@@ -501,45 +540,8 @@ module.exports = function(program, addToReadyQue) {
           appConfig.instrumentation &&
           appConfig.instrumentation.url) {
 
-          // now setup the tracking pixel server
-          var pixelUrl = url.parse(appConfig.instrumentation.url, false, true).path;
-          var trackPixel = new Buffer([71,73,70,56,57,97,1,0,1,0,128,0,0,255,255,255,0,0,0,33,249,4,1,0,0,0,0,44,0,0,0,0,1,0,1,0,0,2,2,68,1,0,59]);
-          app.use(function(req, res, next) {
-            var _s, _n, _t;
-
-            if (req.path !== pixelUrl || req.method !== 'GET') {
-              return next();
-            }
-
-            if(!req.query) {
-              req.query = url.parse(req.url, true).query;
-            }
-
-            res.writeHead(200, {
-              'Access-Control-Allow-Origin': '*',
-              'Cache-Control': 'no-cache, no-store, must-revalidate',
-              'Content-Length': 43,
-              'Content-Type': 'image/gif',
-              'Expires':'Fri, 01 Jan 1990 00:00:00 GMT',
-              'Last-Modified':'Sun, 17 May 1998 03:00:00 GMT',
-              'Pragma':'no-cache'
-            });
-
-            res.end(trackPixel, 'binary');
-
-            if(!(_s = req.query._s)) {
-              return;
-            }
-
-            _n = req.query._n;
-            _t = req.query._t;
-
-            delete req.query._s;
-            delete req.query._n;
-            delete req.query._t;
-
-            instrument.console(_t, req.query, _s, _n);
-          });
+          var clientInstrumentationNS = nconf.get('statsd:browserNamespace');
+          app.use(localInstrumentationMiddleware(appConfig, clientInstrumentationNS ? instrument.namespace(clientInstrumentationNS) : instrument));
         }
 
         var compressionOpts = nconf.get('server:compression')

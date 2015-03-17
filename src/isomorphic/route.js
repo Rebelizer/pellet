@@ -131,20 +131,17 @@ pellet.addComponentRoute = function(route, component, options) {
           if(err) {
             console.error('Error trying to render because:', err.message, err.stack);
           }
-
-          // TODO: think about broadcasting the event so we do not need ga code
-          //pellet.instrumentation.emit('render', ctx);
-          if(process.env.BROWSER_ENV) {
-            if(typeof ga !== 'undefined') {
-              ga('send', {
-                hitType: 'pageview',
-                page: renderOptions.props.originalUrl,
-                title: document.title
-              });
-            }
-          }
-
         }
+
+        // now instrument the route change so pageviews can be tracked
+        pellet.instrumentation.emit('routechange', {
+          originalUrl: renderOptions.props.originalUrl,
+          params: renderOptions.props.params,
+          query:renderOptions.props.query,
+          url:renderOptions.props.url,
+          pipeline: ctx
+        });
+
       });
     } catch(ex) {
       console.error('Error trying to render because:', ex.message, ex.stack);

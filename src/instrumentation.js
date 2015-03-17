@@ -1,54 +1,5 @@
-var observables = require('./observables');
-
-// default transport function
-var transportFn = function(sessionId, type, namespace, payload) {
-  if(process.env.BROWSER_ENV && __pellet__ref.config &&
-    __pellet__ref.config.instrumentation &&
-    __pellet__ref.config.instrumentation.url) {
-
-    var url = __pellet__ref.config.instrumentation.url
-      , query = []
-      , data;
-
-    if(typeof(payload) === 'string') {
-      data = {
-        text: payload
-      }
-    } else {
-      data = Object.create(payload);
-    }
-
-    // try to get a sessionId via our own cookie or use ga cookie
-    if(!sessionId) {
-      sessionId = __pellet__ref.cookie.get(__pellet__ref.config.instrumentation.cookie || '_uid');
-      if (!sessionId) {
-        sessionId = __pellet__ref.cookie.get('_ga');
-        if (sessionId) {
-          sessionId = sessionId.split('.').slice(2).join('.');
-        }
-      }
-    }
-
-    data._s = sessionId;
-    data._n = namespace;
-    data._t = type;
-
-    for(i in data) {
-      if(data[i]) {
-        query.push(i + '=' + encodeURIComponent(data[i]));
-      }
-    }
-
-    if(query.length) {
-      url += '?' + query.join('&');
-    }
-
-    var trackPixel = new Image();
-    trackPixel.src = url;
-  } else {
-    console.debug('instrument:', sessionId, type, namespace, JSON.stringify(payload));
-  }
-};
+var observables = require('./observables')
+  , TransformFn = {};
 
 // Helper function
 function wrap(command) {
@@ -57,37 +8,28 @@ function wrap(command) {
     var args = Array.prototype.slice.call(arguments, 0);
     args[0] = this._namespace + args[0];
 
-    if(process.env.SERVER_ENV) {
-      configDetails = global.__pellet__ref && global.__pellet__ref.config && global.__pellet__ref.config.instrumentation;
-    } else if(process.env.BROWSER_ENV) {
-      configDetails = window.__pellet__ref && window.__pellet__ref.config && window.__pellet__ref.config.instrumentation;
-    }
-
-    if(configDetails && configDetails.log) {
-      console.debug('instrument:', command, args);
-    }
-
-    if(!this.statsd) {
-      if(process.env.BROWSER_ENV && configDetails && configDetails.stats) {
-        this.console('statsd', {c:command, a:JSON.stringify(args)});
-      }
-
+    if(process.env.BROWSER_ENV) {
+      this.emit('statsd', {c:command, a:JSON.stringify(args)});
       return;
+    } else if(this.statsd) {
+      this.statsd[command].apply(this.statsd, args);
     }
-
-    this.statsd[command].apply(this.statsd, args);
   }
 }
 
-function instrumentation(config) {
+function instrumentation(statsdConfig, config) {
   this._namespace = '';
   this.statsd = null;
   this.isolatedConfig = null;
 
   this.bus = new observables.autoRelease(null, this);
 
+  if(config && config.debug) {
+    this.debugFilter = new RegExp(config.debug);
+  }
+
   if(process.env.SERVER_ENV) {
-    this.statsd = new (require('node-statsd'))(config);
+    this.statsd = new (require('node-statsd'))(statsdConfig);
   }
 }
 
@@ -136,41 +78,23 @@ instrumentation.prototype.elapseTimer = function(startAt, namespace) {
   };
 }
 
-/**
- * log unstructured data to the system
- *
- * @param type
- * @param payload
- * @param sessionId
- * @param namespace
- */
-instrumentation.prototype.console = function(type, payload, sessionId, namespace) {
-  type = type || 'info';
-  namespace = namespace || this._namespace || 'NA';
-  payload = payload || {};
-
-  this.emit(type, payload, namespace);
-
-  if(!transportFn) {
-    return;
-  }
-
-  transportFn(sessionId, type, namespace, payload);
-}
-
 instrumentation.prototype.log = instrumentation.prototype.info = function(data) {
   if(arguments.length !== 1) {throw Error('instrumentation log can only have one argument');}
-  this.console('info', data);
+  this.emit('info', data);
 }
 
 instrumentation.prototype.error = function(data) {
   if(arguments.length !== 1) {throw Error('instrumentation log can only have one argument');}
-  this.console('error', data);
+  this.emit('error', data);
 }
 
 instrumentation.prototype.warn = function(data) {
   if(arguments.length !== 1) {throw Error('instrumentation log can only have one argument');}
-  this.console('warn', data);
+  this.emit('warn', data);
+}
+
+instrumentation.prototype.event = function(data) {
+  this.emit('event', data);
 }
 
 instrumentation.prototype.timing = wrap('timing');
@@ -181,49 +105,37 @@ instrumentation.prototype.gauge = wrap('gauge');
 instrumentation.prototype.set = wrap('set');
 
 /**
- * set the instrumentation transport used to send log data and
- * statsd data if not statsd server is configured.
- *
- * @param fn
- * @param flushFn
- */
-instrumentation.prototype.setInstrumentationTransport = function(fn, flushFn) {
-  transportFn = fn;
-
-  if(flushFn) {
-    if(process.env.SERVER_ENV) {
-      process.on('exit', flushFn);
-    } else if(process.env.BROWSER_ENV) {
-      if (document.addEventListener) {
-        document.addEventListener("unload", flushFn, true);
-      } else if(window.attachEvent) {
-        document.attachEvent("unload", flushFn);
-      }
-    }
-  }
-}
-
-/**
  * Broadcast instrumentation details to all listeners
  *
  * @param type
  * @param data
  * @param isolatedConfig
  */
-instrumentation.prototype.emit = function(type, details, namespace) {
+instrumentation.prototype.emit = function(type, details, namespace, sessionId) {
   this.bus.emit({
-    type: type,
+    type: type || 'NA',
+    sessionId: sessionId,
     namespace: namespace || this._namespace || 'NA',
-    details: details
+    details: details || {}
   }, this, this.isolatedConfig);
 
-  //console.debug('instrument emit:', type, 'ns:',namespace, 'isolated:', this.isolatedConfig, 'details:', JSON.stringify(details));
+  if(this.debugFilter && this.debugFilter.test(type)) {
+    console.debug('instrument:', type, JSON.stringify(details), this.isolatedConfig?'with isolatedConfig':'');
+  }
 }
 
 instrumentation.prototype.addIsolatedConfig = function(isolatedConfig) {
   var wrapper = Object.create(this);
   wrapper.isolatedConfig = isolatedConfig;
   return wrapper;
+}
+
+instrumentation.prototype.registerTransformFn = function(name, fn) {
+  TransformFn[name] = fn;
+}
+
+instrumentation.prototype.getTransformFn = function(name) {
+  return TransformFn[name];
 }
 
 module.exports = instrumentation;
