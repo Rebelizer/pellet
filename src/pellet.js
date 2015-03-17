@@ -29,7 +29,7 @@ function pellet(config, options) {
   if (this.options.instrumentation) {
     this.instrumentation = this.options.instrumentation;
   } else {
-    this.instrumentation = new instrumentation(null, config.instrumentation);
+    this.instrumentation = new instrumentation(null, this.config.instrumentation);
   }
 
   if (this.options.logger) {
