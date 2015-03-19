@@ -18,10 +18,11 @@
     .titlebar.row
       span.name COMPONENTS
       span Type
-    for x,name in pellet.experiment.allVariations
-      .row.hover
-        span.name= name.substring(1)
-        span= name[0] === '=' ? 'Key/Value' : (name[0] === '@' ? 'Component' : 'unknown')
+    if pellet.experiment.allVariations
+      for x,name in pellet.experiment.allVariations
+        .row.hover
+          span.name= name.substring(1)
+          span= name[0] === '=' ? 'Key/Value' : (name[0] === '@' ? 'Component' : 'unknown')
 
     h3 All Components
     .titlebar.row
