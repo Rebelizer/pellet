@@ -1,3 +1,12 @@
+### 0.0.79 (2015-03-18)
+
+
+#### Features
+
+* as a dev I want a flag to render using react renderToStaticMarkup ([d5ec9a0c](https://github.com/Rebelizer/pellet/commit/d5ec9a0c40f3d9f80c431515086fa6b899d12390))
+* as a dev I want a dashboard to select my a/b/n variation and view experiment sta ([3a78b988](https://github.com/Rebelizer/pellet/commit/3a78b988b9d28aa0259c2f39f6c22195e175c650))
+
+
 ### 0.0.78 (2015-03-17)
 
 
