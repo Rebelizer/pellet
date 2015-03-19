@@ -1,3 +1,11 @@
+### 0.0.80 (2015-03-18)
+
+
+#### Bug Fixes
+
+* do not show components on the abn dashboard is no data ([fd465065](https://github.com/Rebelizer/pellet/commit/fd465065f839e9b7380e49e60bef37e86521bb14))
+
+
 ### 0.0.79 (2015-03-18)
 
 
