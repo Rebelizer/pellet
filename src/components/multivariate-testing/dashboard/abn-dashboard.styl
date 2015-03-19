@@ -1,0 +1,105 @@
+// styl
+.abnDashboard-component {
+  pellet-red = #ff5a5a
+
+  font-family: Arial, Helvetica, sans-serif
+  padding: 20px
+  background: #FFF
+
+  @keyframes fadein-message {
+    from {
+      opacity:0
+    }
+    to {
+      opacity:1
+    }
+  }
+
+  .message {
+    animation: fadein-message 1s;
+    -moz-animation: fadein-message 1s;
+    -webkit-animation: fadein-message 1s;
+    -o-animation: fadein-message 1s;
+
+    border: solid 1px pellet-red
+    background: pellet-red
+    border-radius: 10px
+    padding: 10px
+    position: fixed;
+    right: 10px;
+    top: 10px;
+  }
+
+  .logo {
+    img {
+      height: 90px
+    }
+
+    h1 {
+      float:right
+    }
+  }
+
+  h3 {
+    color: #777
+    text-align: right
+    border-top: solid 1px #777
+    margin-top: 50px
+  }
+
+  .grid-h {
+    clear: both
+    .titlebar {
+      background: #EEE
+    }
+
+    li {
+      list-style-type: none
+    }
+
+    .row {
+      display: flex
+      flex-flow: row wrap
+      justify-content: flex-end
+      align-items: center
+
+      .name {
+        flex: 3
+      }
+      .active {
+        padding: 10px
+        min-width: 30px
+        text-align center
+      }
+      span {
+        padding: 5px
+      }
+    }
+
+    .hover:hover {
+      background pellet-red
+      cursor pointer
+    }
+
+    .experiment {
+      border: solid 1px #eee
+      border-top: none
+    }
+    .details {
+      span {
+        padding: 5px
+      }
+    }
+    .detail-block {
+      padding-bottom: 40px
+      a.make-active {
+        float right
+        text-decoration underline
+        padding: 5px 20px
+      }
+      a.make-active:hover {
+        text-decoration none
+      }
+    }
+  }
+}

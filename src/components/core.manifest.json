@@ -26,5 +26,18 @@
       "./user-agent-middleware.js",
       "./multivariate-testing/ga-experiment-middleware.js"
     ]
+  },
+  {
+    "name": "pelletABNDashboard",
+    "version": "0.0.0",
+    "component": "./multivariate-testing/dashboard/abn-dashboard.js",
+    "styleMain": [
+      "./multivariate-testing/dashboard/abn-dashboard.styl"
+    ],
+    "excluded": false,
+    "assets": [],
+    "client-dependencies": [],
+    "server-dependencies": [],
+    "code": []
   }
 ]

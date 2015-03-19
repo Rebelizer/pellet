@@ -1,0 +1,21 @@
+.experiment
+  .row.hover(onClick=this.showExperiment.bind(this, experiment.data.id))
+    span.name= experiment.data.id
+    span= intl.formatDateTime(this, new Date(experiment.data.updated))
+    span.active= experiment.data.participation
+  if experiment.data.id == this.state.activeExperiment
+    .details
+      for item in experiment.data.items
+        .detail-block
+          if experiment.data.participation != item.id
+            a.make-active(onClick=this.setVariation.bind(this, item.id)) make active
+          span= 'Variation '+item.id+' is '+ (item.disabled ? 'disabled':'active') + ' and getting ' + Math.floor(item.weight*1000)/10 + '% of traffic.'
+          ul
+            for info, comp in pellet.experiment.allVariations
+              if info[experiment.data.id]
+                if comp[0] == '='
+                  li= 'The key "' + comp.substring(1) + '" will be "' + info[experiment.data.id][parseInt(item.id)] + '"'
+                else if comp[0] == '@'
+                  li= 'The ' + comp.substring(1) + ' component will use "' + info[experiment.data.id][parseInt(item.id)] + '" version'
+                else
+                  li= '"' + comp + '" -> "' + info[experiment.data.id][parseInt(item.id)] + '"'

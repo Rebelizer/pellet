@@ -12,6 +12,7 @@
         "cookie": "_sid",
         "url": "/__idat" // or //foobar.com/__idat
       }
+      // "abnDashboardUrl": "/__abn"
       // "gaTimingFilterFn": "name of instrumentation filter fn",
       // "gaEventFilterFn": "name of instrumentation filter fn"
     },

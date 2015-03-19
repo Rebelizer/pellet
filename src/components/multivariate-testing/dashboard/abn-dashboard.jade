@@ -1,0 +1,35 @@
+.abnDashboard-component
+  if this.state.message
+    .message= this.state.message
+  .logo
+    img(src='//raw.githubusercontent.com/Rebelizer/pellet/master/doghouse/public/favicon.ico')
+    h1 Pellet Experiments
+  .grid-h
+    .titlebar.row
+      span.name NAME
+      span UPDATED
+      span.active No.
+
+    if pellet.experiment.experiments
+      for experiment in pellet.experiment.experiments
+        include experiment
+
+    h3 Participating Components
+    .titlebar.row
+      span.name COMPONENTS
+      span Type
+    for x,name in pellet.experiment.allVariations
+      .row.hover
+        span.name= name.substring(1)
+        span= name[0] === '=' ? 'Key/Value' : (name[0] === '@' ? 'Component' : 'unknown')
+
+    h3 All Components
+    .titlebar.row
+      span.name NAME
+      span.active VERSION
+    for x,name in pellet.components
+      - comp = name.split('@')
+      if comp.length == 2
+        .row.hover
+          span.name= comp[0]
+          span= comp[1]
