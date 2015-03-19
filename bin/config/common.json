@@ -29,7 +29,8 @@
       "missingPage": "#PELLET_PROJECT_PATH#/src/page-404.ejs",
       "errorPage": "#PELLET_PROJECT_PATH#/src/page-500.ejs",
       "googleTrackID": "UA-XXXXX-X",
-      "gaSyntheticPageUrl": "_track"
+      "gaSyntheticPageUrl": "_track",
+      "useReactRenderToStaticMarkup": false
       //"googleExperiments": {
       //  "bootloaderPath": "/_ga_abn/"
       //}

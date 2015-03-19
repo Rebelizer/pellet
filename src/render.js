@@ -84,7 +84,11 @@ var pelletRender = module.exports = {
         } else if(options.mode == pelletRender.MODE_STRING) {
           result = react.renderToStaticMarkup(component);
         } else if(options.mode == pelletRender.MODE_HTML) {
-          result = react.renderToString(component);
+          if(pellet.options && pellet.options.useReactRenderToStaticMarkup) {
+            result = react.renderToStaticMarkup(component);
+          } else {
+            result = react.renderToString(component);
+          }
         }
 
         mesure.mark('react_render');
