@@ -8,11 +8,14 @@
     .titlebar.row
       span.name NAME
       span UPDATED
-      span.active No.
+      span.active SPLIT
 
     if pellet.experiment.experiments
       for experiment in pellet.experiment.experiments
         include experiment
+
+    p
+      a(href='https://www.google.com/analytics/web/?hl=en#report/siteopt-experiments/', target="ga") Google Analytics Experiments
 
     h3 Participating Components
     .titlebar.row

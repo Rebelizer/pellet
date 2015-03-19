@@ -39,7 +39,6 @@ module.exports = abnDashboardComponent = pellet.createClass({
 
   setVariation: function(id) {
     id = parseInt(id);
-    pellet.experiment.experiments[this.state.activeExperiment].data.participation = id;
     cxApi.setChosenVariation(id, this.state.activeExperiment);
     this.setState({
       message: 'saved variation change'
