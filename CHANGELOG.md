@@ -1,3 +1,17 @@
+### 0.0.81 (2015-03-19)
+
+
+#### Bug Fixes
+
+* do not check for empty variations (i.e. you can have empty Original variation so ([7d0ba0fb](https://github.com/Rebelizer/pellet/commit/7d0ba0fb9ef953f4d25503d4cd251c1335ae8e8b))
+* the abn dashboard displaying the participation wrong and active state ([309e0b2b](https://github.com/Rebelizer/pellet/commit/309e0b2b58fbd1dd2c51acac0f7c6046352fe808))
+
+
+#### Features
+
+* as a dev I want new animation on saving a/b/n tests ([6420153f](https://github.com/Rebelizer/pellet/commit/6420153f56751b8e6b54220c2e11f816a632d6ae))
+
+
 ### 0.0.80 (2015-03-18)
 
 
