@@ -6,20 +6,45 @@
   padding: 20px
   background: #FFF
 
-  @keyframes fadein-message {
-    from {
-      opacity:0
+  @-webkit-keyframes zoomOutRight {
+    40% {
+      opacity: 1;
+      -webkit-transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);
+      transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0)
     }
-    to {
-      opacity:1
+    100% {
+      opacity: 0;
+      -webkit-transform: scale(.1) translate3d(2000px, 0, 0);
+      transform: scale(.1) translate3d(2000px, 0, 0);
+      -webkit-transform-origin: right center;
+      transform-origin: right center
+    }
+  }
+  @keyframes zoomOutRight {
+    40% {
+      opacity: 1;
+      -webkit-transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);
+      -ms-transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0);
+      transform: scale3d(.475, .475, .475) translate3d(-42px, 0, 0)
+    }
+    100% {
+      opacity: 0;
+      -webkit-transform: scale(.1) translate3d(2000px, 0, 0);
+      -ms-transform: scale(.1) translate3d(2000px, 0, 0);
+      transform: scale(.1) translate3d(2000px, 0, 0);
+      -webkit-transform-origin: right center;
+      -ms-transform-origin: right center;
+      transform-origin: right center
     }
   }
 
   .message {
-    animation: fadein-message 1s;
-    -moz-animation: fadein-message 1s;
-    -webkit-animation: fadein-message 1s;
-    -o-animation: fadein-message 1s;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-animation-name: zoomOutRight;
+    animation-name: zoomOutRight
 
     border: solid 1px pellet-red
     background: pellet-red
