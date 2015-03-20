@@ -91,7 +91,7 @@ module.exports = function(program, addToReadyQue) {
                     accessGA(config);
                   }
                 } else {
-                  var i, j, k, experimentId, variations, details, parts, key;
+                  var i, j, k, experimentId, variations, details, parts, key, emptyVariations;
                   var validate = {};
                   var output = {
                     experiments: [],
@@ -130,9 +130,11 @@ module.exports = function(program, addToReadyQue) {
                       //validateCount = variations[j].variations.length;
                       k = details.length;
 
+                      emptyVariations = true;
                       while(k--) {
                         parts = details[k].trim().match(/(.+)([@=])(.+)/);
                         if(parts) {
+                          emptyVariations = false;
                           key = parts[2] + parts[1];
 
                           if(!output.config[key]) {
@@ -146,6 +148,10 @@ module.exports = function(program, addToReadyQue) {
                           output.config[key][experimentId].push(parts[3]);
                           validate[experimentId].versions++;
                         }
+                      }
+
+                      if(emptyVariations) {
+                        validate[experimentId]--;
                       }
                     }
                   }
