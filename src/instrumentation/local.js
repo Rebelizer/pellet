@@ -28,7 +28,7 @@ if(process.env.BROWSER_ENV) {
           sessionId = 'pID:' + s4() + s4() + s4() + '-' + s4();
         }
 
-        pellet.setSessionId(sessionKey, true)
+        pellet.setSessionId(sessionId, true)
       }
 
       return sessionId;
