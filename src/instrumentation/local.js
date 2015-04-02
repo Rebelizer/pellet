@@ -39,7 +39,7 @@ if(process.env.BROWSER_ENV) {
 
       if(!force) {
         var lastSessionId = pellet.getSessionId();
-        if(lastSessionId !== sessionKey) {
+        if(lastSessionId === sessionKey) {
           return false;
         }
       }
