@@ -1,3 +1,17 @@
+### 0.0.82 (2015-04-02)
+
+
+#### Bug Fixes
+
+* not updating session if session value changes ([5ef4b00a](https://github.com/Rebelizer/pellet/commit/5ef4b00a3d185af3c5be31512d4e124db82b3a31))
+* unique session id is not getting updated ([22ed7158](https://github.com/Rebelizer/pellet/commit/22ed7158fe185b70e0334a8c04183daabef80c01))
+
+
+#### Features
+
+* as a analyst I want persistent session for my reports ([b2305e3c](https://github.com/Rebelizer/pellet/commit/b2305e3cc949bec503260c57198ffe14c62b95f8))
+
+
 ### 0.0.81 (2015-03-19)
 
 
