@@ -14,7 +14,10 @@
       }
       // "abnDashboardUrl": "/__abn"
       // "gaTimingFilterFn": "name of instrumentation filter fn",
-      // "gaEventFilterFn": "name of instrumentation filter fn"
+      // "gaEventFilterFn": "name of instrumentation filter fn",
+      // "gaExceptionTrackID": "options.googleAltTrackID key name i.e name1",
+      // "gaTimingTrackID": "options.googleAltTrackID key name i.e name2",
+      // "gaEventTrackID": "options.googleAltTrackID key name i.e name3"
     },
     "options": {
       "locales": "en-US",
@@ -25,12 +28,14 @@
       "includeUserAgentInfo": true,
       "cacheHashIgnoreArrayOrder": false,
       "reactCDNUrl": "//cdnjs.cloudflare.com/ajax/libs/react/0.12.0/react-with-addons.js",
+      "useReactRenderToStaticMarkup": false,
       "skeletonPage": "#PELLET_PROJECT_PATH#/src/page-skeleton.ejs",
       "missingPage": "#PELLET_PROJECT_PATH#/src/page-404.ejs",
       "errorPage": "#PELLET_PROJECT_PATH#/src/page-500.ejs",
       "googleTrackID": "UA-XXXXX-X",
-      "gaSyntheticPageUrl": "_track",
-      "useReactRenderToStaticMarkup": false
+      "googleDebug": false, // "trace" or true
+      "googleAltTrackID": false, //{"name1":"UA-XXXXX-X","name2":"UA-XXXXX-X"},
+      "gaSyntheticPageUrl": "_track"
       //"googleExperiments": {
       //  "bootloaderPath": "/_ga_abn/"
       //}

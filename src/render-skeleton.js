@@ -20,6 +20,7 @@ function defaultRender(html, ctx, renderOptions) {
   var appPath = pellet.config.jsMountPoint + pellet.options.componentFileName;
   var _locales = renderOptions.locales || pellet.config.locales || 'en-US';
   var locales = pellet.config.jsMountPoint + _locales + '.js';
+  var altTrack = '';
 
   var ourBodyScripts = '<script>window.__pellet__config = ' + JSON.stringify(pellet.config) + ';';
   if(ctx) {
@@ -37,14 +38,22 @@ function defaultRender(html, ctx, renderOptions) {
   '])' +
   '</script>';
 
+  if(pellet.options.googleAltTrackID) {
+    for(var i in pellet.options.googleAltTrackID) {
+      altTrack += 'ga(\'create\',\'' + pellet.options.googleAltTrackID[i] + '\', \'auto\', {\'name\':\''+i+'\'});\n';
+    }
+  }
+
   ourBodyScripts += '<!-- Google Analytics: change ' + pellet.options.googleTrackID + ' to be your site\'s ID. -->\n'+
   '<script>\n'+
     '(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=\n'+
     'function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;\n'+
     'e=o.createElement(i);r=o.getElementsByTagName(i)[0];\n'+
-    'e.src=\'//www.google-analytics.com/analytics.js\';\n'+
+    'e.src=\'//www.google-analytics.com/analytics' + (pellet.options.googleDebug ? '_debug' : '') + '.js\';\n'+
     'r.parentNode.insertBefore(e,r)}(window,document,\'script\',\'ga\'));\n'+
-    'ga(\'create\',\'' + pellet.options.googleTrackID + '\');\n'+
+    (pellet.options.googleDebug==='trace'?'':'window.ga_debug = {trace: true};\n') +
+    'ga(\'create\',\'' + pellet.options.googleTrackID + '\', \'auto\');\n'+
+    (pellet.options.googleAltTrackID ? altTrack:'')+
   '</script>';
 
   return '<!DOCTYPE html>\n'+

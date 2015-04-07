@@ -41,9 +41,22 @@
       (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
       function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
       e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-      e.src='//www.google-analytics.com/analytics.js';
+      e.src='//www.google-analytics.com/analytics<%- (config.googleDebug?'_debug':'') %>.js';
       r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-      ga('create','<%- config.googleTrackID %>');
+      <% if(config.googleDebug === 'trace') { %>
+      window.ga_debug = {trace: true};
+      <% } %>
+      ga('create','<%- config.googleTrackID %>', 'auto');
+      <%- (function() {
+        var i, altTrack='';
+        if(config.googleTrackID) {
+          for(i in pellet.options.googleAltTrackID) {
+            altTrack += 'ga(\'create\',\'' + pellet.options.googleAltTrackID[i] + '\', \'auto\', {\'name\':\''+i+'\'});';
+          }
+        }
+        return altTrack;
+        })()
+      %>
     </script>
   </body>
 </html>
