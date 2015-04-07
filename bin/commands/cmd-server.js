@@ -129,8 +129,10 @@ module.exports = function(program, addToReadyQue) {
     var instrument = new instrumentation(nconf.get('statsd'), nconf.get('application:config:instrumentation'));
     var instrumentationLogConfig = nconf.get('winston:containers:instrumentation');
     if(instrumentationLogConfig) {
-      var instrumentationLogger = winston.loggers.add('instrumentation', instrumentationLogConfig);
       var FILTER_INSTRUMENT_TYPE = new RegExp(instrumentationLogConfig.ignore || '^(statsd|routechange)$');
+      delete instrumentationLogConfig.ignore;
+
+      var instrumentationLogger = winston.loggers.add('instrumentation', instrumentationLogConfig);
 
       instrument.bus.on(function (data) {
         if(!data || FILTER_INSTRUMENT_TYPE.test(data.type)) {
