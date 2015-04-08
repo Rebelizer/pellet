@@ -225,13 +225,21 @@ pipeline.prototype.setProps = function(obj) {
   utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
 };
 
-pipeline.prototype.setState = function(obj) {
+pipeline.prototype.setState = function(obj, cb) {
   if(typeof obj !== 'object') {
     throw new Error('Cannot merge non objects to context state')
-  }
+  } /*
+  TODO: need to support the fn(previousState, currentProps) version
+  need to update Unit test and make sure the namescpae is mantained
+  else if(typeof obj !== 'function') {
+    obj = obj(this.props.__initState, this.props)
+  }*/
 
   var mergeObj = this.buildMergeObjFromNamespace({__initState:obj});
   utils.objectUnion([mergeObj], this.props, {deleteUndefined:true});
+  if(typeof cb === 'function') {
+    cb();
+  }
 };
 
 /**
