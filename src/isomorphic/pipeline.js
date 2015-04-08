@@ -502,10 +502,8 @@ pipeline.prototype.addChildComponent = function(namespace, component, options, n
   }
 };
 
-if(pellet.options.includeUserAgentInfo) {
-  pipeline.prototype.getUA = function () {
-    return (this.requestContext && this.requestContext.userAgentDetails) || {};
-  }
+pipeline.prototype.getUA = function () {
+  return (this.requestContext && this.requestContext.userAgentDetails) || {};
 }
 
 /**
