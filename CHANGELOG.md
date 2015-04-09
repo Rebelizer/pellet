@@ -1,3 +1,21 @@
+### 0.0.84 (2015-04-09)
+
+
+#### Bug Fixes
+
+* airbag the pellet version and rthash if not set in config ([c936366b](https://github.com/Rebelizer/pellet/commit/c936366bf5214ab7f752efb62fa094f2a83eddcc))
+* clean up the instrumentation around the render namespace (remove duplicate isore ([a21bbc14](https://github.com/Rebelizer/pellet/commit/a21bbc14666b699c06a51810f783cd2605b8547d))
+* the redis cache need update and set ttl on touching a key ([a749bc9e](https://github.com/Rebelizer/pellet/commit/a749bc9e1dfe6612fd70ca058221672d58305488))
+
+
+#### Features
+
+* as a dev I want better UA detection with device flavor and bot detection ([254fc0ca](https://github.com/Rebelizer/pellet/commit/254fc0caae6c910c912ac6a7d01adca56fe93438))
+* as a dev I want the options to force the cache layer to render even if the data  ([430582a3](https://github.com/Rebelizer/pellet/commit/430582a3b622bee6fd4e8f645e7c8be4a7d2b641))
+* as a dev I want the redis cache to support TTL/expire so the cache can auto expi ([d05e6849](https://github.com/Rebelizer/pellet/commit/d05e684929565d7866e265c26448d5fb8b174296))
+* as a dev I want to have the pellet's version and the running package's hash in p ([13c8609e](https://github.com/Rebelizer/pellet/commit/13c8609e93c2a9028a2387f4b61c1b62d4d589de))
+
+
 ### 0.0.83 (2015-04-08)
 
 
