@@ -100,7 +100,7 @@
       //"port": 6379,
       //"database": 3,
       //"prefix": "PC_",
-      //"expire": 31536000, one year
+      //"expire": 31536000, // one year or false to turn off
       //"options": {
       //}
     }
