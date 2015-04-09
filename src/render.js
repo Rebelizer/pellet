@@ -42,7 +42,7 @@ var pelletRender = module.exports = {
 
     var instrument = pellet.instrumentation.namespace('isorender.');
     var mesure = instrument.elapseTimer();
-    instrument.increment('isorender.count');
+    instrument.increment('count');
 
     function renderReactComponent(component, ctx) {
       var result;
@@ -94,7 +94,7 @@ var pelletRender = module.exports = {
         mesure.mark('react_render');
       } catch(ex) {
         next(ex);
-        pellet.instrumentation.increment('isorender.error');
+        instrument.increment('error');
         return;
       }
 
@@ -105,18 +105,18 @@ var pelletRender = module.exports = {
       if(ctx.updateCache) {
         ctx.updateCache(result, function (err) {
           if (err) {
-            pellet.instrumentation.increment('isorender.cacheUpdateError');
+            instrument.increment('cacheUpdateError');
             console.error('Cannot update cache key', ctx.$.cacheKey, 'because:', err.message || err);
             return;
           }
 
-          instrument.increment('isorender.cacheUpdate');
+          instrument.increment('cacheUpdate');
         });
       }
     }
 
     function cacheHitFn(html, ctx, head) {
-      pellet.instrumentation.increment('isorender.cacheHit');
+      instrument.increment('cacheHit');
 
       //console.debug('Cache layer: cacheHitFn existing headTags', options.http.headTags)
       // merge in cached header tags
@@ -164,7 +164,7 @@ var pelletRender = module.exports = {
           mesure.mark('component_construction');
 
           if(err) {
-            instrument.increment('isorender.err');
+            instrument.increment('err');
             return next(err);
           }
 
@@ -180,9 +180,9 @@ var pelletRender = module.exports = {
               mesure.mark('release');
 
               if (renderAction === this.RENDER_ABORT) {
-                instrument.increment('isorender.abort');
+                instrument.increment('abort');
               } else if (renderAction === this.RENDER_NO_CHANGE) {
-                instrument.increment('isorender.cacheAbort');
+                instrument.increment('cacheAbort');
               }
 
               next(null, null, pipe);
