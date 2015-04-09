@@ -151,7 +151,14 @@ redisCacheLayer.prototype.get = function(key, cb) {
 
 redisCacheLayer.prototype.touch = function(key, data, cb) {
   if(this.expire !== null) {
-    this.client.expire(key, this.expire);
+    var _this = this;
+    this.set(key, data, function(err) {
+      if(err) {
+        return cb(err);
+      }
+
+      _this.client.expire(key, _this.expire, cb);
+    });
   } else {
     this.set(key, data, cb);
   }
