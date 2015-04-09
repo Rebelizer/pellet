@@ -330,6 +330,10 @@ module.exports = function(program, addToReadyQue) {
       appOptions.instrumentation = instrument;
       appOptions.logger = pelletLogger;
 
+      // now add the manifest browser hash to pellet config we we know what build we are running
+      appConfig._rthash = componentModule.browser.hash;
+      appConfig._v = require('../../package.json').version;
+
       if(nconf.get('pellet:insterumentation:memwatch')) {
         var memwatch = require('memwatch');
         memwatch.on('stats', function(stats) {

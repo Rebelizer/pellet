@@ -23,6 +23,9 @@ function pellet(config, options) {
   this.config = config || {};
   this.options = options || {};
 
+  this.v = config._v;
+  this.rthash = config._rthash;
+
   // setup the experiment interface (passthru mode)
   this.experiment = new experimentInterface(this);
 
