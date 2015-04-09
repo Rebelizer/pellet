@@ -1,3 +1,18 @@
+### 0.0.83 (2015-04-08)
+
+
+#### Bug Fixes
+
+* make sure the getUA is always available ([d357a278](https://github.com/Rebelizer/pellet/commit/d357a278ae00bff5f0ef16ba3f8d6ded27ed9693))
+* winston crashs when ignore field is added to winston:containers:instrumentation ([4cd27d86](https://github.com/Rebelizer/pellet/commit/4cd27d8667545aeaa6b8b7764ac2a17559ad30c9))
+
+
+#### Features
+
+* as a dev I want to be able to use setState callback in the componentConstruction ([ba0304f2](https://github.com/Rebelizer/pellet/commit/ba0304f26269db1f3c115bd4cfab0900dac99e00))
+* add support for multiple google tracking properties to extend ga limits ([30394aa2](https://github.com/Rebelizer/pellet/commit/30394aa24cb21e6dd2358aef74e99c8cd3b3cc4c))
+
+
 ### 0.0.82 (2015-04-02)
 
 
