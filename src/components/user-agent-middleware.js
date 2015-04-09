@@ -1,5 +1,6 @@
 var pellet = require('pellet')
   , _UAParser = require('ua-parser-js')
+  , mobileDetect = require('mobile-detect/mobile-detect.min.js')
   , UAParser = new _UAParser();
 
 if(pellet.options.includeUserAgentInfo) {
@@ -7,19 +8,45 @@ if(pellet.options.includeUserAgentInfo) {
     priority: 7,
     fn: function(req, res, next) {
       var ua = req.headers['user-agent'];
-      if(ua) {
-        ua = UAParser.setUA(ua).getResult();
-        delete ua.ua;
-      }
+      var detect;
 
-      /*
-      TODO NOTE: this is a TEMPORARY patch fix for a bigger issue. Our user agent detection library (ua-parser) is not detecting
-      certain mobile devices correctly such as MotoX and various other mobile devices. It sets userAgent.device.type to 'undefined' instead of "mobile"
-      This is a known issue in the lib and has multiple tickets filed on Github Repo (https://github.com/faisalman/ua-parser-js/issues)
-      So for now, assume all Android devices should fall under "mobile"
-      */
-      if(ua.os.name === "Android") {
-        ua.device.type = "mobile";
+      if(ua) {
+        detect = new mobileDetect(ua);
+        ua = UAParser.setUA(ua).getResult();
+
+        if(!ua.device.type) {
+          if(detect.tablet()) {
+            ua.device.type = 'tablet';
+            ua.device.vendor = detect.tablet().replace(/Tablet/i,'');
+          } else if(detect.mobile()) {
+            ua.device.type = 'mobile';
+            ua.device.vendor = detect.mobile().replace(/Mobile/i,'');
+          } else if(detect.is('console')) {
+            ua.device.type = 'console';
+          } else if(detect.is('tv')) {
+            ua.device.type = 'tv';
+          }
+        }
+
+        if(detect.is('wpdesktop')) {
+          ua.device.type = 'web';
+        } else if(detect.phone()) {
+          ua.device.type = 'phone';
+        } else if(!ua.device.type) {
+          ua.device.type = 'web';
+        }
+
+        if(detect.is('bot')) {
+          ua.type = 'bot';
+          if(detect.is('mobilebot')) {
+            ua.type = 'mobilebot';
+            ua.device.type = 'mobile';
+          }
+        } else {
+          ua.type = 'device';
+        }
+
+        delete ua.ua;
       }
 
       if(!req.requestContext) {
