@@ -151,14 +151,7 @@ redisCacheLayer.prototype.get = function(key, cb) {
 
 redisCacheLayer.prototype.touch = function(key, data, cb) {
   if(this.expire !== null) {
-    var _this = this;
-    this.set(key, data, function(err) {
-      if(err) {
-        return cb(err);
-      }
-
-      _this.client.expire(key, _this.expire, cb);
-    });
+    this.client.expire(key, this.expire, cb);
   } else {
     this.set(key, data, cb);
   }
@@ -182,13 +175,18 @@ redisCacheLayer.prototype.set = function(key, data, cb) {
     var _this = this;
     data = new Buffer(data);
     zlib.gzip(data, function(err, compressedData) {
-      _this.client.set(key, compressedData, cb);
+      _this.client.set(key, compressedData, function(err) {
+        if(err) {
+          console.error('Cannot set cache layer key', key, 'because', err.message);
+          return next(err);
+        }
 
-      if(_this.expire !== null) {
-        _this.client.expire(key, _this.expire);
-      }
+        if(_this.expire !== null) {
+          _this.client.expire(key, _this.expire);
+        }
 
-      console.debug('Compression:', data.length, compressedData.length, 'savings', data.length - compressedData.length, (100-Math.floor((1/(data.length/compressedData.length))*100))+'%')
+        console.debug('Compression:', data.length, compressedData.length, 'savings', data.length - compressedData.length, (100-Math.floor((1/(data.length/compressedData.length))*100))+'%')
+      });
     });
   } else {
     this.client.set(key, data, cb);

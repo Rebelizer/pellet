@@ -36,6 +36,7 @@ function pipeline(initData, http, isolatedConfig, requestContext, locales, cache
     cacheInterface: defaultCacheInterface,    // the interace used to cache request
     cacheHitFn: cacheHitFn || null,           // a fn called to send the cached data to the clint
     cacheNeedsUpdating: false,                // true will update the cache at the end of the render
+    cacheForceRender: false,                  // true to force a render even if cache hash match
     cacheHitCalled: false,                    // this is if the cache hit was sent to the client
     cacheKey: '',
     cacheDataSignature: '',                   // this is a data signature to help skip full renders
@@ -328,7 +329,7 @@ pipeline.prototype.signatureCacheData = function(evidence) {
  *
  * let the pipeline lookup
  *
- * @param {number} dirtyRead use a potentially dirty version to ttl (in ms) if 0 do not server from the cache
+ * @param {number} dirtyRead use a potentially dirty version to ttl (in ms) if 0 do not server from the cache or -1 to force render
  * @param {transformCtxFn} [transformCtxFn] used to modify serialize data
  * @param {sendCachedCB} next
  */
@@ -352,7 +353,7 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
     this.$.cacheNeedsUpdating = true;
 
     // check the cache for the cacheKey and if found transform ctx and
-    // render the cached version if dirtyRead == true
+    // render the cached version if dirtyRead > 0
     this.$.cacheInterface.get(this.$.cacheKey, function(err, data, metaData) {
       if(err) {
         next(err, null, null);
@@ -368,6 +369,12 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
         // this allow use to the skip render if data signature
         // has not changed. It most cases this is the props
         _this.$.cacheHitData = data;
+
+        // if dirtyRead == -1 force render and ignore the cache
+        if(dirtyRead === -1) {
+          _this.$.cacheForceRender = true;
+          dirtyRead = 0;
+        }
 
         if(transformCtxFn) {
           transformCtxFn((data && data.ctx && JSON.parse(data.ctx)), data.head, metaData, function(err, ctx, head) {
@@ -472,7 +479,11 @@ pipeline.prototype.isRenderRequired = function() {
   var hash = this.getJSON(true, true).hash
     , needToRender = ((this.$.cacheHitData && this.$.cacheHitData.hash) != hash) ? this.RENDER_NEEDED : this.RENDER_NO_CHANGE;
 
-  console.debug('Cache layer: render required:', needToRender, 'from cache (hash):', this.$.cacheHitData && this.$.cacheHitData.hash, 'current:', hash);
+  console.debug('Cache layer: render required:', needToRender, 'from cache (hash):', this.$.cacheHitData && this.$.cacheHitData.hash, 'current:', hash, 'force:', this.$.cacheForceRender);
+
+  if(this.$.cacheForceRender) {
+    needToRender = this.RENDER_NEEDED;
+  }
 
   if(process.env.SERVER_ENV && this.$.cacheInterface && needToRender === this.RENDER_NO_CHANGE) {
     // touch the cache to update its TTL data
