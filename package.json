@@ -22,10 +22,23 @@
   ],
   "keywords": [
     "react",
+    "react-component",
     "webpack",
     "isomorphic",
+    "routing",
+    "instrumentation",
+    "a/b testing",
+    "google",
+    "frp",
+    "cordova",
+    "polyfill",
+    "spdy",
+    "es6",
     "flux",
     "jade",
+    "async",
+    "layout",
+    "framework",
     "ambidex"
   ],
   "files": [
