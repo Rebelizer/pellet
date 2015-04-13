@@ -444,7 +444,7 @@ pipeline.prototype.updateCache = function(html, next) {
         head: this.http.headTags
       }, function(err) {
         if(err) {
-          console.error('Error updating cache layer', _this.$.cacheKey, 'because:', err||err.message);
+          console.error('Error updating cache layer', _this.$.cacheKey, 'because:', err.message||err);
           next(err);
           return;
         }
@@ -452,7 +452,7 @@ pipeline.prototype.updateCache = function(html, next) {
         next(null);
       });
     } catch(ex) {
-      console.error('Error updating cache layer', this.$.cacheKey, 'because:', ex||ex.message);
+      console.error('Error updating cache layer', this.$.cacheKey, 'because:', ex.message||ex);
       next(ex);
     }
   }
@@ -486,10 +486,11 @@ pipeline.prototype.isRenderRequired = function() {
   }
 
   if(process.env.SERVER_ENV && this.$.cacheInterface && needToRender === this.RENDER_NO_CHANGE) {
+    var _cacheKey = _this.$.cacheKey;
     // touch the cache to update its TTL data
     this.$.cacheInterface.touch(this.$.cacheKey, this.$.cacheHitData, function(err) {
       if(err) {
-        console.error('Error touching cache layer', _this.$.cacheKey, 'because:', err||err.message);
+        console.error('Error touching cache layer', _cacheKey, 'because:', err.message||err);
         return;
       }
     });
@@ -560,7 +561,7 @@ pipeline.prototype.getJSON = function(calcHash, skipJSON) {
 
     return result;
   } catch(ex) {
-    console.error("Cannot serialize isomorphic context because:", ex.message);
+    console.error("Cannot serialize isomorphic context because:", ex.message||ex);
     throw ex;
   }
 }
