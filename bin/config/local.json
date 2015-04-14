@@ -1,0 +1,8 @@
+/*
+ * Private local overrides to the current config. For example, a developer
+ * can run both --env staging or --env prod, but have an override for a localhost
+ * DB and port without updating one of the environments. This find should not be
+ * checked into source control and only used for development.
+ */
+{
+}

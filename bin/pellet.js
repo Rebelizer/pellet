@@ -115,7 +115,9 @@ if(program.env) {
 // the memory loader. The load order is arguments -> common config -> environment config
 var commonConfigFile = path.resolve(program.configDir, program.configCommon)
   , configFile = path.resolve(program.configDir, program.env)
+  , localFile = path.resolve(program.configDir, 'local.json')
   , commonConfig = utils.readConfigFile(commonConfigFile)
+  , localConfig = utils.readConfigFile(localFile)
   , config = utils.readConfigFile(configFile);
 
 if(!commonConfig || !config) {
@@ -138,6 +140,11 @@ var envWhiteList = (config.envWhitelist || commonConfig.envWhitelist ||
 nconf.env({separator: '__', whitelist:envWhiteList});
 nconf.use('memory').merge(commonConfig);
 nconf.use('memory').merge(config);
+
+// merge in the local config to override our config
+if(localConfig) {
+  nconf.use('memory').merge(localConfig);
+}
 
 // overwrite configuration with argument passed in
 utils.overwriteNconfWithArgs(nconf, program);
