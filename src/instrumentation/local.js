@@ -23,7 +23,10 @@ if(process.env.BROWSER_ENV) {
 
       sessionId = pellet.cookie.get(sessionKey);
       if (!sessionId || forceRegenerate) {
-        sessionId = localStorage.getItem(sessionKey);
+        if(pellet.config.instrumentation.lstorage) {
+          sessionId = localStorage.getItem(sessionKey);
+        }
+
         if(!sessionId || forceRegenerate) {
           sessionId = 'pID:' + s4() + s4() + s4() + '-' + s4();
         }
@@ -44,7 +47,10 @@ if(process.env.BROWSER_ENV) {
         }
       }
 
-      localStorage.setItem(sessionKey, sessionId);
+      if(pellet.config.instrumentation.lstorage) {
+        localStorage.setItem(sessionKey, sessionId);
+      }
+
       pellet.cookie.set(sessionKey, sessionId);
 
       return true;
