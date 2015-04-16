@@ -8,11 +8,10 @@ function wrap(command) {
     var args = Array.prototype.slice.call(arguments, 0);
     args[0] = this._namespace + args[0];
 
-    if(process.env.BROWSER_ENV) {
-      this.emit('statsd', {c:command, a:JSON.stringify(args)});
-      return;
-    } else if(this.statsd) {
+    if(this.statsd && process.env.SERVER_ENV) {
       this.statsd[command].apply(this.statsd, args);
+    } else {
+      this.emit('statsd', {c:command, a:JSON.stringify(args)});
     }
   }
 }
