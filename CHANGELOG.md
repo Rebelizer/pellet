@@ -1,3 +1,20 @@
+### 0.0.85 (2015-04-16)
+
+
+#### Bug Fixes
+
+* when running native nodejs process.env always get converted into strings so we n ([07f5a4b6](https://github.com/Rebelizer/pellet/commit/07f5a4b608f73f54da7909376d63ebc621f8b7c4))
+* make sure the ref to "mobile-detect/mobile-detect.min.js" works with webpack ([02d162b7](https://github.com/Rebelizer/pellet/commit/02d162b7752b1b01c6531608dae5b000cfb56363))
+* clean up the error logging around the cache layer ([afd29ac1](https://github.com/Rebelizer/pellet/commit/afd29ac153fff53567d258c515f6a9f0e7be900c))
+
+
+#### Features
+
+* as a dev I want a private override config to help manage development environment ([0227a847](https://github.com/Rebelizer/pellet/commit/0227a8476f5dc3df4e83e69c93315d1b40fe8608))
+* as a dev I want control over using local storage to store the session id ([fde95a01](https://github.com/Rebelizer/pellet/commit/fde95a0194ff0452d0a976b1e8c174ab79680fb7))
+* update the package for react-components.com ([a265ed3f](https://github.com/Rebelizer/pellet/commit/a265ed3f9e5224c37a949f08248fbbfc0245ce34))
+
+
 ### 0.0.84 (2015-04-09)
 
 
