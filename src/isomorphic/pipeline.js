@@ -107,6 +107,25 @@ pipeline.prototype.headers = function(field, val) {
   }
 };
 
+/**
+ * Get or Set the http status code
+ *
+ * Examples:
+ *
+ *     this.statusCode()
+ *     this.statusCode(404)
+ *
+ * @param code
+ * @return {*}
+ */
+pipeline.prototype.statusCode = function(code) {
+  if(arguments.length === 1) {
+    this.http.status(code);
+  } else {
+    return this.http.statusCode;
+  }
+};
+
 pipeline.prototype.setTitle = function(title) {
   this.http.addToHead(this.TITLE, title);
 };

@@ -642,7 +642,7 @@ module.exports = function(program, addToReadyQue) {
 
             // if expressjs or nodejs
             if(res.status) {
-              res.status(404).send(appOptions.missingPage({config: appOptions, req: req, res: res}));
+              res.status(404).send(appOptions.missingPage({config: appOptions, options:appOptions, req: req, res: res}));
             } else {
               res.statusCode = 404;
               res.end(appOptions.missingPage({config: appOptions, req: req, res: res}));
@@ -659,7 +659,7 @@ module.exports = function(program, addToReadyQue) {
 
             // if expressjs or nodejs
             if(res.status) {
-              res.status(500).send(appOptions.errorPage({config: appOptions, req: req, res: res, err: err}));
+              res.status(500).send(appOptions.errorPage({config: appOptions, options:appOptions, req: req, res: res, err: err}));
             } else {
               res.statusCode = 500;
               res.end(appOptions.errorPage({config: appOptions, req: req, res: res, err: err}));

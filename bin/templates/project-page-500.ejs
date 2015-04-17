@@ -52,7 +52,7 @@
             e.src='//www.google-analytics.com/analytics.js';
             r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
             ga('create','<%- ((config && config.googleTrackID) || 'UA-XXXXXX-X') %>');ga('send','pageview');
-            ga('send', 'pageview', '/<%- (config && config.gaSyntheticPageUrl) || '_track' %>/500?url=' + window.location.pathname + window.location.search + '&refer=' + document.referrer);
+            ga('send', 'pageview', '/<%- (options && options.gaSyntheticPageUrl) || '_track' %>/500?url=' + window.location.pathname + window.location.search + '&refer=' + document.referrer);
         </script>
     </body>
 </html>

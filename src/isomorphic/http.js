@@ -16,6 +16,8 @@ function isomorphicHttp (request, respose, next) {
   this.respose = respose;
   this.next = next;
 
+  this.statusCode = 200;
+
   this.headTags = [];
 }
 
@@ -28,11 +30,18 @@ isomorphicHttp.prototype = {
    * @param {number} code
    */
   status: function(code) {
+    this.statusCode = code;
+
     if(process.env.BROWSER_ENV) {
       return;
     }
 
-    this.respose.status(code);
+    // if expressjs or nodejs
+    if(this.respose.status) {
+      this.respose.status(code);
+    } else {
+      this.respose.statusCode = code;
+    }
   },
 
   /**

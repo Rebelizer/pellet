@@ -60,11 +60,21 @@ if(process.env.BROWSER_ENV) {
         gaTrackID = data.gaTrackID;
 
         ga(sendCmd('gaEventTrackID', gaTrackID), 'event', data);
-      } else if(type === 'routechange'){
-        ga('set', {
-          page: details.originalUrl,
-          title: document.title
-        });
+      } else if(type === 'routechange') {
+
+        // for non 2XX status codes fire
+        var statusCode = details.pipeline.statusCode();
+        if(!pellet.config.gaSyntheticPageUrl || statusCode === 200) {
+          ga('set', {
+            page: details.originalUrl,
+            title: document.title
+          });
+        } else {
+          ga('set', {
+            page: pellet.config.gaSyntheticPageUrl + '/' + statusCode + '?url=' + details.originalUrl + '&refer=' + details.referrer,
+            title: document.title
+          });
+        }
 
         ga('send', 'pageview');
       }
