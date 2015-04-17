@@ -63,7 +63,11 @@ if(process.env.BROWSER_ENV) {
       } else if(type === 'routechange') {
 
         // for non 2XX status codes fire
-        var statusCode = details.pipeline.statusCode();
+        var statusCode = 200;
+        if(details.pipeline.statusCode) {
+          statusCode = details.pipeline.statusCode();
+        }
+
         if(!pellet.config.gaSyntheticPageUrl || statusCode === 200) {
           ga('set', {
             page: details.originalUrl,
