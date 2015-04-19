@@ -185,14 +185,20 @@ if(process.env.SERVER_ENV) {
   });
 
   var currentLocation = location.pathname + location.search;
-  function navigate(newLocation) {
-    console.debug("pellet navigate(", newLocation, ")");
-    if (newLocation === currentLocation) { return; }
+  function navigate(newLocation, match) {
+    console.debug('pellet navigate(', newLocation, ')');
+    if (newLocation === currentLocation) {
+      return;
+    }
+
     currentLocation = newLocation;
 
-    var match = pellet.routes.parse(newLocation);
+    if(!match) {
+      match = pellet.routes.parse(newLocation);
+    }
+
     if(match) {
-      console.debug("pellet matched route", newLocation);
+      console.debug('pellet matched route', newLocation);
       match.fn.call(match);
     } else {
       console.error('Can not find route for:', newLocation);
@@ -202,7 +208,7 @@ if(process.env.SERVER_ENV) {
 
   pellet.addWindowOnreadyEvent(function() {
     // handle back and forward button requests
-    window.addEventListener("popstate", function() {
+    window.addEventListener('popstate', function() {
       navigate(location.pathname + location.search);
     });
   });
@@ -224,7 +230,7 @@ if(process.env.SERVER_ENV) {
     navigate(url);
   }
 
-  document.addEventListener("click",function(e) {
+  document.addEventListener('click', function(e) {
     var node = e.target;
     while(node) {
       if (node.nodeName == 'A') {
@@ -257,7 +263,7 @@ if(process.env.SERVER_ENV) {
         e.preventDefault();
 
         window.history.pushState(null, '', href);
-        navigate(href);
+        navigate(href, match);
       }
 
       node = node.parentNode;
