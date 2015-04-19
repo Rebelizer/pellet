@@ -396,7 +396,7 @@ pipeline.prototype.serveFromCache = function(dirtyRead, transformCtxFn, next) {
         }
 
         if(transformCtxFn) {
-          transformCtxFn((data && data.ctx && JSON.parse(data.ctx)), data.head, metaData, function(err, ctx, head) {
+          transformCtxFn(_this, (data && data.ctx && JSON.parse(data.ctx)), data.head, metaData, function(err, ctx, head) {
             console.debug('Cache layer: use dirty read', dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead), 'ttl:', dirtyRead, 'elapse:', (Date.now() - metaData.lastModified));
 
             if(dirtyRead && ((Date.now() - metaData.lastModified) <= dirtyRead)) {
