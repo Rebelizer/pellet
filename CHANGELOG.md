@@ -1,3 +1,11 @@
+### 0.0.87 (2015-04-19)
+
+
+#### Bug Fixes
+
+* bug in the htp push state (do not include the host/port on the path) ([5c403689](https://github.com/Rebelizer/pellet/commit/5c4036891ae192cc5ac24b515cc3876bd75636c6))
+
+
 ### 0.0.86 (2015-04-18)
 
 
