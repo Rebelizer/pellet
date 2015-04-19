@@ -189,6 +189,7 @@ if(process.env.SERVER_ENV) {
     console.debug("pellet navigate(", newLocation, ")");
     if (newLocation === currentLocation) { return; }
     currentLocation = newLocation;
+
     var match = pellet.routes.parse(newLocation);
     if(match) {
       console.debug("pellet matched route", newLocation);
@@ -255,8 +256,8 @@ if(process.env.SERVER_ENV) {
         e.stopPropagation();
         e.preventDefault();
 
-        window.history.pushState(null, '', node.href);
-        navigate(node.href);
+        window.history.pushState(null, '', href);
+        navigate(href);
       }
 
       node = node.parentNode;
