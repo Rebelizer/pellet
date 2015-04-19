@@ -1,3 +1,19 @@
+### 0.0.86 (2015-04-18)
+
+
+#### Bug Fixes
+
+* if no componentConstruction is call the pipeline is never available so default t ([2c109882](https://github.com/Rebelizer/pellet/commit/2c1098825938f0fca93c4230b01a4185e38582ea))
+* when gaSyntheticPageUrl is not set the 404 and 500 pages should default to GA de ([e99bdad4](https://github.com/Rebelizer/pellet/commit/e99bdad49350a18e8dabafca13621ff770edcf98))
+
+
+#### Features
+
+* as a dev I want ga tracking to have a canonical route mode ([c66e4add](https://github.com/Rebelizer/pellet/commit/c66e4addfb45df96d79e95ebafeda73121310a21))
+* as a dev I want the cache layer to have access to updating the UA data in the tr ([461fff9b](https://github.com/Rebelizer/pellet/commit/461fff9b6d2e5772a7ec3b545582a0b000291234))
+* as a dev I want to set the http status code and have GA track it ([7c9f4027](https://github.com/Rebelizer/pellet/commit/7c9f40272d7923fa7dae7ea926c86f9c016dbd4c))
+
+
 ### 0.0.85 (2015-04-16)
 
 
