@@ -56,8 +56,10 @@ var pelletRender = module.exports = {
             }
           }
 
-          react.unmountComponentAtNode(options.targetEl);
-          mesure.mark('react_unmount');
+          if(pellet.config.reactIgnoreRouteUnmount !== true) {
+            react.unmountComponentAtNode(options.targetEl);
+            mesure.mark('react_unmount');
+          }
 
           // only add touch events if the device support it
           if ('ontouchstart' in document.documentElement) {
