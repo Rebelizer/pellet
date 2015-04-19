@@ -62,20 +62,19 @@ if(process.env.BROWSER_ENV) {
         ga(sendCmd('gaEventTrackID', gaTrackID), 'event', data);
       } else if(type === 'routechange') {
 
-        // for non 2XX status codes fire
-        var statusCode = 200;
-        if(details.pipeline.statusCode) {
-          statusCode = details.pipeline.statusCode();
-        }
+        var statusCode = (details.pipeline.$ && details.pipeline.$.statusCode) || 200;
+        var url = (pellet.config.gaTrackCanonical && details.pipeline.$ && details.pipeline.$.relCanonical) || details.originalUrl;
 
+        // report normal 2XX status codes, but for any other codes like
+        // 404, 500 status send them to the gaSyntheticPageUrl page for tracking
         if(!pellet.config.gaSyntheticPageUrl || statusCode === 200) {
           ga('set', {
-            page: details.originalUrl,
+            page: url,
             title: document.title
           });
         } else {
           ga('set', {
-            page: pellet.config.gaSyntheticPageUrl + '/' + statusCode + '?url=' + details.originalUrl + '&refer=' + details.referrer,
+            page: pellet.config.gaSyntheticPageUrl + '/' + statusCode + '?url=' + url + '&refer=' + details.referrer,
             title: document.title
           });
         }

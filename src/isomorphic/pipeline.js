@@ -40,7 +40,9 @@ function pipeline(initData, http, isolatedConfig, requestContext, locales, cache
     cacheHitCalled: false,                    // this is if the cache hit was sent to the client
     cacheKey: '',
     cacheDataSignature: '',                   // this is a data signature to help skip full renders
-    cacheHitData: null                        // this is a last cached data to help skip full renders
+    cacheHitData: null,                       // this is a last cached data to help skip full renders
+    statusCode: null,                         // this is the current http statusCode
+    relCanonical: null                        // this is the current rel canonical url
   };
 
   if(initData) {
@@ -120,9 +122,10 @@ pipeline.prototype.headers = function(field, val) {
  */
 pipeline.prototype.statusCode = function(code) {
   if(arguments.length === 1) {
+    this.$.statusCode = code;
     this.http.status(code);
   } else {
-    return this.http.statusCode;
+    return this.$.statusCode;
   }
 };
 
@@ -131,6 +134,7 @@ pipeline.prototype.setTitle = function(title) {
 };
 
 pipeline.prototype.setCanonical = function(url) {
+  this.$.relCanonical = url;
   this.http.addToHead(this.LINK, {rel:'canonical', href:url});
 };
 

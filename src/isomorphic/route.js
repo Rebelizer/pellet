@@ -137,8 +137,8 @@ pellet.addComponentRoute = function(route, component, options) {
         pellet.instrumentation.emit('routechange', {
           originalUrl: renderOptions.props.originalUrl,
           params: renderOptions.props.params,
-          query:renderOptions.props.query,
-          url:renderOptions.props.url,
+          query: renderOptions.props.query,
+          url: renderOptions.props.url,
           pipeline: ctx
         });
 

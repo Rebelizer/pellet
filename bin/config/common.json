@@ -19,7 +19,8 @@
       // "gaExceptionTrackID": "options.googleAltTrackID key name i.e name1",
       // "gaTimingTrackID": "options.googleAltTrackID key name i.e name2",
       // "gaEventTrackID": "options.googleAltTrackID key name i.e name3",
-      // "gaSyntheticPageUrl": "_track"     tracks non 2XX status code to /_track/StatusCode?url=&refer=
+      // "gaSyntheticPageUrl": "_track",    // tracks non 2XX status code to /_track/StatusCode?url=&refer=
+      // "gaTrackCanonical": true           // report all pageview using rel canonical instead of the window.location
     },
     "options": {
       "locales": "en-US",
