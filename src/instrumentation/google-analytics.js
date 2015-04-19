@@ -28,11 +28,11 @@ if(process.env.BROWSER_ENV) {
         , type = data.type
         , fn;
 
-      if(type === 'uncaught-exception') {
+      if(type === 'uncaught-exception' && pellet.config.gaExceptionTrackID !== false) {
         ga(sendCmd('gaExceptionTrackID', gaTrackID), 'exception', {
           exDescription: details.msg + ' lineno:' + details.no
         });
-      } else if(type === 'statsd' && details.c === 'timing') {
+      } else if(type === 'statsd' && details.c === 'timing' && pellet.config.gaTimingTrackID !== false) {
         if(gaTimingFilterFn && (fn = pellet.instrumentation.getTransformFn(gaTimingFilterFn)) && !(data = fn(data))) {
           return;
         }
@@ -50,7 +50,7 @@ if(process.env.BROWSER_ENV) {
             'timingValue': parseInt(data[4])
           });
         }
-      } else if(type === 'event') {
+      } else if(type === 'event' && pellet.config.gaEventTrackID !== false) {
         if(gaEventFilterFn && (fn=pellet.instrumentation.getTransformFn(gaEventFilterFn)) && !(data = fn(data))) {
           return;
         }
