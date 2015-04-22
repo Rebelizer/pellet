@@ -1,3 +1,11 @@
+### 0.0.89 (2015-04-22)
+
+
+#### Features
+
+* as a dev I want to config that status code for 404 and 500 pages ([06583f24](https://github.com/Rebelizer/pellet/commit/06583f249b06bb364e932f3d0c73d3e8f53dbc36))
+
+
 ### 0.0.88 (2015-04-21)
 
 
