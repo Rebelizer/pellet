@@ -1,3 +1,18 @@
+### 0.0.88 (2015-04-21)
+
+
+#### Bug Fixes
+
+* last refactor miss a var rename ([14026546](https://github.com/Rebelizer/pellet/commit/1402654636333e70f1f9dfbe184d211a5d9da25a))
+* make the html5 navigate faster ([80f21bb0](https://github.com/Rebelizer/pellet/commit/80f21bb005380e1df70776d31bbc9b0496da92d5))
+
+
+#### Features
+
+* as a dev I want control over if routes unmount the page or layout component ([7d9ff5e0](https://github.com/Rebelizer/pellet/commit/7d9ff5e0e817f79b249a30395bc599da8a066d71))
+* as a dev I want an easy way to turn off exceptions, events, statsd being sent to ([c7b95018](https://github.com/Rebelizer/pellet/commit/c7b950189bb9cc63a507a0a9d13ca3865bb35650))
+
+
 ### 0.0.87 (2015-04-19)
 
 
