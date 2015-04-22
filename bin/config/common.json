@@ -36,6 +36,8 @@
       "skeletonPage": "#PELLET_PROJECT_PATH#/src/page-skeleton.ejs",
       "missingPage": "#PELLET_PROJECT_PATH#/src/page-404.ejs",
       "errorPage": "#PELLET_PROJECT_PATH#/src/page-500.ejs",
+      "missingPageStatus": 404,
+      "errorPageStatus": 500,
       "googleTrackID": "UA-XXXXX-X",
       "googleDebug": false, // "trace" or true
       "googleAltTrackID": false //{"name1":"UA-XXXXX-X","name2":"UA-XXXXX-X"}
