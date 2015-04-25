@@ -41,7 +41,7 @@ function pipeline(initData, http, isolatedConfig, requestContext, locales, cache
     cacheKey: '',
     cacheDataSignature: '',                   // this is a data signature to help skip full renders
     cacheHitData: null,                       // this is a last cached data to help skip full renders
-    statusCode: null,                         // this is the current http statusCode
+    statusCode: 200,                          // this is the current http statusCode
     relCanonical: null                        // this is the current rel canonical url
   };
 
@@ -165,6 +165,10 @@ pipeline.prototype.getLocales = function() {
 
 pipeline.prototype.getRequestContext = function() {
   return this.requestContext;
+}
+
+pipeline.prototype.abortCache = function() {
+  this.$.cacheNeedsUpdating = false;
 }
 
 pipeline.prototype.coordinator = function(name, type, serializeEventName) {
@@ -441,6 +445,11 @@ pipeline.prototype.updateCache = function(html, next) {
   if(process.env.BROWSER_ENV || !this.$.cacheInterface) {
     next(null, false);
   } else {
+    if(pellet.options.cacheOnly200Response && this.$.statusCode != 200) {
+      console.debug('Cache layer: abort cache because statusCode:', this.$.statusCode);
+      this.$.cacheNeedsUpdating = false;
+    }
+
     console.debug('Cache layer: needs to update:', this.$.cacheNeedsUpdating);
 
     // this is tied to the serveFromCache call so if
