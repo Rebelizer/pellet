@@ -121,7 +121,7 @@
     "ua-parser-js": "^0.7.3",
     "uglify-js": "^2.4.15",
     "url-loader": "^0.5.5",
-    "webpack": "1.4.15",
+    "webpack": "1.8.9",
     "winston": "^0.7.3",
     "winston-mail": "^0.2.9"
   },
