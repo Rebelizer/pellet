@@ -656,6 +656,9 @@ module.exports = function(program, addToReadyQue) {
           appOptions.errorPage = resolveConfigPaths(appOptions.errorPage);
           appOptions.errorPage = ejs.compile(fs.readFileSync(appOptions.errorPage).toString());
           app.use(function (err, req, res, next) {
+            if(err) {
+              console.error('Error rendering page:', err.message, 'stack:', err.stack);
+            }
 
             // if expressjs or nodejs
             if(res.status) {
