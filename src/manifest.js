@@ -748,12 +748,6 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
         } else {
           externalDependencies.superagent = path.resolve(__dirname, '..', 'node_modules', 'superagent');
         }
-
-        if (fs.existsSync(path.resolve(options.projectRootPath, 'node_modules', 'pellet', 'node_modules', 'mobile-detect', 'mobile-detect.min.js'))) {
-          externalDependencies['mobile-detect/mobile-detect.min.js'] = path.join('pellet', 'node_modules', 'mobile-detect', 'mobile-detect.min.js');
-        } else {
-          externalDependencies['mobile-detect/mobile-detect.min.js'] = path.resolve(__dirname, '..', 'node_modules', 'mobile-detect', 'mobile-detect.min.js');
-        }
       } else {
         externalDependencies = {
           React: 'react/addons',
@@ -763,10 +757,6 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           messageformat: 'messageformat',
           ejs: 'ejs'
         };
-
-        //if (!fs.existsSync(path.resolve(__dirname, '..', 'node_modules', 'mobile-detect', 'mobile-detect.min.js'))) {
-        //  externalDependencies['mobile-detect/mobile-detect.min.js'] = path.resolve(__dirname, '..', 'node_modules', 'mobile-detect', 'mobile-detect.min.js');
-        //}
       }
 
       // load the intl code that defines the way that each lang date, formatting, etc is configured

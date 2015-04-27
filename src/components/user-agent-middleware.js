@@ -2,7 +2,7 @@ var pellet = require('pellet');
 
 if(pellet.options.includeUserAgentInfo) {
   var _UAParser = require('ua-parser-js')
-    , mobileDetect = require('mobile-detect/mobile-detect.min.js')
+    , mobileDetect = require('./mobile-detect.min.js')
     , UAParser = new _UAParser();
 
   function getUA(ua) {
