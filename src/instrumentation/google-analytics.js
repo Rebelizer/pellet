@@ -2,6 +2,7 @@ var pellet = require('../pellet');
 
 if(process.env.BROWSER_ENV) {
   var PARSE_STATSD = /^\["((.+)\.)?(.+)"\s*,\s*(.+)\]$/;
+  var REMOVE_PROTOCOL = /^https?:\/\/[^\/]+/;
 
   function sendCmd(type, gaTrackID) {
     if(!gaTrackID) {
@@ -69,7 +70,7 @@ if(process.env.BROWSER_ENV) {
         // 404, 500 status send them to the gaSyntheticPageUrl page for tracking
         if(!pellet.config.gaSyntheticPageUrl || statusCode === 200) {
           ga('set', {
-            page: url,
+            page: url.replace(REMOVE_PROTOCOL, ''),
             title: document.title
           });
         } else {
