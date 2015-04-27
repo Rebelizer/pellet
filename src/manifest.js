@@ -764,7 +764,7 @@ manifestParser.prototype.buildWebpackConfig = function(manifestGlob, options, ne
           ejs: 'ejs'
         };
 
-        if (!fs.existsSync(path.resolve(options.projectRootPath, 'node_modules', 'mobile-detect', 'mobile-detect.min.js'))) {
+        if (!fs.existsSync(path.resolve(__dirname, '..', 'node_modules', 'mobile-detect', 'mobile-detect.min.js'))) {
           externalDependencies['mobile-detect/mobile-detect.min.js'] = path.resolve(__dirname, '..', 'node_modules', 'mobile-detect', 'mobile-detect.min.js');
         }
       }
