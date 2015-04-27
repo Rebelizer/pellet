@@ -1,3 +1,21 @@
+### 0.0.90 (2015-04-27)
+
+
+#### Bug Fixes
+
+* strip the http protocol from the ga page hit ([3f08d656](https://github.com/Rebelizer/pellet/commit/3f08d656eb993a154fe2432a7883b8f5612b8193))
+* only ad UA code if config flag is true ([76ccde47](https://github.com/Rebelizer/pellet/commit/76ccde47bd6a286dacfcf610be0a8ab5014171e0))
+* webpack bug with mobile-detect in standalone mode ([12f5bb44](https://github.com/Rebelizer/pellet/commit/12f5bb442b22b83ef50ca25bdff2de83f5e265bc))
+
+
+#### Features
+
+* as a dev I want to batch the instrumentation calls to save the number of GET cal ([8c2a8ba2](https://github.com/Rebelizer/pellet/commit/8c2a8ba2e19d32147f860efcb87f4db0ea6432e9))
+* as a dev I want better error logging ([acb85bca](https://github.com/Rebelizer/pellet/commit/acb85bca799ea80c8932401201086e0ac261b92c))
+* allow cache control via http status code & default pipeline's http status to 200 ([3a0443d2](https://github.com/Rebelizer/pellet/commit/3a0443d232bf7fbda764dce7129f8de106c8c47d))
+* update the version of webpack ([d696c6ef](https://github.com/Rebelizer/pellet/commit/d696c6ef820c0e96fb25d59854f4cdf4fd35962c))
+
+
 ### 0.0.89 (2015-04-22)
 
 
