@@ -8,6 +8,7 @@
       // "jsMountPoint": "/js/", is defaulted to server:webpackMountPoint if missing
       "instrumentation": {
         //"filter": "^(statsd|warn|error|info|uncaught-exception)$",  list of types sent back to the server from the client if not set return all
+        //"batchTimeout": 1000,   // batch all instrumentation calls in 1000ms groups
         "debug": "^(statsd|warn|error|info|uncaught-exception)$", // list of type that should be sent to console.debug if not set do not debug
         "cookie": "_sid",
         "lstorage": true, // use local storage and a cookie

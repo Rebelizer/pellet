@@ -3,11 +3,21 @@ var pellet = require('../pellet');
 if(process.env.BROWSER_ENV) {
   pellet.registerInitFn(function (next) {
 
-    var _url, _filter;
+    var _url, _filter, maxUrl;
+    var batchTimeout = null
+      , batchIndex = 0
+      , batchUrl = ''
+      , batch_n = null
+      , batch_t = null
+      , batch_s = null;
 
     if(pellet.config && pellet.config.instrumentation) {
       _url = pellet.config.instrumentation.url;
       _filter = pellet.config.instrumentation.filter;
+      _batchTimeout = pellet.config.instrumentation.batchTimeout;
+
+      //
+      maxUrl = 2024 - _url.length - 100;
 
       if(_filter) {
         _filter = new RegExp(_filter);
@@ -56,11 +66,25 @@ if(process.env.BROWSER_ENV) {
       return true;
     }
 
+    function timeout() {
+      trackPixel = new Image(1,1);
+      trackPixel.src = _url + '?_ba=t&_cac=' + (+(new Date())) + batchUrl;
+
+      batchTimeout = null;
+      batchIndex = 0;
+      batchUrl = '';
+      batch_n = null;
+      batch_t = null;
+      batch_s = null;
+    }
+
     pellet.instrumentation.bus.on(function (data) {
       var sessionId = data.sessionId
         , namespace = data.namespace
         , payload = data.details
-        , type = data.type;
+        , type = data.type
+        , argCount
+        , trackPixel;
 
       // do not send filtered types to server
       if(_filter && !_filter.test(type)) {
@@ -68,7 +92,7 @@ if(process.env.BROWSER_ENV) {
       }
 
       if(_url) {
-        var url = _url
+        var url = ''
           , query = []
           , data;
 
@@ -84,23 +108,72 @@ if(process.env.BROWSER_ENV) {
           sessionId = pellet.getSessionId()
         }
 
-        data._s = sessionId;
-        data._n = namespace;
-        data._t = type;
-        data._cac = (+(new Date()));
+        if(!_batchTimeout || batch_n !== namespace) {
+          data._n = batch_n = namespace;
+        }
 
+        if(!_batchTimeout || batch_t !== type) {
+          data._t = batch_t = type;
+        }
+
+        if(!_batchTimeout || batch_s !== sessionId) {
+          data._s = batch_s = sessionId;
+        }
+
+        argCount = 0;
         for(i in data) {
           if(data[i]) {
             query.push(i + '=' + encodeURIComponent(data[i]));
+            argCount++;
           }
         }
 
         if(query.length) {
-          url += '?' + query.join('&');
+          url = query.join('&');
         }
 
-        var trackPixel = new Image(1,1);
-        trackPixel.src = url;
+        if(!_batchTimeout) {
+          var trackPixel = new Image(1,1);
+          trackPixel.src = _url + '?_cac=' + (+(new Date())) + '&' + url;
+          return;
+        }
+
+        if(batchUrl.length + url.length + (argCount * 4) < maxUrl) {
+          if(batchIndex === 0) {
+            batchUrl += '&' + url;
+          } else {
+            batchUrl += '&' + url.replace(/=/g, '$' + batchIndex + '=');
+          }
+
+          batchIndex++;
+        } else {
+          trackPixel = new Image(1,1);
+          trackPixel.src = _url + '?_ba=t&_cac=' + (+(new Date())) + batchUrl;
+
+          batchUrl = '';
+          batchIndex = 1;
+          batch_n = namespace;
+          batch_t = type;
+          batch_s = sessionId;
+
+          if(url.indexOf('_n=') === -1) {
+            batchUrl = '&_n=' + encodeURIComponent(batch_n);
+          }
+
+          if(url.indexOf('_t=') === -1) {
+            batchUrl += '&_t=' + encodeURIComponent(batch_t);
+          }
+
+          if(url.indexOf('_s=') === -1) {
+            batchUrl += '&_s=' + encodeURIComponent(batch_s);
+          }
+
+          batchUrl += '&' + url;
+        }
+
+        if(!batchTimeout) {
+          batchTimeout = setTimeout(timeout, _batchTimeout);
+        }
       } else {
         console.debug('instrument:', sessionId, type, namespace, JSON.stringify(payload));
       }
