@@ -1,3 +1,11 @@
+### 0.0.91 (2015-04-27)
+
+
+#### Bug Fixes
+
+* wrong npm path need to be use the relative npm path ([64cb6129](https://github.com/Rebelizer/pellet/commit/64cb6129a6ab6cc50473048d9389051b4046cb9f))
+
+
 ### 0.0.90 (2015-04-27)
 
 
