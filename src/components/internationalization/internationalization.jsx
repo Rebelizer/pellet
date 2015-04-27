@@ -80,6 +80,16 @@ function getTranslation(locales, props) {
     state.translation = '[LOCALE NOT SET]';
   }
 
+  if(props.htmlEscape && state.translation) {
+    state.translation = state.translation.replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/#/g, '&#35;')
+      .replace(/\\/g, '\\\\')
+      .replace(/\n/g, '\\n');
+  }
+
   return state;
 }
 
