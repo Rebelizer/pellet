@@ -1,3 +1,13 @@
+### 0.0.92 (2015-04-27)
+
+
+#### Features
+
+* as a dev I want a flag to html escape translations ([eba21fe9](https://github.com/Rebelizer/pellet/commit/eba21fe9fd2a4ab3ac622c6da1677c85a3335337))
+* as a dev I want to escape the meta tags in our template ([9ec25fd4](https://github.com/Rebelizer/pellet/commit/9ec25fd49fb5b3e332e9ed152743b4e63d681d28))
+* as a dev I want the http-equiv content-language to be set ([928d07b4](https://github.com/Rebelizer/pellet/commit/928d07b44295d4dc255be6e45461a8d19836d5e1))
+
+
 ### 0.0.91 (2015-04-27)
 
 
