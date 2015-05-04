@@ -80,7 +80,11 @@ function getTranslation(locales, props) {
     state.translation = '[LOCALE NOT SET]';
   }
 
-  if(props.htmlEscape && state.translation) {
+  if(pellet.config.intlHideDebugMsg && (state.hasErrors || state.isMissing) && state.translation[0]=='[') {
+    state.translation = props.missing || props.value || props.index;
+  }
+
+  if(props.htmlEscape) {
     state.translation = state.translation.replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')

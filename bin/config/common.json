@@ -6,6 +6,7 @@
     "config": {
       // shared config for both client and server (do not include secrets this is public!)
       // "jsMountPoint": "/js/", is defaulted to server:webpackMountPoint if missing
+      "intlHideDebugMsg": false,
       "instrumentation": {
         //"filter": "^(statsd|warn|error|info|uncaught-exception)$",  list of types sent back to the server from the client if not set return all
         //"batchTimeout": 1000,   // batch all instrumentation calls in 1000ms groups
