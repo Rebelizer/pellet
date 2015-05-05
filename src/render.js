@@ -117,34 +117,34 @@ var pelletRender = module.exports = {
       }
     }
 
-    function cacheHitFn(html, ctx, head) {
-      instrument.increment('cacheHit');
-
-      //console.debug('Cache layer: cacheHitFn existing headTags', options.http.headTags)
-      // merge in cached header tags
-      if(head) {
-        var tag, i, len = head.length;
-        for(i = 0; i < len; i++) {
-          tag = head[i];
-          if(options.http.headTags.indexOf(tag) === -1) {
-            options.http.headTags.push(tag);
-          }
-        }
-      }
-
-      next(null, html, {toJSON:function() {return ctx;}});
-
-      // we do not want to send 2 responses
-      // so no op the next call
-      next = utils.noop;
-    }
-
     var componentWithContext;
 
     // get the serialize state if component has a onRoute function
     if (component._$construction) {
 
       try {
+        function cacheHitFn(html, ctx, head) {
+          instrument.increment('cacheHit');
+
+          //console.debug('Cache layer: cacheHitFn existing headTags', options.http.headTags)
+          // merge in cached header tags
+          if(head) {
+            var tag, i, len = head.length;
+            for(i = 0; i < len; i++) {
+              tag = head[i];
+              if(options.http.headTags.indexOf(tag) === -1) {
+                options.http.headTags.push(tag);
+              }
+            }
+          }
+
+          next(null, html, {toJSON:function() {return ctx;}});
+
+          // we do not want to send 2 responses
+          // so no op the next call
+          next = utils.noop;
+        }
+
         // create a pipeline to render the component and track its state.
         // options.context is the serialized data from the server
         // options.http is isomorphic req/res to

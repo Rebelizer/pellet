@@ -520,7 +520,7 @@ pipeline.prototype.isRenderRequired = function() {
   if(process.env.SERVER_ENV && this.$.cacheInterface && needToRender === this.RENDER_NO_CHANGE) {
     var _cacheKey = this.$.cacheKey;
     // touch the cache to update its TTL data
-    this.$.cacheInterface.touch(this.$.cacheKey, this.$.cacheHitData, function(err) {
+    this.$.cacheInterface.touch(_cacheKey, this.$.cacheHitData, function(err) {
       if(err) {
         console.error('Error touching cache layer', _cacheKey, 'because:', err.message||err);
         return;
