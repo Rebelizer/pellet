@@ -1,3 +1,11 @@
+### 0.0.95 (2015-05-07)
+
+
+#### Features
+
+* as a dev I want a way to hide missing translation strings from users ([c92a8502](https://github.com/Rebelizer/pellet/commit/c92a8502bd68063f216e57921af75644a4897937))
+
+
 ### 0.0.94 (2015-04-27)
 
 
