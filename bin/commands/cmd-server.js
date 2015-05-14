@@ -257,6 +257,7 @@ module.exports = function(program, addToReadyQue) {
           console.error('StatsD stderr: ' + stderr);
         }
         if (error !== null) {
+          console.error('Make sure statsd is installed');
           console.error('Can not spawn statsd server because:', error);
           process.exit(1);
         }
@@ -335,7 +336,20 @@ module.exports = function(program, addToReadyQue) {
       appConfig._v = require('../../package.json').version;
 
       if(nconf.get('pellet:insterumentation:memwatch')) {
-        var memwatch = require('memwatch');
+        try {
+          var memwatch = path.resolve(PELLET_PROJECT_PATH, 'node_modules', 'memwatch');
+          if(fs.existsSync(memwatch)) {
+            memwatch = require(memwatch);
+          } else {
+            memwatch = require('memwatch');
+          }
+        } catch(ex) {
+          if(ex.code === 'MODULE_NOT_FOUND') {
+            console.error('Please install memwatch globally or in your project using npm');
+            process.exit(1);
+          }
+        }
+
         memwatch.on('stats', function(stats) {
           var namespace = os.hostname() + '.' + process.pid + '.';
 
@@ -396,8 +410,21 @@ module.exports = function(program, addToReadyQue) {
       }
 
       if(heapSnapshotThreshold) {
-        var nextThreshold = process.memoryUsage().rss + heapSnapshotThreshold
-          , heapdump = require('heapdump')
+        var nextThreshold = process.memoryUsage().rss + heapSnapshotThreshold;
+
+        try {
+          var heapdump = path.resolve(PELLET_PROJECT_PATH, 'node_modules', 'heapdump');
+          if(fs.existsSync(heapdump)) {
+            heapdump = require(heapdump);
+          } else {
+            heapdump = require('heapdump');
+          }
+        } catch(ex) {
+          if(ex.code === 'MODULE_NOT_FOUND') {
+            console.error('Please install heapdump globally or in your project using npm');
+            process.exit(1);
+          }
+        }
 
         console.verbose('Enabled strongloop heapdump: to snapshot "kill -USR2', process.pid + '"');
         console.verbose('  Read http://strongloop.com/strongblog/how-to-heap-snapshots/');
@@ -469,8 +496,19 @@ module.exports = function(program, addToReadyQue) {
         }
       }
 
+      // try to detect if running in harmony mode
+      var inHarmonyMode = false;
+      try {
+        if ('function' === typeof Map) {
+          inHarmonyMode = true;
+          eval('function* es6_test() {}');
+        }
+      } catch(ex) {
+        inHarmonyMode = false;
+      }
+
       // using Koa for ES6 mode else express
-      if ('function' === typeof Map) {
+      if (inHarmonyMode) {
         if (!nconf.get('silent')) {
           console.verbose('Running in ES6 mode');
         }
