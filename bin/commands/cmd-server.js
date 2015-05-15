@@ -65,6 +65,11 @@ module.exports = function(program, addToReadyQue) {
 
   var PELLET_PROJECT_PATH = (program.pelletConfig && program.pelletConfig._filepath && path.dirname(program.pelletConfig._filepath)) || LAUNCH_CWD;
 
+  // add the pellet project's node_modules to our search path. This allows
+  // the pellet cmd to have access to modules installed by the developer so
+  // their is no need to customize pellet.
+  module.paths.push(path.resolve(PELLET_PROJECT_PATH, 'node_modules'));
+
   /**
    * Build and run a pellet application
    *
@@ -248,7 +253,17 @@ module.exports = function(program, addToReadyQue) {
     // spawn a StatsD server
     if(options.startStatsD) {
       options.startStatsD = resolveConfigPaths(nconf.get('statsd').serverConfig||'');
-      statsdCommand = path.join(PELLET_BIN_PATH, '..', 'node_modules','statsd', 'bin', 'statsd') + ' ' + options.startStatsD;
+
+      try {
+        var statsdCommand = require.resolve('statsd/bin/statsd');
+      } catch(ex) {
+        if(ex.code === 'MODULE_NOT_FOUND') {
+          console.error('Please install statsd globally or in your project using npm');
+          process.exit(1);
+        }
+      }
+
+      statsdCommand += ' ' + options.startStatsD;
 
       console.verbose('Starting StatsD:', options.startStatsD);
       console.verbose('  NOTE: nc 127.0.0.1 8126 (StatsD CLI)');
@@ -257,7 +272,6 @@ module.exports = function(program, addToReadyQue) {
           console.error('StatsD stderr: ' + stderr);
         }
         if (error !== null) {
-          console.error('Make sure statsd is installed');
           console.error('Can not spawn statsd server because:', error);
           process.exit(1);
         }
@@ -337,12 +351,7 @@ module.exports = function(program, addToReadyQue) {
 
       if(nconf.get('pellet:insterumentation:memwatch')) {
         try {
-          var memwatch = path.resolve(PELLET_PROJECT_PATH, 'node_modules', 'memwatch');
-          if(fs.existsSync(memwatch)) {
-            memwatch = require(memwatch);
-          } else {
-            memwatch = require('memwatch');
-          }
+          var memwatch = require('memwatch');
         } catch(ex) {
           if(ex.code === 'MODULE_NOT_FOUND') {
             console.error('Please install memwatch globally or in your project using npm');
@@ -413,12 +422,7 @@ module.exports = function(program, addToReadyQue) {
         var nextThreshold = process.memoryUsage().rss + heapSnapshotThreshold;
 
         try {
-          var heapdump = path.resolve(PELLET_PROJECT_PATH, 'node_modules', 'heapdump');
-          if(fs.existsSync(heapdump)) {
-            heapdump = require(heapdump);
-          } else {
-            heapdump = require('heapdump');
-          }
+          var heapdump = require('heapdump');
         } catch(ex) {
           if(ex.code === 'MODULE_NOT_FOUND') {
             console.error('Please install heapdump globally or in your project using npm');
