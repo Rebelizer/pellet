@@ -1,8 +1,3 @@
-html,
-body {
-  font: 1em "jaf-bernino-sans", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
-  background-color: #fff;
-}
 ul,
 ol {
   margin: 0;
@@ -27,7 +22,7 @@ li {
   float: left;
   width: 250px;
   height: 100%;
-  background-color: #1a1a1a;
+  background-color: #e74c3c;
 }
 .navigation .applicationName {
   margin: 0;
@@ -43,9 +38,7 @@ li {
   padding: 10px 15px;
 }
 .navigation .search input {
-  background-color: #333;
-  color: #fff;
-  border-color: #555;
+  color: #000;
 }
 .navigation .list {
   padding: 10px 15px 0 15px;
@@ -59,7 +52,7 @@ li {
   border-bottom: 1px solid #333;
 }
 .navigation li.item a {
-  color: #bbb;
+  color: #000;
 }
 .navigation li.item a:hover {
   color: #fff;
@@ -71,7 +64,7 @@ li {
   font-size: 0.8em;
 }
 .navigation li.item .title a {
-  color: #e1e1e1;
+  color: #FFF;
 }
 .navigation li.item .title a:hover {
   color: #fff;

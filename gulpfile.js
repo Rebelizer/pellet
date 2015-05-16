@@ -18,28 +18,27 @@ plugins.help(gulp);
 // ###############################################
 
 gulp.task('clean', 'Clean all the build files', function(next) {
-  gulp.src(['./doghouse/public/docs/**/*', './doghouse/build/**/*'
-  ], {read: false})
+  gulp.src(['./site/docs/**/*'], {read: false})
     .pipe(require('gulp-print')());
     //.pipe(plugins.clean())
 });
 
 // ###############################################
-// BUILD DOCS (output is in doghouse)
+// BUILD DOCS (output is in site)
 // ###############################################
 
-gulp.task('document', 'Build js documentation for the doghouse', function() {
+gulp.task('document', 'Build js documentation for gh-pages', function() {
   gulp.src(['./src/**/*.js', '!**/*.min.js', './docs/README.md'])
     .pipe((function(cb) {
       var files = [];
 
-      // use /doghouse/jsdoc-template/config.json to config jsdoc
+      // use /jsdoc-template/config.json to config jsdoc
       return through.obj(function (file, enc, callback) {
           files.push(file.path);
           return callback();
         }, function (cb) {
           var cmd = path.join(__dirname, 'node_modules', 'jsdoc', 'jsdoc.js');
-          cmd += ' -c ' + path.join(__dirname, 'doghouse', 'jsdoc-template', 'config.json');
+          cmd += ' -c ' + path.join(__dirname, 'jsdoc-template', 'config.json');
           cmd += ' ' + files.join(' ');
 
           exec(cmd, function(err) {

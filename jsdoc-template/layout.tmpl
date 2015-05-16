@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="img/pellet.ico"/>
+  <link rel="icon" type="image/png" href="/img/pellet.png"/>
+  <!-- For iPhone 4 Retina display: -->
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/img/apple-touch-icon.png">
+  <!-- For iPad: -->
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/img/apple-touch-icon.png">
+  <!-- For iPhone: -->
+  <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon.png">
+  <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/theme.min.css">
+  <link rel="stylesheet" href="/css/swatch-red-white.min.css">
+  <link rel="stylesheet" href="/css/swatch-white-red.min.css">
+  <link rel="stylesheet" href="/css/fonts.min.css" media="screen">
+  <title><?js= ((env.conf.templates.meta && env.conf.templates.meta.title) || title) ?></title>
+  <?js if (env.conf.templates.meta) { ?>
+  <?js if (env.conf.templates.meta.description) { ?><meta name="description" content="<?js= env.conf.templates.meta.description ?>" /><?js } ?>
+  <?js if (env.conf.templates.meta.keyword) { ?>
+      <meta name="keywords" content="<?js= env.conf.templates.meta.keyword ?>" />
+      <meta name="keyword" content="<?js= env.conf.templates.meta.keyword ?>" />
+  <?js } ?>
+  <?js } ?>
+  <?js if (env.conf.templates.openGraph) { ?>
+  <meta property="og:title" content="<?js= env.conf.templates.openGraph.title ?>"/>
+  <meta property="og:type" content="<?js= env.conf.templates.openGraph.type ?>"/>
+  <meta property="og:image" content="<?js= env.conf.templates.openGraph.image ?>"/>
+  <?js if (env.conf.templates.openGraph.site_name) { ?><meta property="og:site_name" content="<?js= env.conf.templates.openGraph.site_name ?>"/><?js } ?>
+  <meta property="og:url" content="<?js= env.conf.templates.openGraph.url ?>"/>
+  <?js } ?>
+  <script src="scripts/prettify/prettify.js"></script>
+  <script src="scripts/prettify/lang-css.js"></script>
+  <script src="scripts/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+  <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+
+  <?js if (env.conf.templates) { ?>
+  <script>
+  var config = <?js= JSON.stringify(env.conf.templates) ?>;
+  </script>
+  <?js } ?>
+
+  <?js if (env.conf.templates.googleAnalytics) { ?>
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', config.googleAnalytics]);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+  <?js } ?>
+
+</head>
+<body>
+<header id="masthead" class="navbar navbar-sticky swatch-red-white" role="banner">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".main-navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a href="/index.html" class="navbar-brand">
+        Pellet
+      </a>
+    </div>
+    <nav class="collapse navbar-collapse main-navbar" role="navigation">
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a href="/index.html">Home</a>
+        </li>
+        <li>
+          <a href="/install.html">Install</a>
+        </li>
+        <li class="active">
+          <a class="active" href="/docs/index.html">Docs</a>
+        </li>
+        <li>
+          <a href="https://github.com/Rebelizer/pellet">GitHub</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<div id="content" role="main">
+  <section class="section-nopadding">
+    <div id="wrap" class="clearfix">
+        <?js= this.partial('navigation.tmpl', this) ?>
+        <div class="main">
+            <h1 class="page-title" data-filename="<?js= filename ?>"><?js= title ?></h1>
+            <?js= content ?>
+
+            <?js if (env.conf.templates.disqus) { ?>
+            <!-- disqus code -->
+            <div id="disqus_thread"></div>
+            <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+            <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            <!-- // disqus code -->
+            <?js } ?>
+
+            <footer>
+                Documentation updated on <?js= (new Date()).toDateString().replace(/(\w+)\s(\w+)\s(\d+)\s(\d+)/, "$2 $3, $4") ?>
+            </footer>
+        </div>
+    </div>
+  </section>
+</div>
+<script src="/js/packages.min.js"></script>
+<script src="/js/theme.min.js"></script>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

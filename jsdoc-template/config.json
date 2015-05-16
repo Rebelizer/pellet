@@ -34,7 +34,7 @@
   "opts": {
     "template": ".",
     "encoding": "utf8",
-    "destination": "./doghouse/public/docs",
+    "destination": "./site/docs",
     "recurse": true,
     "tutorials": "./docs",
     "private": true,
