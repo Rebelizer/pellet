@@ -110,7 +110,12 @@ pellet.prototype.createClass = function(spec) {
 
   if(allRoutes) {
     for(i in allRoutes) {
-      this.addComponentRoute(allRoutes[i], reactClass, {});
+      var options = {};
+      if(typeof spec.onRouteUnmountReact !== 'undefined') {
+        options.onRouteUnmountReact = !!spec.onRouteUnmountReact;
+      }
+
+      this.addComponentRoute(allRoutes[i], reactClass, options);
     }
   }
 

@@ -34,9 +34,8 @@ pellet.addComponentRoute = function(route, component, options) {
       , renderOptions = {props:{}, isolatedConfig:runtimeIsolatedConfig, requestContext:runtimeRequestContext};
 
     try {
-
       if(process.env.SERVER_ENV) {
-        if(options && typeof options.mode) {
+        if(options && typeof options.mode !== 'undefined') {
           renderOptions.mode = options.mode;
         } else {
           //just for bots do not return react-id version (the routeContext.request comes from pellet middleware passing in the express request
@@ -80,6 +79,14 @@ pellet.addComponentRoute = function(route, component, options) {
       renderOptions.props.params = routeContext.params;
       renderOptions.props.query = routeContext.query;
       renderOptions.props.url = routeContext.url;
+
+      // now check if the route needs to unmount the page or use the default
+      // reactIgnoreRouteUnmount config value
+      if(options && typeof(options.onRouteUnmountReact) !== 'undefined') {
+        renderOptions.onRouteUnmountReact = !!options.onRouteUnmountReact;
+      } else {
+        renderOptions.onRouteUnmountReact = !pellet.config.reactIgnoreRouteUnmount;
+      }
 
       // now check if the page component is apart of a experiment and get the correct variation
       if((_experiment = pellet.experiment.select(_component, renderOptions.isolatedConfig, options.experimentId, renderOptions))) {

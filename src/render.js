@@ -56,7 +56,7 @@ var pelletRender = module.exports = {
             }
           }
 
-          if(pellet.config.reactIgnoreRouteUnmount !== true) {
+          if(options.onRouteUnmountReact) {
             react.unmountComponentAtNode(options.targetEl);
             mesure.mark('react_unmount');
           }
