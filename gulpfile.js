@@ -2,10 +2,19 @@
 
 var gulp = require('gulp')
   , gutil = require('gulp-util')
+  , del = require('del')
   , fs = require('fs')
   , path = require('path')
   , plugins = require('gulp-load-plugins')()
   , git = require("git-promise")
+  , stylus = require('gulp-stylus')
+  , jade = require('gulp-jade')
+  , uncss = require('gulp-uncss')
+  , concat = require('gulp-concat')
+  , csso = require('gulp-csso')
+  , imagemin = require('gulp-imagemin')
+  , pngquant = require('imagemin-pngquant')
+  , uglify = require('gulp-uglify')
   , through = require('through2')
   , exec = require('child_process').exec
   , runSequence = require('run-sequence')
@@ -18,27 +27,70 @@ plugins.help(gulp);
 // ###############################################
 
 gulp.task('clean', 'Clean all the build files', function(next) {
-  gulp.src(['./site/docs/**/*'], {read: false})
-    .pipe(require('gulp-print')());
-    //.pipe(plugins.clean())
+  del(['./docs/dist/**/*'], next);
 });
 
 // ###############################################
 // BUILD DOCS (output is in site)
 // ###############################################
 
-gulp.task('document', 'Build js documentation for gh-pages', function() {
+gulp.task('site', 'Build the site for GitHub pages', ['clean'], function() {
+  return runSequence('document', 'static-pages', 'static-assets', function(err) {
+  });
+});
+
+gulp.task('static-assets', 'Build static GitHub pages assets (css, img, etc)', function() {
+  gulp.src('docs/assets/js/*.js')
+    .pipe(concat('main.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('./docs/dist/js'));
+
+  gulp.src('docs/assets/css/*.css')
+    .pipe(stylus())
+    .pipe(concat('main.css'))
+    //.pipe(uncss({
+    //  html: ['dist/**/*.html', 'http://pellet.io']
+    //}))
+    .pipe(csso())
+    .pipe(gulp.dest('./docs/dist/css'));
+
+  gulp.src('docs/assets/img/*')
+    .pipe(imagemin({
+      progressive: true,
+      use: [pngquant()]
+    }))
+    .pipe(gulp.dest('./docs/dist/img'));
+
+  gulp.src('docs/assets/svg/*')
+    .pipe(gulp.dest('./docs/dist/svg'))
+
+  gulp.src('docs/assets/fonts/*')
+    .pipe(gulp.dest('./docs/dist/fonts'))
+
+  gulp.src('docs/assets/flash/*')
+    .pipe(gulp.dest('./docs/dist/flash'))
+});
+
+gulp.task('static-pages', 'Build static GitHub pages', function() {
+  gulp.src('./docs/*.jade')
+    .pipe(jade({
+      locals: {}
+    }))
+    .pipe(gulp.dest('./docs/dist/'))
+});
+
+gulp.task('document', 'Build js documentation for GitHub pages', function() {
   gulp.src(['./src/**/*.js', '!**/*.min.js', './docs/README.md'])
     .pipe((function(cb) {
       var files = [];
 
-      // use /jsdoc-template/config.json to config jsdoc
+      // use /docs/jsdoc-template/config.json to config jsdoc
       return through.obj(function (file, enc, callback) {
           files.push(file.path);
           return callback();
         }, function (cb) {
           var cmd = path.join(__dirname, 'node_modules', 'jsdoc', 'jsdoc.js');
-          cmd += ' -c ' + path.join(__dirname, 'jsdoc-template', 'config.json');
+          cmd += ' -c ' + path.join(__dirname, 'docs-jsdoc-temp', 'config.json');
           cmd += ' ' + files.join(' ');
 
           exec(cmd, function(err) {
@@ -50,6 +102,19 @@ gulp.task('document', 'Build js documentation for gh-pages', function() {
           });
         });
       })());
+});
+
+gulp.task('site:upload', 'Publish the GitHub pages', function(next) {
+  gutil.log('publish gh-pages [git add docs/dist]');
+
+  git('add docs/dist').then(function(output) {
+    git('commit -m "chore(gh-pages): publish GitHub pages"').then(function(output) {
+      git('subtree push --prefix docs/dist origin gh-pages').then(function(output) {
+        gutil.log('PUBLISHED');
+        next(null);
+      }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
+    }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
+  }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
 });
 
 // ###############################################

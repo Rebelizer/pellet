@@ -34,7 +34,7 @@
   "opts": {
     "template": ".",
     "encoding": "utf8",
-    "destination": "./site/docs",
+    "destination": "./docs/dist/docs",
     "recurse": true,
     "tutorials": "./docs",
     "private": true,
