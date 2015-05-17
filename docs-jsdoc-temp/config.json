@@ -36,7 +36,7 @@
     "encoding": "utf8",
     "destination": "./docs/dist/docs",
     "recurse": true,
-    "tutorials": "./docs",
+    "tutorials": "./docs/tutorials",
     "private": true,
     "lenient": true
   }

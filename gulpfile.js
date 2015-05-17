@@ -116,8 +116,8 @@ gulp.task('site:publish', 'Publish the GitHub pages', ['site'], function(next) {
 
   git('add docs/dist').then(function(output) {
     git('commit -m "chore(gh-pages): publish GitHub pages"').then(function(output) {
-      git('subtree push --prefix docs/dist origin gh-pages').then(function(output) {
-        gutil.log('PUBLISHED');
+      git('subtree push --squash --prefix docs/dist origin gh-pages').then(function(output) {
+        gutil.log(' ** Updated GitHub pages');
         next(null);
       }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
     }).fail(function (err) {gutil.log('Git error:', err.message || err); next(err);});
