@@ -1,6 +1,0 @@
-  gaexperiments
-
-  Examples:
-    $xxx
-
-    $xxx
