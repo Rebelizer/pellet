@@ -1,6 +1,0 @@
-  server
-
-  Examples:
-    $xxx
-
-    $xxx

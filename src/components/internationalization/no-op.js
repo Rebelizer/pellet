@@ -1,1 +1,0 @@
-// This file is used to let webpack ignore a version of a file. For example if your running Intl with out local data we do not have a intl/locale-data/complete.js so we use this empty file to skip webpack errors
