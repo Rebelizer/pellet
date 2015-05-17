@@ -104,7 +104,7 @@ gulp.task('document', 'Build js documentation for GitHub pages', function() {
       })());
 });
 
-gulp.task('site:upload', 'Publish the GitHub pages', function(next) {
+gulp.task('site:publish', 'Publish the GitHub pages', ['site'], function(next) {
   gutil.log('publish gh-pages [git add docs/dist]');
 
   git('add docs/dist').then(function(output) {
