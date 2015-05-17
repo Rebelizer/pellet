@@ -69,6 +69,9 @@ gulp.task('static-assets', 'Build static GitHub pages assets (css, img, etc)', f
 
   gulp.src('docs/assets/flash/*')
     .pipe(gulp.dest('./docs/dist/flash'))
+
+  gulp.src('docs/assets/gh-page/*')
+    .pipe(gulp.dest('./docs/dist'))
 });
 
 gulp.task('static-pages', 'Build static GitHub pages', function() {
@@ -106,6 +109,10 @@ gulp.task('document', 'Build js documentation for GitHub pages', function() {
 
 gulp.task('site:publish', 'Publish the GitHub pages', ['site'], function(next) {
   gutil.log('publish gh-pages [git add docs/dist]');
+
+  // before starting you might need to run:
+  // git subtree add --prefix docs/dist origin gh-pages
+  // at the root of the project
 
   git('add docs/dist').then(function(output) {
     git('commit -m "chore(gh-pages): publish GitHub pages"').then(function(output) {
