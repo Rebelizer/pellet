@@ -1,3 +1,28 @@
+### 0.0.96 (2015-05-19)
+
+
+#### Bug Fixes
+
+* the 404 img path ([49373167](https://github.com/Rebelizer/pellet/commit/493731671c1062cd8398df0342b54eb7c35bafa2))
+* update the 404 image for GitHup Pages ([6b218031](https://github.com/Rebelizer/pellet/commit/6b2180312aea2b57583e11bdcb7d8cc05ba2f906))
+* build the GitHub Pages before publishing ([124a4e29](https://github.com/Rebelizer/pellet/commit/124a4e2980f2b34a2503d179c8402e5e7278b48e))
+
+
+#### Features
+
+* as a dev I want GitHub Page to have a readme.md in my docs ([f4d561cd](https://github.com/Rebelizer/pellet/commit/f4d561cd573d6a3e14eaed188162af36bf8839e7))
+* as a dev I want a custom 404 page for my GitHub Pages ([e8049079](https://github.com/Rebelizer/pellet/commit/e8049079bca6de722ea6a68f22eb1650f4864a63))
+* as a dev I want all the GitHub api doc tutorials to live in a sub dir ([0d145cab](https://github.com/Rebelizer/pellet/commit/0d145cab57708bd8cd8875ee23f03917f5e6a0e3))
+* as a dev I want GitHub Pages config data copyed into dist dir ([4b2b3806](https://github.com/Rebelizer/pellet/commit/4b2b38063405740321a7dc8d7e2f527a47bcb4ef))
+* as a dev I want an optimized/automated GitHub publish site gulp task ([e8e786d3](https://github.com/Rebelizer/pellet/commit/e8e786d3e57826fd4b2703b9cccf452810d6c147))
+* as a dev I want my basic website built ([7e6aa9be](https://github.com/Rebelizer/pellet/commit/7e6aa9bec4167e8a7003533b5b62303bcd2f809d))
+* as a dev I want to use github pages to host pellet documentation ([70444bb0](https://github.com/Rebelizer/pellet/commit/70444bb00e7b5cea59a6d1be04323b5cc642a6ce))
+* as a dev I want each page's route to have control over react auto unmounting ([06b79fc3](https://github.com/Rebelizer/pellet/commit/06b79fc30774fcd4222b0bdb5fd24b80ab465650))
+* as NPM I want an engine check and update a few packages ([dc979376](https://github.com/Rebelizer/pellet/commit/dc979376bbf2914588caab37e6f11947e74d9c71))
+* as a dev I want the project path added to NODE_PATH so external package can live ([bef90362](https://github.com/Rebelizer/pellet/commit/bef903627dc4ec3e13539eb2a5d1d72839989a9e))
+* as a dev I want the pellet install to be smother and support current node versio ([e1766db7](https://github.com/Rebelizer/pellet/commit/e1766db77cbe9c546a1dc42e6674c4eb958d2dff))
+
+
 ### 0.0.95 (2015-05-07)
 
 
