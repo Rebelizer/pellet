@@ -1,0 +1,33 @@
+.TH "PELLET" "" "May 2015" "" ""
+.SH "NAME"
+\fBpellet\fR
+.SH pellet CLI docs
+.SS Flags
+.P
+pellet has very few flags to know about\. All other flags are for tasks to use if needed\.
+.RS 0
+.IP \(bu 2
+\fB\-v\fR or \fB\-\-version\fR will display the pellet version
+.IP \(bu 2
+\fB\-e\fR or \fB\-\-env\fR environment config file (override common config)
+.IP \(bu 2
+\fB\-\-configCommon <path>\fR path to common config file
+.IP \(bu 2
+\fB\-\-configDir <path>\fR path to config directory
+.IP \(bu 2
+\fB\-\-commandDir <path>\fR path to directory containing additional commands
+.IP \(bu 2
+\fB\-\-envWhitelist <string>\fR environment variable white list separated by ","
+.IP \(bu 2
+\fB\-\-scrubLogs <string>\fR RegExp used to scrub launchDetails and logs
+.IP \(bu 2
+\fB\-\-silent\fR will disable all pellet logging
+.IP \(bu 2
+\fB\-\-launchDetails\fR will print launch and env details
+
+.RE
+.P
+The CLI uses NODE_ENV and PELLET_CONF_DIR
+.SS Tasks
+.SS Compilers
+
