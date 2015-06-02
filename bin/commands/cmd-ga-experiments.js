@@ -22,7 +22,7 @@ module.exports = function(program, addToReadyQue) {
     .description('Build GA A/B/N experiment config')
     .option('--output <path>', 'output directory', PELLET_PROJECT_PATH)
     .option('--name <name>', 'name of config file', 'ga_abn_config.js')
-    .option('--filter <regex>', 'filter', (program.pelletConfig && program.pelletConfig.abnFilter) || "\\(abn\\)")
+    .option('--filter <regex>', 'filter', (program.pelletConfig && program.pelletConfig.abnFilter) || "\\(active\\)")
 
     .action(function (options) {
       // setup a callback hook that lets this sub command register
