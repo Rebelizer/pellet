@@ -63,8 +63,8 @@ if(process.env.BROWSER_ENV) {
         ga(sendCmd('gaEventTrackID', gaTrackID), 'event', data);
       } else if(type === 'routechange') {
 
-        var statusCode = (details.pipeline.$ && details.pipeline.$.statusCode);
-        var url = (pellet.config.gaTrackCanonical && details.pipeline.$ && details.pipeline.$.relCanonical) || details.originalUrl;
+        var statusCode = (details.pipeline && details.pipeline.$ && details.pipeline.$.statusCode);
+        var url = (pellet.config.gaTrackCanonical && details.pipeline && details.pipeline.$ && details.pipeline.$.relCanonical) || details.originalUrl;
 
         // report normal 2XX status codes, but for any other codes like
         // 404, 500 status send them to the gaSyntheticPageUrl page for tracking
