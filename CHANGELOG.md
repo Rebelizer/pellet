@@ -1,3 +1,20 @@
+### 0.0.98 (2015-06-02)
+
+
+#### Bug Fixes
+
+* on some osx boxes the newer version of webpack has problems with watch ([ba3304b1](https://github.com/Rebelizer/pellet/commit/ba3304b1a60b23d47f28e3af487d9b948b55d407))
+* escape the abnFilter regex ([ff0aa756](https://github.com/Rebelizer/pellet/commit/ff0aa756aebac3ec1af2a00514fbfb0b246935da))
+* airbag ab test crash if not ab profile data ([cc07e9e3](https://github.com/Rebelizer/pellet/commit/cc07e9e333844abfc2b5f787e3f5e94a8de4d1b8))
+* as a dev I want a more reasonable a/b/n filter ([cff0d9d7](https://github.com/Rebelizer/pellet/commit/cff0d9d7e940dbde6d0e8825987d1c8bb137444d))
+
+
+#### Features
+
+* as a dev I want a better default for ab testing ([cc24a7fe](https://github.com/Rebelizer/pellet/commit/cc24a7fea5b08e69d512457ea62d8d46677f0c73))
+* as a dev I want updated docs ([f75143c0](https://github.com/Rebelizer/pellet/commit/f75143c0aa61187d95270356c052ec462267d1c9))
+
+
 ### 0.0.97 (2015-05-19)
 
 
