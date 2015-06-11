@@ -74,7 +74,7 @@ function getTranslation(locales, props) {
         state.translation = props.missing || '[MISSING: "' + props.index + '"]';
       }
     } else {
-      state.translation = props.value || props.index;
+      state.translation = '[UNKNOWN LOCALE: "' + locales + '"]';
     }
   } else {
     state.translation = '[LOCALE NOT SET]';
