@@ -1,3 +1,11 @@
+### 0.0.99 (2015-06-18)
+
+
+#### Bug Fixes
+
+* issues22 :JSX is broken out of the box ([d81c5ca9](https://github.com/Rebelizer/pellet/commit/d81c5ca9518336e2e89f356cfe13f910e86f624d))
+
+
 ### 0.0.98 (2015-06-02)
 
 
