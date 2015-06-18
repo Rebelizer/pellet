@@ -314,10 +314,10 @@ module.exports = function(program, addToReadyQue) {
           }
 
           if (answer.lang === 'JavaScript') {
-            componentEP = path.join(baseOutputDir, 'frontend', 'index.js');
+            componentEP = path.join(baseOutputDir, 'frontend', 'index.' + (templateType === 'jsx'?'jsx':'js'));
             renderFile(outputFiles, componentEP, path.join(options.templateDir, templateType+'-page-react-js.ejs'), {type:'Page', name:'index', mode:'project', fileName:'index'});
           } else if (answer.lang === 'CoffeeScript') {
-            componentEP = path.join(baseOutputDir, 'src', 'index.coffee');
+            componentEP = path.join(baseOutputDir, 'src', 'index.' + (templateType === 'jsx'?'cjsx':'coffee'));
             renderFile(outputFiles, componentEP, path.join(options.templateDir, templateType+'-page-react-cs.ejs'), {type:'Page', name:'index', mode:'project', fileName:'index'});
           }
 
