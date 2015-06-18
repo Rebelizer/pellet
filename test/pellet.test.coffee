@@ -4,7 +4,7 @@ chai = require "chai"
 chai.should()
 expect = chai.expect
 
-############ BOOTSTRAP PELLET (with a clean envirment)
+############ BOOTSTRAP PELLET (with a clean environment)
 delete require.cache[require.resolve('../src/pellet')]
 process.env.SERVER_ENV = true
 process.env.BROWSER_ENV = false
