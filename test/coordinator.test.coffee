@@ -10,7 +10,7 @@ observables = null
 
 describe "Coordinator", ->
   before ->
-    ############ BOOTSTRAP PELLET (with a clean envirment)
+    ############ BOOTSTRAP PELLET (with a clean environment)
     delete require.cache[require.resolve('../src/isolator')]
     delete require.cache[require.resolve('../src/observables')]
     delete require.cache[require.resolve('../src/pellet')]

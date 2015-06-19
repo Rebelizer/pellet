@@ -14,7 +14,7 @@ D = -> return 'd'
 
 describe "GA Experiment", ->
   before ->
-    ############ BOOTSTRAP PELLET (with a clean envirment)
+    ############ BOOTSTRAP PELLET (with a clean environment)
     # Do before setting process.env so we get a pure pellet version
     delete require.cache[require.resolve('../src/pellet')]
     process.env.SERVER_ENV = false;

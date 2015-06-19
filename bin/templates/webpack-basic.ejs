@@ -3,7 +3,7 @@
 var path = require('path')
   , util = require('util');
 
-// because the envirment is unknown when running as a command line utility we try the local require version
+// because the environment is unknown when running as a command line utility we try the local require version
 // first then fallback to our pellet npm version (this will be in the node_modules holding pellet) this is
 // helpful because the local node_modules will not need to have all the loaders/modules for webpack installed
 // i.e. cjsx, styl, coffee, etc.
@@ -109,7 +109,7 @@ var exports = module.exports = {
 // bootstap webpack if run as a command
 if(process.argv[1] == __filename) {
 
-  // because the envirment is unknown we add paths to find webpack modules/loaders
+  // because the environment is unknown we add paths to find webpack modules/loaders
   // and the path to the node_modules used while packing the file
   config.resolveLoader.root = [__dirname, pelletPath];
 
