@@ -8,12 +8,12 @@ if(process.env.BROWSER_ENV) {
  *
  * @class
  * @param request
- * @param respose
+ * @param response
  * @param next
  */
-function isomorphicHttp (request, respose, next) {
+function isomorphicHttp (request, response, next) {
   this.request = request;
-  this.respose = respose;
+  this.response = response;
   this.next = next;
 
   this.headTags = [];
@@ -33,10 +33,10 @@ isomorphicHttp.prototype = {
     }
 
     // if expressjs or nodejs
-    if(this.respose.status) {
-      this.respose.status(code);
+    if(this.response.status) {
+      this.response.status(code);
     } else {
-      this.respose.statusCode = code;
+      this.response.statusCode = code;
     }
   },
 
@@ -62,7 +62,7 @@ isomorphicHttp.prototype = {
       }
 
       // setHeader = res.set ? http.OutgoingMessage.prototype.setHeader : res.setHeader
-      this.respose.setHeader(field, val);
+      this.response.setHeader(field, val);
     } else if(typeof field === 'object'){
       for (var key in field) {
         this.set(key, field[key]);
@@ -93,7 +93,7 @@ isomorphicHttp.prototype = {
       return;
     }
 
-    this.respose.type(type);
+    this.response.type(type);
   },
 
   /**
@@ -123,7 +123,7 @@ isomorphicHttp.prototype = {
     }
 
     // todo: I need to make this a nodejs version not express
-    this.respose.redirect.apply(this.respose, Array.prototype.slice.call(arguments, 0));
+    this.response.redirect.apply(this.response, Array.prototype.slice.call(arguments, 0));
   },
 
   /**
@@ -265,7 +265,7 @@ isomorphicHttp.prototype = {
 
         browserCookie.set(name, value, options);
       } else if(process.env.SERVER_ENV) {
-        this.respose.cookie(name, value, options);
+        this.response.cookie(name, value, options);
       }
     }
   }

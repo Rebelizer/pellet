@@ -785,7 +785,7 @@
 #### Bug Fixes
 
 * bad default config logic we need to test using get not a set ([2889e227](https://github.com/Rebelizer/pellet/commit/2889e227b02dec9ee3d9774054bf843833efa24b))
-* using the wrong respose need to use routeContext.respose ([1079eede](https://github.com/Rebelizer/pellet/commit/1079eedeb1467c0af723c07d1ddafe77c1ce73ae))
+* using the wrong response need to use routeContext.respose ([1079eede](https://github.com/Rebelizer/pellet/commit/1079eedeb1467c0af723c07d1ddafe77c1ce73ae))
 * make sure the polyfillPath is used in the route not just in the skeleton ([97cddda3](https://github.com/Rebelizer/pellet/commit/97cddda3f92326409327b5189f16ae09d1d82b46))
 * when inlcuding translations (locale data) the path was wrong case ([4f1d1081](https://github.com/Rebelizer/pellet/commit/4f1d108115ca6f1a62041792d25a90804dd13c35))
 * bad/old template examples ([705302bd](https://github.com/Rebelizer/pellet/commit/705302bd3931b459f76eb0107f5497b264f51dbf))

@@ -49,7 +49,7 @@ pellet.addComponentRoute = function(route, component, options) {
         // create a isomorphic http provider for the isomorphic render
         renderOptions.http = new isomorphicHttp(
           routeContext.request,
-          routeContext.respose,
+          routeContext.response,
           routeContext.next);
 
         renderOptions.requestContext = routeContext.request.requestContext;
@@ -115,8 +115,8 @@ pellet.addComponentRoute = function(route, component, options) {
             return;
           }
 
-          if(!routeContext.respose.getHeader('Content-Type')) {
-            routeContext.respose.setHeader('Content-Type', 'text/html');
+          if(!routeContext.response.getHeader('Content-Type')) {
+            routeContext.response.setHeader('Content-Type', 'text/html');
           }
 
           // add user-agent hash and the build number to the render options to help with cache control
@@ -128,10 +128,10 @@ pellet.addComponentRoute = function(route, component, options) {
           }
 
           // if expressjs or nodejs
-          if(routeContext.respose.status) {
-            routeContext.respose.send(html);
+          if(routeContext.response.status) {
+            routeContext.response.send(html);
           } else {
-            routeContext.respose.end(html);
+            routeContext.response.end(html);
           }
 
         } else {
@@ -172,7 +172,7 @@ if(process.env.SERVER_ENV) {
       }
 
       match.request = req;
-      match.respose = res;
+      match.response = res;
       match.next = next;
 
       match.fn.call(match);
