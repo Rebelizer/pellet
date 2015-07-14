@@ -41,7 +41,7 @@ var pelletRender = module.exports = {
     }
 
     var instrument = pellet.instrumentation.namespace('isorender.');
-    var mesure = instrument.elapseTimer();
+    var measure = instrument.elapseTimer();
     instrument.increment('count');
 
     function renderReactComponent(component, ctx) {
@@ -58,7 +58,7 @@ var pelletRender = module.exports = {
 
           if(options.onRouteUnmountReact) {
             react.unmountComponentAtNode(options.targetEl);
-            mesure.mark('react_unmount');
+            measure.mark('react_unmount');
           }
 
           // only add touch events if the device support it
@@ -93,7 +93,7 @@ var pelletRender = module.exports = {
           }
         }
 
-        mesure.mark('react_render');
+        measure.mark('react_render');
       } catch(ex) {
         next(ex);
         instrument.increment('error');
@@ -157,13 +157,13 @@ var pelletRender = module.exports = {
           pipe.setProps(options.props);
         }
 
-        mesure.mark('create_pipeline');
+        measure.mark('create_pipeline');
 
         // now run the pre-flight code before asking react to render
         // this allows for async code to be executed and tracks any
         // data that needs to get serialized to the client.
         component._$construction.call(pipe, {}, function (err) {
-          mesure.mark('component_construction');
+          measure.mark('component_construction');
 
           if(err) {
             instrument.increment('err');
@@ -179,7 +179,7 @@ var pelletRender = module.exports = {
             var renderAction = pipe.isRenderRequired();
             if (renderAction !== pipe.RENDER_NEEDED) {
               pipe.release();
-              mesure.mark('release');
+              measure.mark('release');
 
               if (renderAction === this.RENDER_ABORT) {
                 instrument.increment('abort');
@@ -207,10 +207,10 @@ var pelletRender = module.exports = {
               return;
             }
 
-            mesure.mark('react_context');
+            measure.mark('react_context');
 
             pipe.release();
-            mesure.mark('release');
+            measure.mark('release');
             renderReactComponent(componentWithContext, pipe);
           }, 0);
         });
