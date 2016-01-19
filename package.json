@@ -108,7 +108,7 @@
     "node-statsd": "^0.1.1",
     "orchestrate": "^0.4.0",
     "path-to-regexp": "^1.0.1",
-    "polyfills": "^1.9.3",
+    "polyfills": "1.9.3",
     "progress": "^1.1.8",
     "react": "^0.12",
     "redis": "^0.12.1",
