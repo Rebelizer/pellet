@@ -1,4 +1,4 @@
-# [Pellet](http://.github.io/pellet)
+# [Pellet](http://pellet.io/)
 
 Build SEO friendly rich isomorphic app using React, webpack, nodejs, and FRP
 
