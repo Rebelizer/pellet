@@ -511,8 +511,8 @@ module.exports = function(program, addToReadyQue) {
         inHarmonyMode = false;
       }
 
-      // using Koa for ES6 mode else express
-      if (inHarmonyMode) {
+      // only use express
+      if (false) {
         if (!nconf.get('silent')) {
           console.verbose('Running in ES6 mode');
         }
