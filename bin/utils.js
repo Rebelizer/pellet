@@ -149,7 +149,7 @@ var exports = module.exports = {
 
           if(isSafeRun) {
             if(next) {
-              console.info('Isomorphic packing in done');
+              console.info('Isomorphic packing in done at ' + new Date());
               next(null, browserStats, nodeStats);
             }
           }

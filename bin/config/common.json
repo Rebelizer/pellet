@@ -127,7 +127,7 @@
     "skipIncludedInternalCoreManifest": false,
     "heapSnapshot": false // 1048576 * 5mb = 5242880
     // "uglifyOptions": {},
-    //,"insterumentation": {
+    //,"instrumentation": {
     //  "interval": 5000,
     //  "memwatch": true
     //}

@@ -31,7 +31,7 @@ var LAUNCH_TIME = new Date();
 
 /*
  * helper function to parse the nconf webpack overrides
- * and conver the strings into RegExp
+ * and convert the strings into RegExp
  */
 function fixWebpackOverrideNConf(config) {
   if(config.module) {
@@ -67,18 +67,18 @@ module.exports = function(program, addToReadyQue) {
 
   // add the pellet project's node_modules to our search path. This allows
   // the pellet cmd to have access to modules installed by the developer so
-  // their is no need to customize pellet.
+  // there is no need to customize pellet.
   module.paths.push(path.resolve(PELLET_PROJECT_PATH, 'node_modules'));
 
   /**
    * Build and run a pellet application
    *
-   * STEP 1:   load the our config data from ./config and merge in arguments and environment
-   *           variables (some of the loading step are done in ../pellet.js)
+   * STEP 1:   load the config data from ./config and merge in arguments and environment
+   *           variables (some of the loading steps are done in ../pellet.js)
    * STEP 2:   setup winston loader so future steps can log to files, db, etc.
    * STEP 3:   setup the instrumentation interface to use statsd and a winston logger.
-   * STEP 4:   cache all uncaught exception and send to a winston loader.
-   * STEP 5:   do house keeping like spawn StatsD server, turn on harmony mode,
+   * STEP 4:   cache all uncaught exceptions and send to a winston loader.
+   * STEP 5:   do housekeeping like spawn StatsD server, turn on harmony mode,
    *           resolve config paths, and clean up build files.
    * STEP 6:   build the manifest
    *           - save translation files for both client and server
@@ -97,9 +97,9 @@ module.exports = function(program, addToReadyQue) {
    *           global.__pellet__bootstrap
    * STEP 7.3: Load all the translations to we have all i18n support
    * STEP 8:   Start express
-   * STEP 8.1: Add http logging, favicon, static, pollyfill, etc. middleware
+   * STEP 8.1: Add http logging, favicon, static, polyfill, etc. middleware
    * STEP 8.2: Add the local instrument server that lets the client send data to our server.
-   * STEP 8.3: Add the pellet's applications middleware
+   * STEP 8.3: Add pellet's applications middleware
    * STEP 8.4: Add the 404 and 500 pages
    * STEP 8.5: Start the web server!
    *
@@ -156,9 +156,9 @@ module.exports = function(program, addToReadyQue) {
       });
     }
 
-    var mesureLaunch = instrument.elapseTimer(null, 'pellet_launch.');
+    var measureLaunch = instrument.elapseTimer(null, 'pellet_launch.');
 
-    // catch all uncaught exception and try to email them
+    // catch all uncaught exceptions and try to email them
     if (nconf.get('winston:containers:alert')) {
       var alertLogger = winston.loggers.add('alert', nconf.get('winston:containers:alert'));
       logException = function (err, subject) {
@@ -303,9 +303,9 @@ module.exports = function(program, addToReadyQue) {
      * @param isManifestFile flag if componentModule is a path to _MANIFEST.json or just the data
      */
     function startServer(componentModule, isManifestFile) {
-      var app, server, pellet, mesureServerLaunch;
+      var app, server, pellet, measureServerLaunch;
 
-      mesureServerLaunch = instrument.elapseTimer(null, 'server_launch.');
+      measureServerLaunch = instrument.elapseTimer(null, 'server_launch.');
 
       if (isManifestFile) {
         try {
@@ -326,7 +326,7 @@ module.exports = function(program, addToReadyQue) {
       var baseServerDir = path.resolve(options.output, componentModule.server.relativePath)
         , componentFile = path.join(baseServerDir, componentModule.server.component);
 
-      mesureServerLaunch.mark('load_manifest');
+      measureServerLaunch.mark('load_manifest');
 
       if (!fs.existsSync(componentFile)) {
         console.error('Cannot find build output. Please build and insure', componentModule, 'exists.');
@@ -349,7 +349,7 @@ module.exports = function(program, addToReadyQue) {
       appConfig._rthash = componentModule.browser.hash;
       appConfig._v = require('../../package.json').version;
 
-      if(nconf.get('pellet:insterumentation:memwatch')) {
+      if(nconf.get('pellet:instrumentation:memwatch')) {
         try {
           var memwatch = require('memwatch');
         } catch(ex) {
@@ -382,7 +382,7 @@ module.exports = function(program, addToReadyQue) {
         });
       }
 
-      var sampleInterval = nconf.get('pellet:insterumentation:interval');
+      var sampleInterval = nconf.get('pellet:instrumentation:interval');
       var lastRSS = 0, heapTotal = 0;
       if(sampleInterval) {
         setInterval(function() {
@@ -458,7 +458,7 @@ module.exports = function(program, addToReadyQue) {
         }
       }
 
-      mesureServerLaunch.mark('heap_snapshot');
+      measureServerLaunch.mark('heap_snapshot');
 
       try {
         console.verbose('Loading', componentFile, 'webpack into pellet server.');
@@ -471,7 +471,7 @@ module.exports = function(program, addToReadyQue) {
         process.exit(1);
       }
 
-      mesureServerLaunch.mark('load_isomorphic_code');
+      measureServerLaunch.mark('load_isomorphic_code');
 
       if (componentModule.server.translation) {
         var translationFile = path.join(baseServerDir, componentModule.server.translation);
@@ -486,7 +486,7 @@ module.exports = function(program, addToReadyQue) {
         }
       }
 
-      mesureServerLaunch.mark('load_translation');
+      measureServerLaunch.mark('load_translation');
 
       // setup the page caching layer and default the pipe to use it
       var pageCacheLayer = nconf.get('server:pageCacheLayer')
@@ -535,7 +535,7 @@ module.exports = function(program, addToReadyQue) {
         server = require('express');
         app = server();
 
-        mesureServerLaunch.mark('server_container');
+        measureServerLaunch.mark('server_container');
 
         if (nconf.get('server:accessLog')) {
           var loggingFormat, httpLogger;
@@ -581,7 +581,7 @@ module.exports = function(program, addToReadyQue) {
           }
         }
 
-        // setup express static assets including the facicon.ico (replace __DEFAULT_STATIC_DIR with pellet internal path)
+        // setup express static assets including the favicon.ico (replace __DEFAULT_STATIC_DIR with pellet internal path)
         app.use(require('serve-favicon')(resolveConfigPaths(nconf.get('server:favicon')), {maxAge: 2592000000}));
 
         if(nconf.get('pellet:runInstrumentationTrackServer') &&
@@ -657,7 +657,7 @@ module.exports = function(program, addToReadyQue) {
 
         });
 
-        mesureServerLaunch.mark('polyfill_db_ready');
+        measureServerLaunch.mark('polyfill_db_ready');
 
         // add the express cookie parser
         app.use(require('cookie-parser')());
@@ -720,12 +720,12 @@ module.exports = function(program, addToReadyQue) {
         }
       }
 
-      mesureServerLaunch.mark('middleware_loaded');
+      measureServerLaunch.mark('middleware_loaded');
 
       if(logException && nconf.get('server:alertOnLaunch')) {
         // send out an alert that we just launched the server so restart can be tracked
         logException('pellet server started on ' + new Date(), 'launch');
-        mesureServerLaunch.mark('sent_launch_alert');
+        measureServerLaunch.mark('sent_launch_alert');
       }
 
       if (nconf.get('spdy')) {
@@ -738,11 +738,11 @@ module.exports = function(program, addToReadyQue) {
           autoSpdy31: false
         };
 
-        mesureServerLaunch.mark('spdy');
+        measureServerLaunch.mark('spdy');
 
         pellet.startInit();
         pellet.onReady(function (err) {
-          mesureServerLaunch.mark('ready');
+          measureServerLaunch.mark('ready');
 
           if (err) {
             console.error('Error in initializing Pellet:', err.message);
@@ -750,7 +750,7 @@ module.exports = function(program, addToReadyQue) {
           }
 
           spdy.createServer(opt, app).listen(nconf.get('https:port'), function () {
-            mesureServerLaunch.mark('listening');
+            measureServerLaunch.mark('listening');
             if (!nconf.get('silent')) {
               console.log('Listen on', nconf.get('https:port'), nconf.get('https:address'));
             }
@@ -759,14 +759,14 @@ module.exports = function(program, addToReadyQue) {
       } else {
         pellet.startInit();
         pellet.onReady(function (err) {
-          mesureServerLaunch.mark('ready');
+          measureServerLaunch.mark('ready');
           if (err) {
             console.error('Error in initializing Pellet:', err.message);
             process.exit(1);
           }
 
           app.listen(nconf.get('http:port'), nconf.get('http:address'), nconf.get('http:max_syn_backlog'), function () {
-            mesureServerLaunch.mark('listening');
+            measureServerLaunch.mark('listening');
             if (!nconf.get('silent')) {
               console.log('Listen on', nconf.get('http:port'), nconf.get('http:address'));
             }
@@ -792,7 +792,7 @@ module.exports = function(program, addToReadyQue) {
 
     var componentModule = path.join(options.output, '_MANIFEST.json');
 
-    mesureLaunch.mark('config');
+    measureLaunch.mark('config');
 
     if (options.clean) {
       console.debug('Cleaning:', options.output);
@@ -812,7 +812,7 @@ module.exports = function(program, addToReadyQue) {
       });
     }
 
-    mesureLaunch.mark('clean');
+    measureLaunch.mark('clean');
 
     // For cluster(master) and standalone we need to build the manifest and load pellet
     // main entry point. For slave processed we DO NOT want to build the manifest
@@ -841,7 +841,7 @@ module.exports = function(program, addToReadyQue) {
         }
 
         ourManifest.buildWebpackConfig(manifestGlob, options, function (err, config) {
-          mesureLaunch.mark('build_webpack_config');
+          measureLaunch.mark('build_webpack_config');
 
           if (err) {
             console.error('Cannot build Webpack config because:', err.message);
@@ -867,7 +867,7 @@ module.exports = function(program, addToReadyQue) {
             fs.outputFileSync(path.join(options.outputServer, options.translationDetails.server), serverOutput.join('\n'));
           }
 
-          mesureLaunch.mark('build_translation');
+          measureLaunch.mark('build_translation');
 
           // cache to help clean up build files
           var lastManifestDetails = false
@@ -904,7 +904,7 @@ module.exports = function(program, addToReadyQue) {
                   return;
                 }
 
-                console.verbose('Build done with out errors');
+                console.verbose('Build done without errors');
                 process.exit(0);
               }
 
@@ -1013,7 +1013,7 @@ module.exports = function(program, addToReadyQue) {
            .replace(/[{\[":,]/g, ""));
            */
 
-          mesureLaunch.mark('custom_webpack_config');
+          measureLaunch.mark('custom_webpack_config');
 
           if(process.env.NODE_ENV !== 'production') {
             var bar = new progressBar('build [:bar] :percent', {
@@ -1136,7 +1136,7 @@ module.exports = function(program, addToReadyQue) {
     });
 
   // export our build function so other commands
-  // can use our logic with duplicating it.
+  // can use our logic without duplicating it.
   program.serverCommandFn = {
     buildRunPackage: buildRunPackage
   };
